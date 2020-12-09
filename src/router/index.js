@@ -10,7 +10,6 @@ import Layout from '@/layout'
 import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
-import gameRouter from './modules/games'
 import orderRouter from './modules/order'
 
 /**
@@ -172,7 +171,6 @@ export const asyncRoutes = [
   componentsRouter,
   chartsRouter,
   tableRouter,
-  ...gameRouter,
   ...orderRouter,
 
   {
