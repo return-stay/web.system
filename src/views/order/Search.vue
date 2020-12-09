@@ -7,7 +7,7 @@
 <script>
 import OrderTable from './OrderTable'
 export default {
-  name: 'Search',
+  name: 'OrderSearch',
   components: {OrderTable},
   data() {
     return {}

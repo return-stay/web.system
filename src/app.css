@@ -19,3 +19,7 @@ ul, li {
 .el-table th {
   background-color: #f8f8f8;
 }
+/* 搜索 form在一行显示 */
+.search-form-line {
+  display: flex;
+}
