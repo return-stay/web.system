@@ -1,17 +1,18 @@
 <template>
   <div class="cs-box">
     <div class="title">
-      <span class="title-text">查询</span>
+      <span class="title-text">游戏盘库存</span>
+      <span class="title-add" @click="add"><i class="el-icon-plus"></i>添加游戏盘</span>
     </div>
     <div class="search-box">
       <el-form ref="ruleForm" :model="ruleForm" label-width="100px">
         <div class="search-form-line">
-          <el-form-item label="搜索条件：" prop="region">
+          <el-form-item label="商品搜索：" prop="region">
             <div class="search-form-line">
               <el-select size="small" v-model="ruleForm.region" placeholder="请选择">
                 <el-option label="全部" value="0"></el-option>
               </el-select>
-              <el-form-item prop="name">
+              <el-form-item prop="name" style="margin-bottom: 0;">
                 <el-input size="small" style="width: 194px;margin-left: 10px;" v-model="ruleForm.name"></el-input>
               </el-form-item>
             </div>
@@ -28,13 +29,8 @@
               <el-option label="全部" value="0"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="游戏类型：">
+          <el-form-item label="货架号：">
             <el-select size="small" v-model="ruleForm.region" placeholder="请选择游戏类型">
-              <el-option label="全部" value="0"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="所属系列：">
-            <el-select size="small" v-model="ruleForm.region" placeholder="请选择所属系列">
               <el-option label="全部" value="0"></el-option>
             </el-select>
           </el-form-item>
@@ -50,31 +46,7 @@
               <el-option label="全部" value="0"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="内容分类：">
-            <el-select size="small" v-model="ruleForm.region" placeholder="请选择内容分类">
-              <el-option label="全部" value="0"></el-option>
-            </el-select>
-          </el-form-item>
         </div>
-        <div class="search-form-line">
-          <el-form-item label="奖杯完成度：">
-            <el-select size="small" v-model="ruleForm.region" placeholder="请选择奖杯完成度">
-              <el-option label="全部" value="0"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="开发公司：">
-            <el-select size="small" v-model="ruleForm.region" placeholder="请选择开发公司">
-              <el-option label="全部" value="0"></el-option>
-            </el-select>
-          </el-form-item>
-        </div>
-        <el-form-item label="付费时间：">
-          <div class="search-form-line">
-            <el-date-picker size="small" type="date" placeholder="选择时间" v-model="ruleForm.date1" style="width: 194px;" />
-            <span style="margin: 0 8px;">至</span>
-            <el-date-picker size="small" type="date" placeholder="选择时间" v-model="ruleForm.date2" style="width: 194px;" />
-          </div>
-        </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="onSubmit('ruleForm')">筛选</el-button>
           <el-button type="text" @click="resetForm('ruleForm')">清空筛选</el-button>
@@ -87,7 +59,7 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @operation="operation" />
+      <game-table :border="false" :columns="columns" :tableData="tableData" @edit="edit" />
     </div>
   </div>
 </template>
@@ -96,7 +68,7 @@
 import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
 export default {
-  name: 'GameSearch',
+  name: 'GameInventory',
   components: { GameTable, Tabs },
   data() {
     return {
@@ -113,7 +85,7 @@ export default {
       ],
       columns: [
         {
-          title: '奖杯编号',
+          title: '盘编号',
           key: 'name',
           label: 'name',
           width: 100,
@@ -125,67 +97,45 @@ export default {
           width: 240,
         },
          {
-          title: '奖杯完成度',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '类型/系列',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '开发公司',
-          key: 'age',
-          label: 'age',
-          width: 140,
-        },
-        {
-          title: '押金',
+          title: '货架号',
           key: 'age',
           label: 'age',
           width: 100,
         },
         {
-          title: '日租金',
+          title: '奖杯编号',
           key: 'age',
           label: 'age',
-          width: 240,
-          sort: true,
+          width: 100,
         },
         {
-          title: '库存',
+          title: '成本价',
           key: 'age',
           label: 'age',
-          width: 240,
+          width: 100,
         },
         {
-          title: '创建项目',
+          title: '备注',
           key: 'age',
           label: 'age',
-          width: 240,
+          width: 260,
+        },
+        {
+          title: '添加时间',
+          key: 'age',
+          label: 'age',
+          width: 200,
           sort: true,
         },
         {
           title: '操作',
           key: 'lll',
           fixed: 'right',
-          align: 'center',
-          width: 210,
+          width: 120,
           render: [
             {
-              fnName: 'operation',
-              title: '调价'
-            },
-            {
-              fnName: 'operation',
-              title: '库存'
-            },
-            {
-              fnName: 'operation',
-              title: '详情'
+              fnName: 'edit',
+              title: '编辑'
             },
             {
               fnName: 'operation',
@@ -198,9 +148,6 @@ export default {
     }
   },
   mounted() {
-    // this.$store.dispatch('order/getRentstoreStatsTest').then(res=> {
-    //   console.log(res)
-    // })
     let data = []
     for(let i = 0;i<5;i++) {
       data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
@@ -225,9 +172,15 @@ export default {
       this.$refs[formName].resetFields();
     },
     tabsChange() {},
-    operation(row) {
+    add() {
       this.$router.push({
-        path: '/clients/detail/' + row.id
+        path: '/game/inventory/add'
+      })
+    },
+    edit(row) {
+      this.$router.push({
+        path: '/game/inventory/add',
+        query: {id: row.id}
       })
     },
   }
@@ -245,6 +198,10 @@ export default {
     justify-content: space-between;
     height: 44px;
     padding: 0 20px;
+    &-add {
+      cursor: pointer;
+      font-size: 14px;
+    }
   }
   .search-box {
     background-color: #F8F8F8;

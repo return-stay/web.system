@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 // import otherRequest from '@/utils/otherRequest'
-import {order} from '@/api/api'
+import {order, RentstoreStatsTest} from '@/api/api'
 const state = {
   
 }
@@ -13,6 +13,14 @@ const actions = {
   getHomeData({commit}, data) {
     return request({
       url: order,
+      method: 'get',
+      params: data,
+    })
+  },
+
+  getRentstoreStatsTest({commit}, data) {
+    return request({
+      url: RentstoreStatsTest,
       method: 'get',
       params: data,
     })

@@ -16,6 +16,18 @@ ul, li {
   margin: 16px;
 }
 
+.view-box {
+  padding: 16px;
+  background-color: #fff;
+  min-height: 100%;
+}
+
+.view-box .view-box-title {
+  height: 40px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
 .el-table th {
   background-color: #f8f8f8;
 }

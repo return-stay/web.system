@@ -44,7 +44,7 @@ const orderRouter = [
   {
     path: '/clients',
     component: Layout,
-    redirect: 'search',
+    redirect: '/clients/search',
     hidden: false,
     meta: { title: '客户', icon: 'user' },
     children: [

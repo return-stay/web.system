@@ -12,6 +12,7 @@ import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
 import gameRouter from './modules/game'
 import orderRouter from './modules/order'
+import operationRouter from './modules/operation'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -174,6 +175,7 @@ export const asyncRoutes = [
   tableRouter,
   ...orderRouter,
   ...gameRouter,
+  ...operationRouter,
 
   {
     path: '/example',
