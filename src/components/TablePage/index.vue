@@ -5,7 +5,7 @@
       v-loading="loading"
       @sort-change="sortTableChange"
       :border="border"
-      :data="computedData"
+      :data="tableData"
       :style="tableStyle"
       :size="size"
     >
@@ -54,7 +54,7 @@
         :current-page="paginationData.currentPage"
         :page-sizes="paginationData.pageSizes"
         :page-size="paginationData.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="paginationData.total">
       </el-pagination>
     </div>
@@ -63,9 +63,15 @@
 </template>
 
 <script>
+import { getAjax, postAjax } from '@/utils/ajax'
+import {removeEmptyField} from '@/utils'
 export default {
   name: 'TablePage',
   props: {
+    urls: {
+      type: Object,
+      default: () => {},
+    },
     title: {
       type: String,
     },
@@ -96,10 +102,6 @@ export default {
       type: Array,
       default: () => []
     },
-    tableData: {
-      type: Array,
-      default: () => []
-    },
     pagination: {
       type: Object,
       default: () => {}
@@ -110,52 +112,78 @@ export default {
       paginationStyle: 'flex-end',
       paginationData: {},
       tableShowList: [],//显示的列表数据
+      tableData: [],
+      searchobj: [],
     }
   },
 
-  computed: {
-    computedData() {
-      const DisposeData = this.dataDispose()
-      this.initPagination()
-      return DisposeData
-    }
-  },
 
   mounted() {
+    this.getList()
     this.paginationStyleFun()
-    this.dataDispose()
   },
   
   methods: {
+    // 处理请求参数
+    paramsManage() {
+      const {currentPage = 1} = this.$route.query
+      const searchobj = removeEmptyField(this.searchobj)
+      let obj = {
+        page: Number(currentPage),
+        ...searchobj,
+      }
+
+      console.log(obj)
+      return obj
+    },
+    search(searchobj) {
+      const query = this.$route.query
+      this.$router.push({
+        query: {...query, currentPage: 1}
+      })
+      this.searchobj = searchobj
+      this.getList()
+    },
+    getList () {
+      const urls = this.urls
+      const method = urls.listMethod || 'post' 
+      let requestAajx = null;
+
+      const params = this.paramsManage()
+      if(method === 'get'){
+        requestAajx = getAjax({
+          url: urls.list,
+          params: params,
+        })
+      }else {
+        requestAajx = postAjax({
+          url: urls.list,
+          data: params,
+        })
+      }
+      requestAajx.then(res=> {
+        if(res.code === 1) {
+          this.totalPage = res.data.total
+          this.tableData = res.data.list || res.data;
+          this.initPagination()
+        }else {
+          this.tableData = []
+        }
+      })
+    },
     // 点击某行处理
     rowClick(row, column, event) {
       console.log(row, column, event)
       this.$emit('row-click', row, column, event)
     },
-    // 数据源处理
-    dataDispose() {
-      let tableShowList = []
-      const isPagination = this.isPagination
-      const tableData = this.tableData
-      if(isPagination) {
-        const {currentPage = 1, pageSize = 10} = this.$route.query
-        const start = (currentPage - 1) * pageSize
-        const end = currentPage * pageSize
-        tableShowList = tableData.slice(start, end)
-      }else {
-        tableShowList =tableData
-      }
-      return tableShowList
-    },
     // 初始化分页器
     initPagination () {
       const pagination = this.pagination
-      const tableData = this.tableData
-      const {currentPage = 1, pageSize = 10} = this.$route.query
+      const totalPage = this.totalPage
+      const {currentPage = 1, pageSize = 15} = this.$route.query
       this.paginationData = {
-        pageSizeS: [10, 20, 50, 100, 200],
         pageSize: Number(pageSize),
-        total: tableData.length,
+        total: totalPage,
         currentPage: Number(currentPage),
         handleSizeChange: this.handleSizeChange,
         handleCurrentChange: this.handleCurrentChange,
@@ -186,7 +214,7 @@ export default {
         this.$router.push({
           query: {...query, pageSize: val}
         })
-        this.dataDispose()
+        this.getList()
       }
     },
     // 当前第几页
@@ -197,7 +225,7 @@ export default {
         this.$router.push({
           query: {...query, currentPage: val}
         })
-        this.dataDispose()
+        this.getList()
       }
     },
     handleBtnClick(row,fnName) {

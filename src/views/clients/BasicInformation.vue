@@ -6,7 +6,7 @@
       <div class="bi-form-box clearfix">
         <el-col :span="16">
           <el-form-item label="客户编号：">
-            <el-input size="small" v-model="form.name" :disabled="true">
+            <el-input size="small" v-model="userInfo.id" :disabled="true">
               <i
                 style="color: #838383;"
                 class="el-icon-lock el-input__icon"
@@ -15,7 +15,7 @@
             </el-input>
           </el-form-item>
           <el-form-item label="微信昵称：">
-            <el-input size="small" v-model="form.name" :disabled="true"></el-input>
+            <el-input size="small" v-model="userInfo.nickname" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="微信头像：">
             <div class="wechart-photo">
@@ -29,7 +29,7 @@
             <el-input size="small" v-model="form.name" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="注册时间：">
-            <el-input size="small" v-model="form.name" :disabled="true"></el-input>
+            <el-input size="small" v-model="userInfo.create_time" :disabled="true"></el-input>
           </el-form-item>
         </el-col>
         
@@ -124,6 +124,12 @@ import ImageLarger from '@/components/ImageLarger'
 export default {
   name: 'BasicInformation',
   components: {ImageLarger},
+  props: {
+    userInfo: {
+      type: Object,
+      default: () => {}
+    }
+  },
   data() {
     return {
       form: {

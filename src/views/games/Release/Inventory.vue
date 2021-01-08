@@ -1,7 +1,7 @@
 <template>
   <div class="gi-box">
     <el-form :model="form" status-icon :rules="rules" ref="form" label-width="120px">
-      <div class="gr-title">{{title}}</div>
+      <div class="gr-title" v-if="title">{{title}}</div>
 
       <div class="gd-cont">
         <el-form-item label="选择游戏：" prop="pass">
@@ -53,9 +53,13 @@
           <el-button type="primary" @click="next">下一步</el-button>
         </template>
 
-        <template v-elif="btns.issave">
+        <template v-if="btns.issave">
           <el-button type="primary" @click="submitCallback">保存并继续添加</el-button>
           <el-button @click="cancel">取消</el-button>
+        </template>
+
+        <template v-if="btns.isconfirm">
+          <el-button type="primary" @click="submitCallback">确定增加库存</el-button>
         </template>
 
         

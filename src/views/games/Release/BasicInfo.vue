@@ -118,7 +118,7 @@
         </el-form-item>
 
         <el-form-item label="游戏截图：" prop="type">
-          <upload-image-one />
+          <upload-image-order />
         </el-form-item>
       </div>
 
@@ -131,10 +131,10 @@
 </template>
 
 <script>
-import UploadImageOne from '@/components/Upload/UploadImageOne'
+import UploadImageOrder from '@/components/Upload/UploadImageOrder'
 export default {
   name: 'BasicInfo',
-  components: {UploadImageOne},
+  components: {UploadImageOrder},
   data() {
     return {
       dialogImageUrl: '',

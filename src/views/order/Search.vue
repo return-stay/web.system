@@ -1,6 +1,6 @@
 <template>
   <div class="os-box">
-    <order-table :tabAction="0" :searchConditionShow="true" :searchIconShow="false" title="查询订单" />
+    <order-table :searchConditionShow="true" :searchIconShow="false" title="查询订单" />
   </div>
 </template>
 
@@ -12,12 +12,8 @@ export default {
   data() {
     return {}
   },
-  mounted() {
-    
-  },
-  methods: {
-    
-  }
+  mounted() { },
+  methods: {}
 }
 </script>
 

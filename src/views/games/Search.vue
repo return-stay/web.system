@@ -87,7 +87,26 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @operation="operation" />
+      <game-table :border="false" :tableData="tableData" @operation="operation">
+        <el-table
+          :data="tableData"
+          style="width: 100%">
+          <el-table-column
+            prop="date"
+            label="日期"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            label="姓名"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            label="地址">
+          </el-table-column>
+        </el-table>
+      </game-table>
     </div>
   </div>
 </template>
@@ -95,11 +114,15 @@
 <script>
 import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
+import {UserTradeLst} from '@/api/api'
+import tableMixins from '@/mixins/tableMixins'
 export default {
   name: 'GameSearch',
   components: { GameTable, Tabs },
+  mixins: [tableMixins],
   data() {
     return {
+      urls: {list:UserTradeLst },
       ruleForm: {
         name: '',
         date1: '',
@@ -111,103 +134,13 @@ export default {
         { key: 1, label: '库存中', value: '库存中' },
         { key: 2, label: '无库存', value: '无库存' },
       ],
-      columns: [
-        {
-          title: '奖杯编号',
-          key: 'name',
-          label: 'name',
-          width: 100,
-        },
-        {
-          title: '游戏',
-          key: 'game',
-          label: 'game',
-          width: 240,
-        },
-         {
-          title: '奖杯完成度',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '类型/系列',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '开发公司',
-          key: 'age',
-          label: 'age',
-          width: 140,
-        },
-        {
-          title: '押金',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '日租金',
-          key: 'age',
-          label: 'age',
-          width: 240,
-          sort: true,
-        },
-        {
-          title: '库存',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '创建项目',
-          key: 'age',
-          label: 'age',
-          width: 240,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          align: 'center',
-          width: 210,
-          render: [
-            {
-              fnName: 'operation',
-              title: '调价'
-            },
-            {
-              fnName: 'operation',
-              title: '库存'
-            },
-            {
-              fnName: 'operation',
-              title: '详情'
-            },
-            {
-              fnName: 'operation',
-              title: '下架'
-            },
-          ]
-        }
-      ],
-      tableData: []
     }
   },
   mounted() {
     // this.$store.dispatch('order/getRentstoreStatsTest').then(res=> {
     //   console.log(res)
     // })
-    let data = []
-    for(let i = 0;i<5;i++) {
-      data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
+    
   },
   methods: {
     onSubmit(formName) {
@@ -227,7 +160,7 @@ export default {
     tabsChange() {},
     operation(row) {
       this.$router.push({
-        path: '/clients/detail/' + row.id
+        path: '/game/detail/' + row.id
       })
     },
   }

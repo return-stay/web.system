@@ -1,7 +1,7 @@
 <template>
   <div class="il-box">
     <img class="img-larger" :src="src" :alt="alt" @click="largerImg">
-    <div class="img-larger-box" v-if="largerShow">
+    <div class="img-larger-box" v-if="largerShow" @click="largerHide">
       <img class="img-larger-image" src="" alt="">
     </div>
   </div>
@@ -30,6 +30,9 @@ export default {
     }
   },
   methods: {
+    largerHide() {
+      this.largerShow = false
+    },
     largerImg() {
       this.largerShow = true
     },
@@ -50,6 +53,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: 100;
     background-color: rgba(0,0,0,.45);
     display: flex;
     align-items: center;

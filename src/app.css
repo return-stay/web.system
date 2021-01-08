@@ -35,3 +35,8 @@ ul, li {
 .search-form-line {
   display: flex;
 }
+
+.text-cursor {
+  cursor: pointer;
+  color: #1890ff;
+}

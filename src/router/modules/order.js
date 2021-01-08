@@ -2,6 +2,21 @@ import Layout from '@/layout'
 
 const orderRouter = [
   {
+    path: '/survey',
+    component: Layout,
+    redirect: '/survey/index',
+    hidden: false,
+    meta: { title: '概况', icon: 'order-list' },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/Survey'),
+        name: 'Survey',
+        meta: { title: '概况', noCache: true, icon: 'survey' },
+      },
+    ]
+  },
+  {
     path: '/order',
     component: Layout,
     redirect: '/order/search',

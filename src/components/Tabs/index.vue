@@ -21,14 +21,19 @@ export default {
       default: 0,
     }
   },
+  computed: {
+    actionKey() {
+      return this.action
+    }
+  },
   data() {
     return {
-      actionKey: this.action
+      dataAction: 0,
     }
   },
   methods: {
     tabclick(item) {
-      this.actionKey = item.key
+      // this.dataAction = item.key
       this.$emit('change', {...item})
     }
   }
@@ -40,8 +45,11 @@ export default {
   display: flex;
   align-items: center;
   border-bottom: 2px solid #F8F8F8;
+  overflow-x: auto;
   .tabs-item {
-    width: 140px;
+    // width: 140px;
+    flex-shrink: 0;
+    padding: 0 20px;
     text-align: center;
     font-size: 14px;
     color: #2C2C2C;

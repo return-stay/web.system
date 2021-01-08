@@ -48,11 +48,11 @@
 
 
 <script>
-import UploadImageOne from '@/components/Upload/UploadImageOne'
+import UploadImageOrder from '@/components/Upload/UploadImageOrder'
 import ImageLarger from '@/components/ImageLarger'
 export default {
   name: 'AddChannel',
-  components: {UploadImageOne, ImageLarger},
+  components: {UploadImageOrder, ImageLarger},
   data() {
     return {
       form: {

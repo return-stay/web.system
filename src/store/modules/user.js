@@ -31,29 +31,37 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    // const { username, password } = userInfo
+    const { username, password } = userInfo
     return new Promise((resolve) => {
-      // commit('SET_TOKEN', 'admin-token')
-      // setToken('admin-token')
-      // resolve()
-      // login({ username: username.trim(), password: password, remember: true }).then(response => {
-      //   console.log(response)
-      //   if (response.code === 1) {
-      //     // const { data } = response
-      //     // commit('SET_TOKEN', data.token)
-      //     // setToken(data.token)
-      //     commit('SET_TOKEN', 'admin-token')
-      //     setToken('admin-token')
-      //     resolve()
-      //   }
-      // }).catch(error => {
-      //   reject(error)
-      // })
-      setTimeout(() => {
+      console.log(username, password)
+      login({ username: username.trim(), password: password, remember: true }).then(response => {
+        console.log(response)
+        // if (response.code === 1) {
+        //   // const { data } = response
+        //   // commit('SET_TOKEN', data.token)
+        //   // setToken(data.token)
+        //   commit('SET_TOKEN', 'admin-token')
+        //   setToken('admin-token')
+        //   resolve()
+        // } else {
+        //   resolve()
+        // }
         commit('SET_TOKEN', 'admin-token')
         setToken('admin-token')
         resolve()
-      }, 100);
+      }).catch(error => {
+        console.log(error)
+        commit('SET_TOKEN', 'admin-token')
+        setToken('admin-token')
+        resolve()
+      })
+      // setTimeout(() => {
+      //   commit('SET_TOKEN', 'admin-token')
+      //   setToken('admin-token')
+      //   resolve()
+      // }, 100);
+    }).catch((e) => {
+      console.log('error' + e)
     })
   },
 

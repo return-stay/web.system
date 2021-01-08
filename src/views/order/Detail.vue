@@ -1,24 +1,33 @@
 <template>
   <div class="od-box">
-    <div class="title">
-      <span>订单号：1066666666</span>
+    <div class="title" v-if="shipmentsType === 1">
+      <span>订单号：{{orderInfo.transaction_id}}</span>
+      <span>发货准备</span>
+    </div>
+    <div class="title" v-else>
+      <span>订单号：{{orderInfo.transaction_id}}</span>
       <span> / </span>
-      <span>下单时间：2020-09-12 12:09:10</span>
+      <span>下单时间：{{createTime}}</span>
     </div>
 
-    <div class="od-status">
+    <div class="od-status" v-if="shipmentsType === 0">
       <div class="od-status-left">
-        <div class="od-status-title">待支付</div>
-        <div class="od-status-text">该客户还未支付，请耐心等待支付完成。</div>
+        <div class="od-status-title">{{orderInfo.status_name}}</div>
+        <!-- <div class="od-status-text">该客户还未支付，请耐心等待支付完成。</div> -->
         <div class="od-status-btns">
-          <el-button type="primary">关闭订单</el-button>
+          <template>
+            <el-button type="primary" @click="allShipments">全部发货</el-button>
+            <span class="od-btn" @click="closeOrder">关闭并退款</span>
+          </template>
+          
+          <!-- <el-button type="primary">关闭订单</el-button> -->
         </div>
       </div>
       <div class="od-status-steps">
         <div style="width: 100%;">
-          <el-steps :active="1" align-center finish-status="finish">
-            <el-step title="客户下单" description="2020-07-20 15:35:59" icon="el-icon-success"></el-step>
-            <el-step title="客户支付" description="" icon="el-icon-success"></el-step>
+          <el-steps :active="orderType" align-center finish-status="finish">
+            <el-step title="客户下单" :description="createTime" icon="el-icon-success"></el-step>
+            <el-step title="客户支付" :description="payTime" icon="el-icon-success"></el-step>
             <el-step title="仓库发货" description="" icon="el-icon-success"></el-step>
             <el-step title="客户收货" description="" icon="el-icon-success"></el-step>
           </el-steps>
@@ -31,121 +40,65 @@
         <el-col :span="6">
           <div>
             <h3>收货信息</h3>
-            <p>收货人：另一个人</p>
-            <p>联系电话：134102348679</p>
-            <p>地址：北京市朝阳区农展南路11号瑞辰国际中心907</p>
+            <p>收货人：{{orderInfo.username}}</p>
+            <p>联系电话：{{orderInfo.mobile}}</p>
+            <p>地址：{{orderInfo.province}}{{orderInfo.city}}{{orderInfo.county}}{{orderInfo.address}}</p>
           </div>
         </el-col>
         <el-col :span="6">
           <div>
             <h3>配送信息</h3>
-            <p>配送方式：韵达快递</p>
-            <p>配送时间：工作日、节假日均可</p>
+            <p>配送方式：{{orderInfo.delivery_company_name}}</p>
+            <p>配送时间：{{orderInfo.delivery_time_description}}</p>
           </div>
         </el-col>
         <el-col :span="6">
           <div>
             <h3>支付信息</h3>
-            <p>支付金额：300.00 元</p>
+            <p>支付金额：{{feeStr}} 元</p>
           </div>
         </el-col>
         <el-col :span="6">
           <div>
             <h3>客户信息</h3>
-            <p>微信昵称：金师傅</p>
-            <p>备注：请挑一张港版机器可以玩的，最好是美版英文</p>
+            <p>微信昵称：-</p>
+            <p>备注：{{orderInfo.memo || '-'}}</p>
           </div>
         </el-col>
       </el-row>
     </div>
 
     <div class="od-game-info">
-      <div class="od-game-item">
-        <div class="od-game-item-title">
-          <span class="od-game-item-title-t">游戏1</span>
-          <span class="od-game-item-title-n">运单号：-</span>
-        </div>
-        <div class="od-game-item-cont">
-          <div class="od-game-item-cont-left">
-            <img src="" alt="">
-          </div>
-          <div class="od-game-item-cont-middle">
-            <div class="od-game-item-cont-middle-up">
-              <div class="od-game-item-cont-middle-up-game">
-                <p>PS4 血污 夜之仪式</p>
-                <p>美版 中文</p>
-              </div>
-              <div class="od-game-item-cont-middle-up-loca">
-                <p>盘编号：-</p>
-                <p>货架号：-</p>
-              </div>
-            </div>
-            <el-divider></el-divider>
-            <div class="od-game-item-cont-middle-un">
-              <h5>上传该游戏发货照片（盒、盘面的正反各1张）</h5>
-              <div class="od-game-item-cont-middle-un-imgs">
-                  <UploadImageOne />
-                  <UploadImageOne />
-                  <UploadImageOne />
-                  <UploadImageOne />
-              </div>
-            </div>
-          </div>
-          <div class="od-game-item-cont-right">
-            <div class="od-game-item-cont-right-up">
-              <span>选择游戏盘：</span>
-              <el-select v-model="value" placeholder="请选择">
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-              </el-select>
-            </div>
-            <el-divider></el-divider>
-            <div class="od-game-item-cont-right-un">
-              <div>
-                <span>快递公司：</span>
-                <el-select v-model="value" placeholder="请选择">
-                  <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                  </el-option>
-                </el-select>
-              </div>
-              <div class="od-game-item-cont-right-un-num">
-                <span>运单号：</span>
-                <div style="margin-left: 4px;">
-                  <el-input v-model="input" placeholder="请输入内容"></el-input>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="od-btns">
-      <el-button type="primary">主要按钮</el-button>
-      <span class="od-btn od-save-btn">保存并返回</span>
+      <detail-game-list v-if="shipmentsType === 0" @separateDelivery="separateDelivery" @update="update" />
+      <shipments-game-list v-if="shipmentsType !== 0" :transactionId="transactionId" @saveAndReturn="saveAndReturn" @update="update" />
     </div>
   </div>
 </template>
 
 <script>
-import UploadImageOne from '@/components/Upload/UploadImageOne'
+
+import { TradeInfoDat, TradeCloseSet } from '@/api/api'
+import { postAjax } from '@/utils/ajax'
+import moment from 'moment'
+import DetailGameList from './DetailGameList'
+import ShipmentsGameList from './ShipmentsGameList'
 export default {
   name: 'OrderDetail',
-  components: {UploadImageOne},
+  components: { DetailGameList, ShipmentsGameList },
   props: {},
   data() {
     return {
       dialogVisible: false,
       dialogImageUrl: '',
-      input: '',
+      transactionId: '',
+      orderType: 0, //订单状态
+      shipmentsType: 0, //发货的状态  1, 发货
+      expressNo: '', //快递单号
+      createTime: '',
+      payTime: '',
+      orderInfo: {},
+      gameInfo: [],
+      feeStr: '',
       options: [{
         value: 'shunfeng',
         label: '顺丰'
@@ -159,9 +112,88 @@ export default {
         value: 'youzheng',
         label: '邮政速运'
       }],
-      value: '',
     }
-  }
+  },
+  mounted() {
+    this.getDetail()
+  },
+  methods: {
+    update() {
+      // this.getDetail()
+    },
+    separateDelivery(e) {
+      console.log(e)
+      this.shipmentsType = 1
+    },
+    // 全部发货
+    allShipments() {
+      this.shipmentsType = 2
+    },
+    // 关闭订单
+    closeOrder() {
+      this.$confirm('确定关闭该订单吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const { id } = this.$route.params
+        postAjax({
+          url: TradeCloseSet,
+          data: {
+            id: id
+          }
+        }).then(res=> {
+          if(res.code === 1) {
+            this.$message({
+              type: 'success',
+              message: '订单关闭'
+            })
+            this.getDetail()
+          }
+        })
+      })
+    },
+    // 保存并返回
+    saveAndReturn() {
+      this.shipmentsType = 0
+    },
+    getDetail() {
+      const { id } = this.$route.params
+      postAjax({
+        url: TradeInfoDat,
+        data: {
+          id: id
+        }
+      }).then(res=> {
+        if(res.code === 1) {
+          const resdata = res.data
+          this.orderInfo = res.data
+          this.transactionId = resdata.transaction_id
+          this.expressNo = resdata.express_no
+          this.feeStr = (resdata.fee/100).toFixed(2)
+          this.createTime = moment(resdata.create_time).format('YYYY-MM-DD HH:mm:ss')
+          this.payTime = moment(resdata.payTime).format('YYYY-MM-DD HH:mm:ss')
+          this.judgmentOrderType(resdata.status)
+        }
+      })
+    },
+    // 判断订单的状态
+    judgmentOrderType(status) {
+      let orderType = 0
+      if(status>0 && status<= 20) {
+        orderType = 1
+      }else if(status > 20 && status<31 ) {
+        orderType = 2
+      }else if(status > 40 && status <60) {
+        orderType = 3
+      }else if(status > 59 && status < 70) {
+        orderType = 4
+      }
+
+
+      this.orderType = orderType
+    },
+  },
 }
 </script>
 
@@ -184,7 +216,7 @@ export default {
     padding: 3px;
     display: flex;
     .od-status-left {
-      width: 350px;
+      // width: 350px;
       height: 200px;
       background-color: #fff;
       margin-right: 3px;
@@ -224,107 +256,13 @@ export default {
   }
   .od-game-info {
     margin-top: 20px;
-    .od-game-item {
-      margin-bottom: 20px;
-      &-title {
-        height: 38px;
-        &-t {
-          font-size: 14px;
-          color: #000;
-          background-color:#F8F8F8;
-          width: 140px;
-          text-align: center;
-        }
-        &-n {
-          font-size: 12px;
-          color: #2C2C2C;
-          min-width: 160px;
-          margin-left: 80px;
-        }
-        >span {
-          display: inline-block;
-          height: 38px;
-          line-height: 38px;
-        }
-      }
-      &-cont {
-        border: 3px solid #F8F8F8;
-        display: flex;
-        padding: 20px 40px;
-        &-left {
-          width: 100px;
-          height: 100px;
-          flex-shrink: 0;
-          margin-right: 30px;
-          background-color: red;
-          >img {
-            width: 100%;
-          }
-        }
-        &-middle, &-right {
-          flex: 1;
-        }
-        &-middle {
-          margin-right: 100px;
-          &-up {
-            height: 80px;
-            padding: 15px 0;
-            color: #000;
-            font-size: 14px;
-            line-height: 24px;
-            display: flex;
-            &-game {
-              margin-right: 80px;
-            }
-          }
-          &-un {
-            &-imgs {
-              margin-top: 20px;
-              min-height: 80px;
-            }
-          }
-        }
-        &-right {
-          &-up {
-            font-size: 16px;
-            height: 80px;
-            padding: 15px 0;
-          }
-          &-up, &-un {
-            >span{
-              display: inline-block;
-              width: 150px;
-              text-align: right;
-            }
-            >div {
-              >span{
-                display: inline-block;
-                width: 150px;
-                text-align: right;
-              }
-            }
-          }
-          &-un {
-            &-num {
-              margin-top: 10px;
-              display: flex;
-              align-items: center;
-            }
-          }
-        }
-      }
-    }
   }
-  .od-btns {
-    text-align: right;
-    padding-right: 120px;
-    .od-btn {
-      display: inline-block;
-      margin-left: 36px;
-      font-size: 14px;
-      color: #4C87F9;
-      cursor: pointer;
-    }
+
+  .od-btn {
+    margin-left: 8px;
+    font-size: 14px;
+    color: #4C87F9;
+    cursor: pointer;
   }
 }
 </style>

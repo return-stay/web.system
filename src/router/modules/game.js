@@ -15,6 +15,13 @@ const gameRouter = [
         meta: { title: '查询', noCache: true, icon: 'circle' },
       },
       {
+        path: 'detail/:id',
+        component: () => import('@/views/games/GameDetail'),
+        name: 'GameDetail',
+        hidden: true,
+        meta: { title: '游戏详情', noCache: true, icon: 'circle' },
+      },
+      {
         path: 'release',
         component: () => import('@/views/games/Release'),
         name: 'GameRelease',
@@ -37,6 +44,13 @@ const gameRouter = [
         path: 'pricing/manage',
         component: () => import('@/views/games/PricingManage'),
         name: 'PricingManage',
+        meta: { title: '定价调整', noCache: true, icon: 'circle' }
+      },
+      {
+        path: 'pricing/adjustment',
+        component: () => import('@/views/games/PricingManage/PricingAdjustment'),
+        name: 'PricingAdjustment',
+        hidden: true,
         meta: { title: '定价调整', noCache: true, icon: 'circle' }
       },
       {

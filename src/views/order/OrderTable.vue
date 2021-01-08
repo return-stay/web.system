@@ -6,53 +6,63 @@
     </div>
     <div v-if="searchConditionShow" class="search-box">
       <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-width="100px">
-        <el-form-item label="订单搜索：">
-          <el-input v-model="ruleForm.name"></el-input>
+        <el-form-item label="订单搜索：" prop="tid">
+          <el-col :span="7">
+            <el-input v-model="ruleForm.tid" placeholder="请输入订单号搜索"></el-input>
+          </el-col>
         </el-form-item>
         <el-form-item label="下单时间：">
-          <el-col :span="7">
-            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
+          <el-col :span="5">
+            <el-form-item prop="cstime">
+              <el-date-picker type="date" placeholder="开始日期" v-model="ruleForm.cstime" style="width: 100%;"></el-date-picker>
+            </el-form-item>
           </el-col>
           <el-col class="line" :span="1">至</el-col>
-          <el-col :span="7">
-            <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-date-picker>
+          <el-col :span="5">
+            <el-form-item prop="cetime">
+              <el-date-picker type="date" placeholder="结束时间" v-model="ruleForm.cetime" style="width: 100%;"></el-date-picker>
+            </el-form-item>
           </el-col>
         </el-form-item>
         <el-form-item label="支付时间：">
-          <el-col :span="7">
-            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
+          <el-col :span="5">
+            <el-form-item prop="pstime">
+              <el-date-picker type="date" placeholder="开始日期" v-model="ruleForm.pstime" style="width: 100%;"></el-date-picker>
+            </el-form-item>
           </el-col>
           <el-col class="line" :span="1">至</el-col>
-          <el-col :span="7">
-            <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-date-picker>
+          <el-col :span="5">
+            <el-form-item prop="petime">
+              <el-date-picker type="date" placeholder="结束时间" v-model="ruleForm.petime" style="width: 100%;"></el-date-picker>
+            </el-form-item>
           </el-col>
         </el-form-item>
         <el-row>
           <el-col :span="6">
-            <el-form-item label="订单状态：">
-              <el-select v-model="ruleForm.region" placeholder="请选择订单状态">
-                <el-option label="全部" value="0"></el-option>
+            <el-form-item label="订单状态：" prop="st">
+              <el-select style="width: 100%;" v-model="ruleForm.st" placeholder="请选择订单状态">
+                <el-option v-for="item in tabslist" :key="item.key" :label="item.label" :value="item.key"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="配送方式：">
-              <el-select v-model="ruleForm.region" placeholder="请选择配送方式">
-                <el-option label="全部" value="0"></el-option>
+            <el-form-item label="配送方式：" prop="dcid">
+              <el-select style="width: 100%;" v-model="ruleForm.dcid" placeholder="请选择配送方式">
+                <el-option v-for="item in companyLst" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="渠道：">
-              <el-select v-model="ruleForm.region" placeholder="请选择渠道">
-                <el-option label="全部" value="0"></el-option>
+            <el-form-item label="渠道：" prop="ch">
+              <el-select style="width: 100%;" v-model="ruleForm.ch" placeholder="请选择渠道">
+                <el-option v-for="item in channelList" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
         </el-row>
         <el-form-item label="">
-          <el-button type="primary" @click="onSubmit('ruleForm')">筛选</el-button>
-          <el-button>清空筛选</el-button>
+          <el-button type="primary" @click="onSearchSubmit('ruleForm')">筛选</el-button>
+          <el-button @click="resetSearchForm('ruleForm')" >清空筛选</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -62,32 +72,31 @@
     </div>
     <div class="table-box">
       <table-page 
+        ref="tablechild"
+        :urls="{list: listUrl}"
         @row-click="rowClick" 
         :border="false" 
-        :columns="columns" 
+        :columns="columns"
         :tableData="tableData" 
         @shipments="shipments" 
         @check="check"
         @close="close"
        />
     </div>
-
-    
   </div>
 </template>
 
 <script>
-
+import { postAjax, getAjax} from '@/utils/ajax'
+import { TradeListDat, BaseChannelLst, BaseDeliveryCompanyLst, BaseTradeStatusLst, TradeCloseSet } from '@/api/api'
 import TablePage from '@/components/TablePage'
 import Tabs from '@/components/Tabs'
+import TableMixins from '@/mixins/tableMixins'
 export default {
   name: 'OrderTable',
   components: {TablePage, Tabs},
+  mixins: [TableMixins],
   props: {
-    tabAction: {
-      type: Number,
-      default: 0,
-    },
     searchIconShow: {
       type: Boolean,
       default: true,
@@ -103,25 +112,24 @@ export default {
   },
   data() {
     return {
+      tabAction: -1,
       ruleForm: {
-        name: '',
-        date1: '',
-        date2: '',
+        tid: '',
+        cstime: '',
+        cetime: '',
+        pstime: '',
+        petime: '',
+        st: '',
+        dcid: '',
+        ch: '',
       },
       rules: {
-        name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-        ],
-        date1: [
-          { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-        ],
-        date2: [
-          { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
+        tid: [
+          { required: false, message: '请输入订单ID', trigger: 'change' }
         ],
       },
       tabslist: [
-        { key: 0, label: '全部', value: '全部' },
+        { key: -1, label: '全部', value: '全部' },
         { key: 1, label: '待支付', value: '待支付' },
         { key: 2, label: '待发货', value: '待发货' },
         { key: 3, label: '已发货', value: '已发货' },
@@ -134,39 +142,39 @@ export default {
       columns: [
         {
           title: '订单号',
-          key: 'name',
-          label: 'name',
+          key: 'transaction_id',
+          label: 'transaction_id',
           width: 240,
         },
         {
           title: '商品',
-          key: 'age',
-          label: 'age',
+          key: 'game_info',
+          label: 'game_info',
           width: 240,
         },
          {
           title: '收货人',
-          key: 'age',
-          label: 'age',
+          key: 'username',
+          label: 'username',
           width: 240,
         },
         {
           title: '创建时间',
-          key: 'age',
-          label: 'age',
+          key: 'create_time',
+          label: 'create_time',
           width: 240,
           sort: true,
         },
         {
           title: '金额',
-          key: 'age',
-          label: 'age',
+          key: 'fee',
+          label: 'fee',
           width: 240,
         },
         {
           title: '订单状态',
-          key: 'age',
-          label: 'age',
+          key: 'status_name',
+          label: 'status_name',
           width: 240,
         },
         {
@@ -191,19 +199,62 @@ export default {
           ]
         }
       ],
-      tableData: []
+      listUrl: TradeListDat,
+      tableData: [],
+      channelList: [],
+      companyLst: [],
     }
   },
   mounted() {
-    let data = []
-    for(let i = 0;i<100;i++) {
-      data.push( {id: i, name: 'cao' + i, age: 1+i, lll: '0' +i},)
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
+    this.getChannelList()
+    this.getDeliveryCompanyLst()
+    this.getTradeStatusLst()
   },
   methods: {
+    // 获取订单状态
+    getTradeStatusLst () {
+      getAjax({
+        url: BaseTradeStatusLst,
+      }).then(res=> {
+        console.log(res)
+        if(res.code === 1) {
+          const resdata = res.data
+          // let arr = [{ key: -1, label: '全部', value: '全部' },]
+          for(let i = 0;i<resdata.length; i++ ) {
+            arr.push({
+              key: resdata[i].value,
+              label: resdata[i].name,
+              value: resdata[i].name
+            })
+          }
+          this.tabslist = arr
+        }
+      })
+    },
+    // 获取渠道列表
+    getChannelList() {
+      getAjax({
+        url: BaseChannelLst,
+      }).then(res=> {
+        if(res.code === 1) {
+          this.channelList = res.data
+        }else {
+          this.channelList = []
+        }
+      })
+    },
+    // 获取状态
+    getDeliveryCompanyLst () {
+      getAjax({
+        url: BaseDeliveryCompanyLst,
+      }).then(res=> {
+        if(res.code === 1) {
+          this.companyLst = res.data
+        }else {
+          this.companyLst = []
+        }
+      })
+    },
     rowClick(row, column, event) {
       console.log(row, column)
       this.$router.push({
@@ -215,24 +266,42 @@ export default {
         path: '/order/detail/' + row.id
       })
     },
-    check() {},
-    close() {},
-    onSubmit(formName) {
-      console.log('submit!');
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!');
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
+    check(row) {
+      this.$router.push({
+        path: '/order/detail/' + row.id
+      })
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
+    close(row) {
+      this.$confirm('确定关闭该订单吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.confimRequest(row.id)
+      })
+      
+    },
+    confimRequest (id) {
+      // postAjax({
+      //   url: TradeCloseSet,
+      //   data: {
+      //     id: id
+      //   },
+      // }).then(res=> {
+      //   if(res.code === 1) {
+      //     this.$message({
+      //       message: '成功关闭该订单',
+      //       type: 'success'
+      //     });
+      //     this.$refs.tablechild.getList()
+      //   }
+      //   console.log(res)
+      // })
     },
     tabsChange(item) {
-      console.log(item)
+      this.tabAction = item.key
+      this.resetSearchForm('ruleForm')
+      this.$refs.tablechild.search({st: item.key});
     },
     showSearch() {
       this.$router.push({

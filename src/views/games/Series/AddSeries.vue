@@ -60,10 +60,10 @@
 
 
 <script>
-import UploadImageOne from '@/components/Upload/UploadImageOne'
+import UploadImageOrder from '@/components/Upload/UploadImageOrder'
 export default {
   name: 'AddSeries',
-  components: {UploadImageOne},
+  components: {UploadImageOrder},
   data() {
     return {
       form: {

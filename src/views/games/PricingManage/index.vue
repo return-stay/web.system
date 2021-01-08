@@ -223,12 +223,12 @@ export default {
     tabsChange() {},
     add() {
       this.$router.push({
-        path: '/game/inventory/add'
+        path: '/game/pricing/adjustment'
       })
     },
     edit(row) {
       this.$router.push({
-        path: '/game/inventory/add',
+        path: '/game/pricing/adjustment',
         query: {id: row.id}
       })
     },

@@ -1,127 +1,107 @@
-// import request from '@/utils/request'
+import { getAjax, postAjax } from '@/utils/ajax'
+import {removeEmptyField} from '@/utils'
 export default {
   data() {
     return {
-      currentPage: 1, //当前页数
-      pageSizes: [10, 15, 20, 30, 40, 50], //每页显示个数
-      pageSize: 30, //每页个数
-      pageTotal: 0, //总页数
-      pageLayout: 'total, sizes, prev, pager, next, jumper',
-      allData: [], //所有数据列表
-      screenData: [],//筛选之后的列表 
-      tableData: [], //当前页面数据
-      loading: true,
+      isMountedRequest: true, //进入mounted 是否发送请求
+      paginationData:{ }, //分页
+      tableData: [], //列表数据源
+    }
+  },
+
+  mounted() {
+    if(this.isMountedRequest) {
+      this.getList()
     }
   },
 
   methods: {
-    getInit() {
-
-    },
-
-    sortBy(attr, rev) {
-
-      //第二个参数没有传递 默认升序排列
-      if (rev == undefined) {
-        rev = 1;
-      } else {
-        if (rev === 'descending') {
-          rev = -1
-        } else if (rev === 'ascending') {
-          rev = 1
-        }
+    // 处理请求参数
+    paramsManage() {
+      const {currentPage = 1} = this.$route.query
+      const searchobj = removeEmptyField(this.searchobj)
+      let obj = {
+        page: Number(currentPage),
+        ...searchobj,
       }
 
-      return function (a, b) {
-        a = a[attr];
-        b = b[attr];
-        if (a < b) {
-          return rev * -1;
+      console.log(obj)
+      return obj
+    },
+    search(searchobj) {
+      const query = this.$route.query
+      this.$router.push({
+        query: {...query, currentPage: 1}
+      })
+      this.searchobj = searchobj
+      this.getList()
+    },
+    getList () {
+      const urls = this.urls
+      const method = urls.listMethod || 'post' 
+      let requestAajx = null;
+
+      const params = this.paramsManage()
+      if(method === 'get'){
+        requestAajx = getAjax({
+          url: urls.list,
+          params: params,
+        })
+      }else {
+        requestAajx = postAjax({
+          url: urls.list,
+          data: params,
+        })
+      }
+      requestAajx.then(res=> {
+        if(res.code === 1) {
+          this.totalPage = res.data.total
+          this.tableData = res.data.list || res.data;
+          this.initPagination()
+        }else {
+          this.tableData = []
         }
-        if (a > b) {
-          return rev * 1;
-        }
-        return 0;
+      })
+    },
+    // 初始化分页器
+    initPagination () {
+      const pagination = this.pagination
+      const tableData = this.tableData
+      const {currentPage = 1, pageSize = 10} = this.$route.query
+      this.paginationData = {
+        pageSizeS: [10, 20, 50, 100, 200],
+        pageSize: Number(pageSize),
+        total: tableData.length,
+        currentPage: Number(currentPage),
+        handleSizeChange: this.handleSizeChange,
+        handleCurrentChange: this.handleCurrentChange,
+        ...pagination,
       }
     },
-    sortObjArr(prop, order) {
-      const that = this
-      const arr = this.screenData
-      arr.sort(that.sortBy(prop, order))
-      this.screenData = arr
-      this.currentPage = 1
-      this.handPagination()
-    },
+    onSearchSubmit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log(this.ruleForm)
+          this.tabAction = -1
+          // this.$refs.tablechild.search(this.ruleForm);
+          this.search(this.ruleForm)
 
-    // 筛选方法
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    resetSearchForm(formName) {
+      this.$refs[formName].resetFields();
+    },
+    // 排序方式
     sortTableChange({ prop, order }) {
       console.log(prop, order)
-      if (order === null) {
-        // let allData = this.allData
-        let allData = this.screenData
-        let allDataNew = JSON.parse(JSON.stringify(allData))
-        this.screenData = allDataNew
-        this.setListData()
-        this.handPagination()
-      } else {
-        let fieldName = ''
-        switch (prop) {
-          case 'day_rent_str':
-            fieldName = 'day_rent'
-            break;
-          case 'cost_str':
-            fieldName = 'cost'
-            break;
-          case 'total_fee_str':
-            fieldName = 'total_fee'
-            break;
-          case 'depreciation_fee_str':
-            fieldName = 'depreciation_fee'
-            break;
-          default:
-            fieldName = prop
-        }
-        const sortingType = order;
-        this.sortObjArr(fieldName, sortingType)
-      }
     },
-    handPagination() {
-      let pageSize = this.pageSize
-      let currentPage = this.currentPage - 1
-      let screenData = this.screenData
-
-      let startNum = Math.floor(currentPage * pageSize)
-      let endNum = Math.floor(startNum + pageSize)
-      let tableData = screenData.slice(startNum, endNum)
-      this.tableData = tableData
+    // 点击某行处理
+    rowClick(row, column, event) {
+      console.log(row, column, event)
     },
-    // 修改每页显示的个数
-    handleSizeChange(val) {
-      // console.log(`每页 ${val} 条`);
-      this.pageSize = val
-      this.handPagination()
-    },
-    // 当前页
-    handleCurrentChange(val) {
-      // console.log(`当前页: ${val}`);
-      this.currentPage = val
-      this.handPagination()
-    },
-    resetDateFilter() {
-      this.$refs.filterTable.clearFilter('date')
-    },
-    clearFilter() {
-      this.$refs.filterTable.clearFilter()
-    },
-    formatter(row, column) {
-      return row.address
-    },
-    filterTag(value, row) {
-      return row.tag === value
-    },
-    filterHandler(value, row, column) {
-      const property = column['property']
-      return row[property] === value
-    }
   }
 }

@@ -12,7 +12,7 @@
             </el-select>
           </el-col>
           <el-col :span="6">
-            <el-input v-model="ruleForm.name"></el-input>
+            <el-input style="margin-left: 10px;" v-model="ruleForm.name"></el-input>
           </el-col>
         </el-form-item>
         <el-row>
@@ -48,7 +48,7 @@
       </el-form>
     </div>
     <div class="table-box">
-      <table-page :border="false" :columns="columns" :tableData="tableData" @detail="detail" />
+      <table-page :urls="{list: UserTradeLst}" :border="false" :columns="columns" @detail="detail" />
     </div>
   </div>
 </template>
@@ -56,11 +56,13 @@
 <script>
 import TablePage from '@/components/TablePage'
 import Tabs from '@/components/Tabs'
+import {UserTradeLst} from '@/api/api'
 export default {
   name: 'OpenCardRecords',
   components: { TablePage, Tabs },
   data() {
     return {
+      UserTradeLst: UserTradeLst,
       ruleForm: {
         name: '',
         date1: '',

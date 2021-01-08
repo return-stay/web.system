@@ -8,13 +8,16 @@
       <template v-if="device!=='mobile'">
         <!-- <search id="header-search" class="right-menu-item" /> -->
 
-        <screenfull id="screenfull" class="right-menu-item hover-effect" />
+        <!-- <screenfull id="screenfull" class="right-menu-item hover-effect" /> -->
 
         <!-- <el-tooltip content="Global Size" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip> -->
 
+        <settings-comp class="right-menu-item hover-effect" />
+
       </template>
+      
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
@@ -49,6 +52,7 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
+import SettingsComp from './Settings/SettingsComp'
 // import Search from '@/components/HeaderSearch'
 
 export default {
@@ -56,7 +60,8 @@ export default {
     Breadcrumb,
     Hamburger,
     Screenfull,
-    SizeSelect
+    SizeSelect,
+    SettingsComp,
     // Search
   },
   computed: {
@@ -70,10 +75,10 @@ export default {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
-    logout() {
-      this.delCookie('Admin-Token')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
-    },
+    // logout() {
+    //   this.delCookie('Admin-Token')
+    //   this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    // },
     delCookie(name) {
       var exp = new Date();
       exp.setTime(exp.getTime() - 1);
@@ -87,11 +92,11 @@ export default {
       return unescape(arr[2]);
       else
       return null;
+    },
+    async logout() {
+      await this.$store.dispatch('user/logout')
+      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
-    // async logout() {
-    //   await this.$store.dispatch('user/logout')
-    //   this.$router.push(`/login?redirect=${this.$route.fullPath}`)
-    // }
   }
 }
 </script>
@@ -130,7 +135,7 @@ export default {
     float: right;
     height: 100%;
     line-height: 50px;
-
+    display: flex;
     &:focus {
       outline: none;
     }

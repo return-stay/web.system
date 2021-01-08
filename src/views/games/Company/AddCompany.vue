@@ -3,17 +3,19 @@
     <el-form ref="form" :model="form" label-width="120px">
       <div class="ta-header">奖杯信息</div>
       <div class="ta-form">
-        <el-form-item label="显示名称：">
-          <el-input size="small" placeholder="请输入显示名称" />
+        <el-form-item label="显示名称：" prop="view_name">
+          <el-input size="small" placeholder="请输入显示名称" v-model="form.v" />
         </el-form-item>
-        <el-form-item label="原始名称：">
-          <el-input size="small" placeholder="请输入原始名称" />
+        <el-form-item label="原始名称：" prop="original_name">
+          <el-input size="small" placeholder="请输入原始名称" v-model="form.org" />
         </el-form-item>
-        <el-form-item label="公司介绍：" prop="desc">
-          <el-input type="textarea" v-model="form.desc" :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
+        <el-form-item label="公司介绍：" prop="i">
+          <el-input type="textarea" v-model="form.i" :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
         </el-form-item>
-        <el-form-item label="公司LOGO：">
-          <upload-image-one />
+        <el-form-item label="公司LOGO：" prop="logo">
+          <upload-image @change="uploadChange" />
+          <!-- <input type="file"> -->
+          <!-- <el-input type="file" size="small" placeholder="请输入原始名称" v-model="form.logo" /> -->
         </el-form-item>
       </div>
       
@@ -29,21 +31,78 @@
 
 
 <script>
-import UploadImageOne from '@/components/Upload/UploadImageOne'
+import UploadImage from '@/components/Upload'
+import {GameCompanyInf, GameCompanyGameSet } from '@/api/api'
+import { postAjax } from '@/utils/ajax'
 export default {
   name: 'AddCompany',
-  components: {UploadImageOne},
+  components: {UploadImage},
   data() {
     return {
       form: {
-        region: '',
+        v: '',
+        org: '',
+        logo: '',
+        i: '',
       }
     }
   },
+  mounted() {
+    const { id } = this.$route.query
+    console.log(this.$route)
+    if(id) {
+      this.getInfo(id)
+    }
+  },
   methods: {
+    uploadChange(file) {
+      console.log(file)
+      this.form.logo = file.raw
+    },
+    getInfo(id) {
+      postAjax({
+        url: GameCompanyInf,
+        data: {
+          id
+        }
+      }).then(res=> {
+        console.log(res)
+        if(res.code === 1) {
+          const resdata = res.data
+          this.companyInfo = resdata
+
+          this.form = {
+            v: resdata[0].view_name,
+            org: resdata[0].original_name
+          }
+        }
+      })
+    },
     onSubmit() {
-      console.log('submit!');
-      console.log(this.form)
+      let params = this.form
+
+      const { id } = this.$route.query
+      let fd = new FormData()
+      if(id) {
+        params.id = id
+        fd.append('id', id)
+      }
+
+      fd.append('v', params.v)
+      fd.append('org', params.org)
+      fd.append('logo', params.logo)
+      fd.append('i', params.id)
+
+      console.log(fd)
+      postAjax({
+        url: GameCompanyGameSet,
+        data: params
+      }).then(res=> {
+        console.log(res)
+        if(res.code === 1) {
+          this.$message.success('添加成功')
+        }
+      })
     },
     detail() {
       console.log("detail")

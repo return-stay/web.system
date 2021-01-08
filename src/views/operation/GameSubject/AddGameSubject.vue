@@ -23,7 +23,7 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="专题图：">
-              <UploadImageOne uploadClass='upload-demo' uploadText="添加图片" />
+              <UploadImageOrder uploadClass='upload-demo' uploadText="添加图片" />
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
@@ -71,10 +71,10 @@
 
 
 <script>
-import UploadImageOne from '@/components/Upload/UploadImageOne'
+import UploadImageOrder from '@/components/Upload/UploadImageOrder'
 export default {
   name: 'AddGameSubject',
-  components: {UploadImageOne},
+  components: {UploadImageOrder},
   data() {
     return {
       form: {

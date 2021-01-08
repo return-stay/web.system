@@ -37,7 +37,7 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="图片：">
-              <UploadImageOne uploadClass='upload-demo' uploadText="添加图片" />
+              <UploadImageOrder uploadClass='upload-demo' uploadText="添加图片" />
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
@@ -63,11 +63,11 @@
 
 
 <script>
-import UploadImageOne from '@/components/Upload/UploadImageOne'
+import UploadImageOrder from '@/components/Upload/UploadImageOrder'
 import ImageLarger from '@/components/ImageLarger'
 export default {
   name: 'AddImagesLocation',
-  components: {UploadImageOne, ImageLarger},
+  components: {UploadImageOrder, ImageLarger},
   data() {
     return {
       form: {
