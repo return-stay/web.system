@@ -12,9 +12,11 @@
 
 <script>
 import TablePage  from '@/components/TablePage'
+import TableMixins from '@/mixins/tableMixins'
 export default {
   name: 'AccountRecords',
   components: {TablePage},
+  mixins: [TableMixins],
   data() {
     return {
       columns: [

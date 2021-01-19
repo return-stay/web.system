@@ -4,7 +4,12 @@ export default {
   data() {
     return {
       isMountedRequest: true, //进入mounted 是否发送请求
-      paginationData:{ }, //分页
+      paginationData: {
+        handleSizeChange: this.handleSizeChange,
+        handleCurrentChange: this.handleCurrentChange,
+        // ...pagination,
+      }, //分页
+      totalPage: 0,
       tableData: [], //列表数据源
     }
   },
@@ -20,10 +25,21 @@ export default {
     paramsManage() {
       const {currentPage = 1} = this.$route.query
       const searchobj = removeEmptyField(this.searchobj)
-      let obj = {
-        page: Number(currentPage),
-        ...searchobj,
+
+      const urls = this.urls
+      let obj = {}
+      if(urls.typeJson === 'json') {
+        obj = {
+          page: Number(currentPage),
+          data: JSON.stringify(searchobj)
+        }
+      }else {
+        obj = {
+          page: Number(currentPage),
+          ...searchobj,
+        }
       }
+      
 
       console.log(obj)
       return obj
@@ -54,8 +70,10 @@ export default {
         })
       }
       requestAajx.then(res=> {
+        console.log(res)
         if(res.code === 1) {
           this.totalPage = res.data.total
+          this.pageSize = res.data.pages
           this.tableData = res.data.list || res.data;
           this.initPagination()
         }else {
@@ -63,19 +81,27 @@ export default {
         }
       })
     },
+    handleCurrentChange(val) {
+      const query = this.$route.query
+      this.$router.push({
+        query: {...query, currentPage: val}
+      })
+      // this.$emit('handleCurrentChange', val)
+      this.getList()
+    },
     // 初始化分页器
     initPagination () {
-      const pagination = this.pagination
-      const tableData = this.tableData
-      const {currentPage = 1, pageSize = 10} = this.$route.query
+      // const pagination = this.pagination
+      const totalPage = this.totalPage
+      const {currentPage = 1, pageSize = 15} = this.$route.query
       this.paginationData = {
         pageSizeS: [10, 20, 50, 100, 200],
         pageSize: Number(pageSize),
-        total: tableData.length,
+        total: totalPage,
         currentPage: Number(currentPage),
         handleSizeChange: this.handleSizeChange,
         handleCurrentChange: this.handleCurrentChange,
-        ...pagination,
+        // ...pagination,
       }
     },
     onSearchSubmit(formName) {
@@ -102,6 +128,23 @@ export default {
     // 点击某行处理
     rowClick(row, column, event) {
       console.log(row, column, event)
+    },
+    // 每页多少条
+    handleSizeChange(val) {
+      const query = this.$route.query
+      this.$router.push({
+        query: {...query, pageSize: val}
+      })
+      this.getList()
+    },
+    // 当前第几页
+    handleCurrentChange(val) {
+      console.log(val)
+      const query = this.$route.query
+      this.$router.push({
+        query: {...query, currentPage: val}
+      })
+      this.getList()
     },
   }
 }

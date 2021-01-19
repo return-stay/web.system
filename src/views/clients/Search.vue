@@ -44,11 +44,12 @@
     </div>
 
     <div class="table-box">
-      <table-page 
-        :urls="{list: UserListDat,}"
+      <TablePage 
+        :urls="urls"
         :border="false"
         :columns="columns"
         @operation="operation" />
+        <!-- <GameTable :urls="urls" /> -->
     </div>
   </div>
 </template>
@@ -69,7 +70,7 @@ export default {
         pstime: '',
         petime: '',
       },
-      UserListDat: UserListDat,
+      urls: {list: UserListDat},
       channelList: [],
       tabAction: 0,
       tabslist: [

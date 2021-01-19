@@ -353,7 +353,16 @@ export function removeClass(ele, cls) {
     ele.className = ele.className.replace(reg, ' ')
   }
 }
-
+/**
+ * @function 中国标准时间转化为时间戳
+ * @param {string} date
+ * @returns {number} 时间戳
+ * @author 天心天地生 2020-1-14
+ * */
+export function dateToMs(date) {
+  let result = new Date(date).getTime();
+  return result;
+}
 
 /**
  * 时间格式化
@@ -432,4 +441,28 @@ export function removeEmptyField(obj) {
     }
   }
   return newObj
+}
+
+
+export function convertToBinary (filed, callback, size) {
+  var reader = new FileReader();
+  var AllowImgFileSize = size || 2100000; //上传图片最大值(单位字节)（ 2 M = 2097152 B ）超过2M上传失败
+  var file = filed
+  var imgUrlBase64;
+  if (file) {
+    //将文件以Data URL形式读入页面  
+    imgUrlBase64 = reader.readAsDataURL(file);
+    console.log(imgUrlBase64);
+
+    reader.onload = function (e) {
+      //var ImgFileSize = reader.result.substring(reader.result.indexOf(",") + 1).length;//截取base64码部分（可选可不选，需要与后台沟通）
+      if (AllowImgFileSize != 0 && AllowImgFileSize < reader.result.length) {
+        alert( '上传失败，请上传不大于2M的图片！');
+        return;
+      }else{
+        //执行上传操作
+        callback && callback(reader.result)
+      }
+    }
+  }   
 }

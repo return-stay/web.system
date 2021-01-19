@@ -1,14 +1,14 @@
 <template>
   <div class="table-box">
     <slot></slot>
-    <div class="block" :style="paginationStyle" v-if="paginationData.pageSize && isPagination">
+    <div class="block" :style="paginationStyle" v-if="paginationData.pageSize && isPagination && totalPage>0">
       <el-pagination
         @size-change="paginationData.handleSizeChange"
         @current-change="paginationData.handleCurrentChange"
         :current-page="paginationData.currentPage"
         :page-sizes="paginationData.pageSizes"
         :page-size="paginationData.pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
+        layout="total, prev, pager, next, jumper"
         :total="paginationData.total">
       </el-pagination>
     </div>
@@ -19,6 +19,10 @@
 export default {
   name: 'GameTable',
   props: {
+    totalPage: {
+      type: Number,
+      default: 0
+    },
     isPagination: {
       type: Boolean,
       default: true,
@@ -38,25 +42,26 @@ export default {
       paginationData: {},
     }
   },
-
   mounted() {
     this.paginationStyleFun()
+    this.initPagination()
   },
-  
   methods: {
     // 初始化分页器
     initPagination () {
-      const pagination = this.pagination
-      const tableData = this.tableData
-      const {currentPage = 1, pageSize = 10} = this.$route.query
+      // const pagination = this.pagination
+      const totalPage = this.totalPage
+      console.log(totalPage)
+      const {currentPage = 1, pageSize = 15} = this.$route.query
+      console.log(pageSize)
       this.paginationData = {
-        pageSizeS: [10, 20, 50, 100, 200],
+        pageSizeS: [15, 20, 50, 100, 200],
         pageSize: Number(pageSize),
-        total: tableData.length,
+        total: totalPage,
         currentPage: Number(currentPage),
         handleSizeChange: this.handleSizeChange,
         handleCurrentChange: this.handleCurrentChange,
-        ...pagination,
+        // ...pagination,
       }
     },
     // 判断分页器的位置

@@ -11,21 +11,11 @@
     >
       <el-table-column
         v-for="(item, index) in columns" :key="index"
-        :fixed="item.fixed"
         :align="item.align"
         :width="item.width"
         :label="item.title"
-        :prop="item.prop || item.label"
         :sortable="item.sort"
         >
-        <template slot="header" v-if="item.headerIconObj">
-          <div class="table-column-header">
-            <span>{{item.title}}</span>
-            <el-tooltip class="item" effect="dark" :content="item.headerIconObj.text" placement="bottom-end">
-              <i :class="item.headerIconObj.icon"></i>
-            </el-tooltip>
-          </div>
-        </template>
         <template slot-scope="{row}">
           <div>
             <div v-if="item.render">
@@ -41,7 +31,12 @@
                 </template>
               </template>
             </div>
-            <div v-else>{{row[item.label]}}</div>
+            <div v-else>
+              <div v-if="item.label === 'create_time'">
+                {{moment(row[item.label]).format('YYYY-MM-DD HH:mm:ss')}}
+              </div>
+              <div v-else>{{row[item.label]}}</div>
+            </div>
           </div>
         </template>
       </el-table-column>
@@ -65,6 +60,7 @@
 <script>
 import { getAjax, postAjax } from '@/utils/ajax'
 import {removeEmptyField} from '@/utils'
+import moment from 'moment'
 export default {
   name: 'TablePage',
   props: {
@@ -109,6 +105,7 @@ export default {
   },
   data() {
     return {
+      moment,
       paginationStyle: 'flex-end',
       paginationData: {},
       tableShowList: [],//显示的列表数据
@@ -128,10 +125,14 @@ export default {
     paramsManage() {
       const {currentPage = 1} = this.$route.query
       const searchobj = removeEmptyField(this.searchobj)
+      const isPagination =this.isPagination
       let obj = {
-        page: Number(currentPage),
         ...searchobj,
       }
+      if(isPagination) {
+        obj.page = Number(currentPage)
+      }
+      
 
       console.log(obj)
       return obj
@@ -164,7 +165,7 @@ export default {
       requestAajx.then(res=> {
         if(res.code === 1) {
           this.totalPage = res.data.total
-          this.tableData = res.data.list || res.data;
+          this.tableData = res.data.list || res.data
           this.initPagination()
         }else {
           this.tableData = []

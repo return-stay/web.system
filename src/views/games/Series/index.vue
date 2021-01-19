@@ -9,18 +9,18 @@
         <div class="search-form-line">
           <el-form-item label="检索：" prop="region">
             <div class="search-form-line">
-              <el-select size="small" v-model="ruleForm.region" placeholder="请选择">
+              <!-- <el-select size="small" v-model="ruleForm.region" placeholder="请选择">
                 <el-option label="全部" value="0"></el-option>
-              </el-select>
-              <el-form-item prop="name" style="margin-bottom: 0;">
-                <el-input size="small" style="width: 194px;margin-left: 10px;" v-model="ruleForm.name"></el-input>
+              </el-select> -->
+              <el-form-item prop="key" style="margin-bottom: 0;">
+                <el-input size="small" style="width: 194px;margin-left: 10px;" v-model="ruleForm.key"></el-input>
               </el-form-item>
             </div>
           </el-form-item>
         </div>
         <el-form-item label="">
-          <el-button type="primary" @click="onSubmit('ruleForm')">筛选</el-button>
-          <el-button type="text" @click="resetForm('ruleForm')">清空筛选</el-button>
+          <el-button type="primary" @click="onSearchSubmit('ruleForm')">筛选</el-button>
+          <el-button type="text" @click="resetSearchForm('ruleForm')">清空筛选</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -30,7 +30,50 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @edit="edit" />
+      <game-table :urls="urls" @edit="edit">
+        <el-table
+          :border="false"
+          :data="tableData"
+          style="width: 100%">
+          <el-table-column
+            prop="name"
+            label="系列名称"
+            width="220">
+          </el-table-column>
+          <el-table-column
+            prop="intro"
+            label="简介">
+          </el-table-column>
+          <el-table-column
+            prop="num"
+            label="游戏数量"
+            width="180">
+          </el-table-column>
+          <el-table-column
+            prop="create_time"
+            label="创建时间"
+            width="170">
+            <template slot-scope="scope">
+              <div>
+                {{moment(scope.row.create_time).format('YYYY-MM-DD HH:mm:ss')}}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="id"
+            align="center"
+            label="操作"
+            width="170">
+            <template slot-scope="scope">
+              <div>
+                <span class="text-cursor" @click="edit(scope.row)">编辑</span>
+                  <el-divider direction="vertical"></el-divider>
+                <span class="text-cursor" @click="stop(scope.row)">停用</span>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </game-table>
     </div>
   </div>
 </template>
@@ -38,15 +81,19 @@
 <script>
 import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
+import tableMixins from '@/mixins/tableMixins'
+import {GameGroupLst} from '@/api/api'
+import moment from 'moment'
 export default {
   name: 'Series',
   components: { GameTable, Tabs },
+  mixins: [tableMixins],
   data() {
     return {
+      urls: {list: GameGroupLst},
+      moment: moment,
       ruleForm: {
-        name: '',
-        date1: '',
-        date2: '',
+        key: '',
       },
       tabAction: 0,
       tabslist: [
@@ -54,76 +101,16 @@ export default {
         { key: 1, label: '未使用', value: '未使用' },
         { key: 2, label: '已停用', value: '已停用' },
       ],
-      columns: [
-        {
-          title: '系列名称',
-          key: 'name',
-          label: 'name',
-          width: 100,
-        },
-        {
-          title: '简介',
-          key: 'game',
-          label: 'game',
-        },
-         {
-          title: '游戏数量',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '创建时间',
-          key: 'age',
-          label: 'age',
-          width: 200,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 120,
-          render: [
-            {
-              fnName: 'edit',
-              title: '编辑'
-            },
-            {
-              fnName: 'operation',
-              title: '停用'
-            },
-          ]
-        }
-      ],
-      tableData: []
     }
   },
   mounted() {
-    let data = []
-    for(let i = 0;i<5;i++) {
-      data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
+    
   },
   methods: {
-    onSubmit(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!');
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
+    tabsChange(e) {
+      console.log(e)
+      this.tabAction = e.key
     },
-    resetForm(formName) {
-      console.log(formName)
-      this.$refs[formName].resetFields();
-    },
-    tabsChange() {},
     add() {
       this.$router.push({
         path: '/game/series/add'
@@ -134,6 +121,9 @@ export default {
         path: '/game/series/add',
         query: {id: row.id}
       })
+    },
+    stop() {
+      
     },
   }
 }

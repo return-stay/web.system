@@ -20,13 +20,8 @@ export default {
     },
     stepList: {
       type: Array,
-      default: () => [
-        {id: 0, label: '0', value: '基本信息'},
-        {id: 1, label: '1', value: '游戏盘库存'},
-        {id: 2, label: '2', value: '上架并定价'}
-      ]
+      default: () => []
     }
-    
   },
   data() {
     return {

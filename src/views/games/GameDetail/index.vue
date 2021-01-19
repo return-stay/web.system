@@ -5,7 +5,7 @@
     </div>
 
     <div class="cd-cont-box">
-      <basic-information v-if="tabAction === 0" />
+      <BasicInfo v-if="tabAction === 0" />
 
       <inventory :btns="{isconfirm: true}" v-if="tabAction === 1" />
 
@@ -17,12 +17,13 @@
 
 <script>
 import Tabs from '@/components/Tabs'
-import BasicInformation from './BasicInformation'
+// import BasicInformation from './BasicInformation'
+import BasicInfo from '../Release/BasicInfo'
 import Inventory from '../Release/Inventory'
 import PricingAdjustment from '../PricingManage/PricingAdjustment'
 export default {
   name: 'ClientsDetail',
-  components: { Tabs ,BasicInformation, Inventory, PricingAdjustment },
+  components: { Tabs ,BasicInfo, Inventory, PricingAdjustment },
   data() {
     return {
       tabAction: 0,

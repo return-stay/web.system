@@ -71,17 +71,85 @@
       <tabs @change='tabsChange' :tabsList="tabslist" :action='tabAction' />
     </div>
     <div class="table-box">
-      <table-page 
-        ref="tablechild"
-        :urls="{list: listUrl}"
-        @row-click="rowClick" 
-        :border="false" 
-        :columns="columns"
-        :tableData="tableData" 
-        @shipments="shipments" 
-        @check="check"
-        @close="close"
-       />
+      <el-table
+        :data="tableData"
+        @sort-change="sortTableChange"
+        style="width: 100%">
+        <el-table-column
+          prop="transaction_id"
+          label="订单号"
+          align="center"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="game_info"
+          label="商品"
+          align="center"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="username"
+          align="center"
+          label="收货人">
+        </el-table-column>
+        <el-table-column
+          prop="game_num"
+          align="center"
+          label="游戏数量"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          align="center"
+          label="创建时间"
+          sortable
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="fee"
+          align="center"
+          label="余额"
+          sortable
+          width="170">
+        </el-table-column>
+        <el-table-column
+          prop="status_name"
+          align="center"
+          label="订单状态"
+          width="170">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          align="center"
+          label="操作"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              <span class="text-cursor" @click="shipments(scope.row)">发货</span>
+              <el-divider direction="vertical"></el-divider>
+              <span class="text-cursor" @click="check(scope.row)">查看</span>
+              <el-divider direction="vertical"></el-divider>
+              <span class="text-cursor" @click="close(scope.row)">关闭</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="block" style="text-align: center;">
+        <el-pagination
+          @size-change="paginationData.handleSizeChange"
+          @current-change="paginationData.handleCurrentChange"
+          :current-page="paginationData.currentPage"
+          :page-sizes="paginationData.pageSizes"
+          :page-size="paginationData.pageSize"
+          layout="total, prev, pager, next, jumper"
+          :total="paginationData.total">
+        </el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -89,12 +157,13 @@
 <script>
 import { postAjax, getAjax} from '@/utils/ajax'
 import { TradeListDat, BaseChannelLst, BaseDeliveryCompanyLst, BaseTradeStatusLst, TradeCloseSet } from '@/api/api'
-import TablePage from '@/components/TablePage'
+
 import Tabs from '@/components/Tabs'
 import TableMixins from '@/mixins/tableMixins'
+import moment from 'moment'
 export default {
   name: 'OrderTable',
-  components: {TablePage, Tabs},
+  components: { Tabs},
   mixins: [TableMixins],
   props: {
     searchIconShow: {
@@ -112,6 +181,10 @@ export default {
   },
   data() {
     return {
+      moment: moment,
+      urls: {
+        list: TradeListDat,
+      },
       tabAction: -1,
       ruleForm: {
         tid: '',
@@ -139,67 +212,6 @@ export default {
         { key: 7, label: '已退款', value: '已退款' },
         { key: 8, label: '已完成', value: '已完成' },
       ],
-      columns: [
-        {
-          title: '订单号',
-          key: 'transaction_id',
-          label: 'transaction_id',
-          width: 240,
-        },
-        {
-          title: '商品',
-          key: 'game_info',
-          label: 'game_info',
-          width: 240,
-        },
-         {
-          title: '收货人',
-          key: 'username',
-          label: 'username',
-          width: 240,
-        },
-        {
-          title: '创建时间',
-          key: 'create_time',
-          label: 'create_time',
-          width: 240,
-          sort: true,
-        },
-        {
-          title: '金额',
-          key: 'fee',
-          label: 'fee',
-          width: 240,
-        },
-        {
-          title: '订单状态',
-          key: 'status_name',
-          label: 'status_name',
-          width: 240,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          label: 'lll',
-          fixed: 'right',
-          width: 170,
-          render: [
-            {
-              fnName: 'shipments',
-              title: '发货',
-            },
-            {
-              fnName: 'check',
-              title: '查看',
-            },
-            {
-              fnName: 'close',
-              title: '关闭',
-            },
-          ]
-        }
-      ],
-      listUrl: TradeListDat,
       tableData: [],
       channelList: [],
       companyLst: [],
@@ -219,7 +231,7 @@ export default {
         console.log(res)
         if(res.code === 1) {
           const resdata = res.data
-          // let arr = [{ key: -1, label: '全部', value: '全部' },]
+          let arr = [{ key: -1, label: '全部', value: '全部' },]
           for(let i = 0;i<resdata.length; i++ ) {
             arr.push({
               key: resdata[i].value,
@@ -282,21 +294,21 @@ export default {
       
     },
     confimRequest (id) {
-      // postAjax({
-      //   url: TradeCloseSet,
-      //   data: {
-      //     id: id
-      //   },
-      // }).then(res=> {
-      //   if(res.code === 1) {
-      //     this.$message({
-      //       message: '成功关闭该订单',
-      //       type: 'success'
-      //     });
-      //     this.$refs.tablechild.getList()
-      //   }
-      //   console.log(res)
-      // })
+      postAjax({
+        url: TradeCloseSet,
+        data: {
+          id: id
+        },
+      }).then(res=> {
+        if(res.code === 1) {
+          this.$message({
+            message: '成功关闭该订单',
+            type: 'success'
+          });
+          this.$refs.tablechild.getList()
+        }
+        console.log(res)
+      })
     },
     tabsChange(item) {
       this.tabAction = item.key

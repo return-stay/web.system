@@ -255,30 +255,66 @@ export default {
           type: '',
           materials: '韭菜',
         },
+        // {
+        //   id: 133,
+        //   name: '紫菜鸡蛋汤',
+        //   type: '汤',
+        //   materials: '',
+        // },
+        // {
+        //   id: 134,
+        //   name: '西红柿鸡蛋汤',
+        //   type: '汤',
+        //   materials: '',
+        // },
+        // {
+        //   id: 135,
+        //   name: '嫩豆腐汤',
+        //   type: '汤',
+        //   materials: '',
+        // },
+        // {
+        //   id: 136,
+        //   name: '冬瓜海米汤',
+        //   type: '汤',
+        //   materials: '',
+        // },
         {
-          id: 133,
-          name: '紫菜鸡蛋汤',
-          type: '汤',
+          id: 212,
+          name: '豆角炒肉',
+          type: '',
+          materials: '猪肉',
+        },
+        {
+          id: 213,
+          name: '木须肉',
+          type: '',
+          materials: '猪肉',
+        },
+        {
+          id: 214,
+          name: '青椒炒肉',
+          type: '',
+          materials: '猪肉',
+        },
+        {
+          id: 215,
+          name: '宫爆鸡丁',
+          type: '',
           materials: '',
         },
         {
-          id: 134,
-          name: '西红柿鸡蛋汤',
-          type: '汤',
-          materials: '',
+          id: 216,
+          name: '鱼香肉丝',
+          type: '',
+          materials: '猪肉',
         },
         {
-          id: 135,
-          name: '嫩豆腐汤',
-          type: '汤',
-          materials: '',
+          id: 219,
+          name: '蒜苔炒肉',
+          type: '',
+          materials: '猪肉',
         },
-        {
-          id: 136,
-          name: '冬瓜海米汤',
-          type: '汤',
-          materials: '',
-        }
       ]
       this.vegetableDishes = [
         {
@@ -348,36 +384,6 @@ export default {
           materials: '',
         },
         {
-          id: 212,
-          name: '豆角炒肉',
-          type: '',
-          materials: '',
-        },
-        {
-          id: 213,
-          name: '黄瓜炒肉',
-          type: '',
-          materials: '',
-        },
-        {
-          id: 214,
-          name: '青椒炒肉',
-          type: '',
-          materials: '',
-        },
-        {
-          id: 215,
-          name: '宫爆鸡丁',
-          type: '',
-          materials: '',
-        },
-        {
-          id: 216,
-          name: '鱼香肉丝',
-          type: '',
-          materials: '',
-        },
-        {
           id: 217,
           name: '水煮肉片',
           type: '',
@@ -389,12 +395,7 @@ export default {
           type: '',
           materials: '',
         },
-        {
-          id: 219,
-          name: '蒜苔炒肉',
-          type: '',
-          materials: '',
-        },
+        
       ]
     },
 

@@ -1,17 +1,23 @@
 <template>
   <div class="il-box">
-    <img class="img-larger" :src="src" :alt="alt" @click="largerImg">
+    <img class="img-larger" :src="IMG_URL + src" :alt="alt" @click="largerImg">
     <div class="img-larger-box" v-if="largerShow" @click="largerHide">
-      <img class="img-larger-image" src="" alt="">
+      <img class="img-larger-image" :src="IMG_URL + l_src" alt="">
     </div>
   </div>
 </template>
 
 <script>
+import {IMG_URL} from '@/api/api'
+console.log(IMG_URL)
 export default {
   name: 'ImageLarger',
   props: {
     src: {
+      type: String,
+      default: '',
+    },
+    l_src: {
       type: String,
       default: '',
     },
@@ -26,6 +32,7 @@ export default {
   },
   data() {
     return {
+      IMG_URL: IMG_URL,
       largerShow: false,
     }
   },

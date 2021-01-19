@@ -30,19 +30,24 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @edit="edit" />
+      <TablePage :isPagination="false" :urls="urls" :border="false" :columns="columns" @edit="edit" />
     </div>
   </div>
 </template>
 
 <script>
-import GameTable from '@/components/TablePage/GameTable'
+import TablePage from '@/components/TablePage'
 import Tabs from '@/components/Tabs'
+import {ChannelListDat} from '@/api/api'
 export default {
   name: 'Channel',
-  components: { GameTable, Tabs },
+  components: { TablePage, Tabs },
   data() {
     return {
+      urls: {
+        list: ChannelListDat,
+        listMethod: 'get',
+      },
       ruleForm: {
         name: '',
         date1: '',
@@ -80,8 +85,8 @@ export default {
         },
         {
           title: '修改时间',
-          key: 'age',
-          label: 'age',
+          key: 'create_time',
+          label: 'create_time',
           width: 200,
           sort: true,
         },
@@ -113,17 +118,9 @@ export default {
           ]
         }
       ],
-      tableData: []
     }
   },
   mounted() {
-    let data = []
-    for(let i = 0;i<5;i++) {
-      data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
   },
   methods: {
     onSubmit(formName) {

@@ -41,9 +41,10 @@
             label="LOGO"
             align="center"
             width="100">
-            <!-- <template slot-scope="scope">
+            <template slot-scope="scope">
               <img style="width: 100%;" :src="scope.row.logo_url" alt="">
-            </template> -->
+              <!-- <div>图</div> -->
+            </template>
           </el-table-column>
           <el-table-column
             prop="view_name"
@@ -119,7 +120,9 @@ export default {
     }
   },
   methods: {
-    tabsChange() {},
+    tabsChange(ev) {
+      this.tabAction = e.key
+    },
     add() {
       this.$router.push({
         path: '/game/company/add'

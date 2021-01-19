@@ -32,8 +32,9 @@
 
 <script>
 import UploadImage from '@/components/Upload'
-import {GameCompanyInf, GameCompanyGameSet } from '@/api/api'
+import {GameCompanyInf, GameCompanySet } from '@/api/api'
 import { postAjax } from '@/utils/ajax'
+import {convertToBinary} from '@/utils'
 export default {
   name: 'AddCompany',
   components: {UploadImage},
@@ -72,8 +73,8 @@ export default {
           this.companyInfo = resdata
 
           this.form = {
-            v: resdata[0].view_name,
-            org: resdata[0].original_name
+            v: resdata.view_name,
+            org: resdata.original_name
           }
         }
       })
@@ -82,27 +83,33 @@ export default {
       let params = this.form
 
       const { id } = this.$route.query
-      let fd = new FormData()
+      // let fd = new FormData()
       if(id) {
         params.id = id
-        fd.append('id', id)
+        // fd.append('id', id)
       }
 
-      fd.append('v', params.v)
-      fd.append('org', params.org)
-      fd.append('logo', params.logo)
-      fd.append('i', params.id)
+      convertToBinary(params.logo, (filed) => {
+        params.logo = filed
 
-      console.log(fd)
-      postAjax({
-        url: GameCompanyGameSet,
-        data: params
-      }).then(res=> {
-        console.log(res)
-        if(res.code === 1) {
-          this.$message.success('添加成功')
-        }
+        // fd.append('v', params.v)
+        // fd.append('org', params.org)
+        // fd.append('logo', params.logo)
+        // fd.append('i', params.id)
+        // console.log(fd)
+        console.log(params)
+        postAjax({
+          url: GameCompanySet,
+          data: params
+        }).then(res=> {
+          console.log(res)
+          if(res.code === 1) {
+            this.$message.success('添加成功')
+            this.$router.back(-1)
+          }
+        })
       })
+      
     },
     detail() {
       console.log("detail")

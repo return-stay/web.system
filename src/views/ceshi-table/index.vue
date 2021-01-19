@@ -1,16 +1,15 @@
 <template>
   <div>
     <date-picker @change="dateChange"></date-picker>
-    <table-page-list :columns="columns" :tableData="tableData" @add="add" @edit="edit"></table-page-list>
+    <!-- <table-page-list :columns="columns" :tableData="tableData" @add="add" @edit="edit"></table-page-list> -->
   </div>
 </template>
 
 <script>
-import TablePageList from '@/components/TablePage/TablePageList'
 import DatePicker from '@/components/DatePicker'
 export default {
   name: 'CeshiTable',
-  components: { TablePageList, DatePicker } ,
+  components: { DatePicker } ,
   data() {
     return {
       columns: () => {
