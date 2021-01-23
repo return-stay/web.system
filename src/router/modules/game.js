@@ -92,6 +92,19 @@ const gameRouter = [
         hidden: true,
         meta: { title: '游戏系列管理', noCache: true, icon: 'circle' }
       },
+      {
+        path: 'define',
+        component: () => import('@/views/games/Define'),
+        name: 'Define',
+        meta: { title: '内容分类', noCache: true, icon: 'circle' }
+      },
+      {
+        path: 'define/add',
+        component: () => import('@/views/games/Define/AddDefine'),
+        name: 'AddDefine',
+        hidden: true,
+        meta: { title: '内容分类', noCache: true, icon: 'circle' }
+      },
     ]
   },
 ]

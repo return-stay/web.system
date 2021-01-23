@@ -77,8 +77,8 @@
         </el-row>
         <el-row>
           <el-col :span='12'>
-            <el-form-item label="奖杯编码：" prop="disc_no">
-              <el-input v-model="form.disc_no" size="small" placeholder="请输入奖杯编码"></el-input>
+            <el-form-item label="奖杯编码：" prop="disn_no">
+              <el-input v-model="form.disn_no" size="small" placeholder="请输入奖杯编码"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -96,9 +96,9 @@
           </el-col>
         </el-row>
       </div>
-      <el-form-item label="内容分类：" prop="type">
-        <el-checkbox-group v-model="form.define_sort_array">
-          <el-checkbox v-for="item in definesortList"  :key="item.id" :label="item.name" :value="item.id"></el-checkbox>
+      <el-form-item label="内容分类：">
+        <el-checkbox-group v-model="defineSortArray" @change="defineSortChange">
+          <el-checkbox v-for="item in definesortList"  :key="item.id" :label="item.id" :value="item.id">{{item.name}}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <div class="gd-cont">
@@ -141,7 +141,9 @@ import {
   BasePlatformLst,
   BaseDefinesortLst,
   BaseGroupLst,
-  BaseGameCompanyLst, } from '@/api/api'
+  BaseGameCompanyLst,
+  GameDefinesortsSet,
+   } from '@/api/api'
 import {postAjax,getAjax} from "@/utils/ajax"
 import {
   getList,
@@ -168,11 +170,11 @@ export default {
         language_id: null,
         company_id: null,
         publish_time: null,
-        disc_no: "",
+        disn_no: "",
         keywords: "",
         group_id: null,
-        define_sort_array: []
       },
+      defineSortArray: [],
       rules: {},
       screenshotList: [],
       sortList: [],
@@ -182,12 +184,12 @@ export default {
       definesortList: [],
       groupList: [],
       gameCompanyLst: [],
+      discList: [],
     }
   },
   mounted() {
     this.getSearchListInit()
     this.getGameInfo()
-    
   },
   methods: {
     getGameInfo() {
@@ -200,18 +202,34 @@ export default {
             id: id,
           },
         }).then(res=> {
-          console.log(res)
           if(res.code === 1) {
             const resdata = res.data
             this.screenshotList = resdata.screenshot
-            resdata.define_sort_array = resdata.define_sort_array ? resdata.define_sort_array.split(',') : []
             resdata.publish_time = new Date(moment(resdata.publish_time).format('YYYY-MM-DD'))
-            console.log(resdata)
             this.cover = resdata.cover
-            this.form = resdata
+            this.form = {
+              view_name: resdata.view_name,
+              original_name: resdata.original_name,
+              intro: resdata.intro,
+              platform_id: resdata.platform_id,
+              sort_id: resdata.sort_id,
+              area_id: resdata.area_id,
+              language_id: resdata.language_id,
+              company_id: resdata.company_id,
+              publish_time: resdata.publish_time,
+              disn_no: resdata.disc_no,
+              keywords: resdata.key_word,
+              group_id: resdata.group_id,
+            }
+            let arr = resdata.define_sort ? resdata.define_sort.map(item => item.id): []
+            this.defineSortArray = arr
           }
         })
       }
+    },
+    defineSortChange(e) {
+      console.log(e)
+      this.defineSortArray = e
     },
     successUpload() {
       // this.getGameInfo()
@@ -222,8 +240,11 @@ export default {
     onSubmit() {
       const params = this.form
       params.publish_time = dateToMs(params.publish_time)
-      params.define_sort_array = params.define_sort_array.join(',')
-      return 
+      const id = this.$route.params.id
+      if(id) {
+        params.id = id
+      }
+      console.log(params)
       postAjax({
         url: GameInfoSet,
         data: {
@@ -231,6 +252,9 @@ export default {
         }
       }).then(res=> {
         console.log(res)
+        if(res.code === 1) {
+          this.setDefineSort()
+        }
       })
     },
     handleRemove(file, fileList) {
@@ -251,6 +275,28 @@ export default {
       this.definesortList = await getList(BaseDefinesortLst)
       this.groupList = await getList(BaseGroupLst)
       this.gameCompanyLst = await getList(BaseGameCompanyLst)
+    },
+    
+    // 设置改游戏的分类内容
+    setDefineSort(did) {
+      const defineSortArray = this.defineSortArray
+      this.setDefineSortRequest(defineSortArray)
+    },
+    // 设置改游戏的分类内容 发送请求
+    setDefineSortRequest(dids = []) {
+      const id = this.$route.params.id
+      if(id) {
+        postAjax({
+          url: GameDefinesortsSet,
+          data: {
+            id: id,
+            dss: dids.join(','),
+          }
+        }).then(res=> {
+          console.log(res)
+        })
+      }
+      
     },
     
   }

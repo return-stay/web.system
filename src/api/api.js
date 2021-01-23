@@ -14,6 +14,13 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     GameScreenshotSet = '/game/screenshot.set', //上传截图  id=&screenshot=FILE
     GameScreenshotDel = '/game/screenshot.del', //删除游戏截图 id=&ssid=screenshotID
 
+    GameDefineSortInf = '/game/define/sort.inf',
+    GameDefineSortSet = '/game/define/sort.set',
+    GameDefineSortLst = '/game/define/sort.lst', // 游戏内容分类列表
+    GameDefineSortGamesSet = '/game/define/sort/games.set', ///id=游戏ID&gms=id1,id2,id3 内容分类id
+    GameDefinesortsSet = '/game/definesorts.set',//id=gameID&dss=id1,id2,id3
+    
+
     TradeListDat = '/trade/list.dat', // 订单列表 tid 订单 cstime,cetime 创建开始、结束时间 pstime,petime 支付开始、结束时间 st状态 dcid物流方式 ch渠道 page页数
     TradeInfoDat = '/trade/info.dat', //订单详情
     TradeCloseSet = '/trade/close.set', // 关闭订单 id=交易ID
@@ -35,11 +42,13 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     BaseAreaLst = '/base/area.lst',
     BaseLanguageLst = '/base/language.lst',
     BasePlatformLst = '/base/platform.lst',
-    BaseDefinesortLst = '/base/definesort.lst',
+    BaseDefinesortLst = '/base/definesort.lst', 
     BaseGroupLst = '/base/group.lst', //获取系列列表
     BaseGameCompanyLst = '/base/game/company.lst', //获取游戏公司列表
 
-
+    DiscListDat = '/disc/list.dat', // 游戏库存列表
+    DiscInfoDat = '/disc/info.dat',
+    DiscInfoSet = '/disc/info.set', //
 
     UserListDat = '/user/list.dat', //用户列表 
     UserInfoDat = '/user/info.dat', //用户详情
@@ -73,6 +82,11 @@ export {
   GameScreenshotSet,
   GameScreenshotDel,
 
+  GameDefineSortInf,
+  GameDefineSortSet,
+  GameDefineSortLst,
+  GameDefineSortGamesSet,
+  GameDefinesortsSet,
 
   TradeListDat,
   ChannelListDat,
@@ -96,6 +110,10 @@ export {
   BaseDefinesortLst,
   BaseGroupLst,
   BaseGameCompanyLst,
+
+  DiscListDat,
+  DiscInfoDat,
+  DiscInfoSet,
 
   UserListDat,
   UserInfoDat,

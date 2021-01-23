@@ -25,7 +25,6 @@ export default {
     paramsManage() {
       const {currentPage = 1} = this.$route.query
       const searchobj = removeEmptyField(this.searchobj)
-
       const urls = this.urls
       let obj = {}
       if(urls.typeJson === 'json') {
@@ -39,9 +38,6 @@ export default {
           ...searchobj,
         }
       }
-      
-
-      console.log(obj)
       return obj
     },
     search(searchobj) {
@@ -108,7 +104,7 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(this.ruleForm)
-          this.tabAction = -1
+          this.tabAction = 0
           // this.$refs.tablechild.search(this.ruleForm);
           this.search(this.ruleForm)
 

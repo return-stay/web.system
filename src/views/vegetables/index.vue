@@ -249,12 +249,6 @@ export default {
           type: '',
           materials: '土豆',
         },
-        {
-          id: 132,
-          name: '韭菜小河虾',
-          type: '',
-          materials: '韭菜',
-        },
         // {
         //   id: 133,
         //   name: '紫菜鸡蛋汤',
@@ -279,6 +273,60 @@ export default {
         //   type: '汤',
         //   materials: '',
         // },
+        {
+          id: 133,
+          name: '炒荷兰豆',
+          type: '',
+          materials: '荷兰豆',
+        },
+        {
+          id: 134,
+          name: '山药荷兰豆',
+          type: '',
+          materials: '荷兰豆',
+        },
+        {
+          id: 135,
+          name: '蒜蓉金针菇',
+          type: '',
+          materials: '金针菇',
+        },
+        {
+          id: 136,
+          name: '烧冬瓜',
+          type: '',
+          materials: '冬瓜',
+        },
+        {
+          id: 137,
+          name: '大葱烧豆腐',
+          type: '',
+          materials: '豆腐',
+        },
+        {
+          id: 138,
+          name: '麻婆豆腐',
+          type: '',
+          materials: '豆腐',
+        },
+        {
+          id: 139,
+          name: '香煎豆腐',
+          type: '',
+          materials: '豆腐',
+        },
+        {
+          id: 140,
+          name: '粉丝圆白菜',
+          type: '',
+          materials: '圆白菜',
+        },
+        {
+          id: 141,
+          name: '鱼香茄子',
+          type: '鱼香',
+          materials: '茄子',
+        },
         {
           id: 212,
           name: '豆角炒肉',
@@ -306,7 +354,7 @@ export default {
         {
           id: 216,
           name: '鱼香肉丝',
-          type: '',
+          type: '鱼香',
           materials: '猪肉',
         },
         {
@@ -354,12 +402,6 @@ export default {
           materials: '',
         },
         {
-          id: 207,
-          name: '红烧大黄鱼',
-          type: '',
-          materials: '',
-        },
-        {
           id: 208,
           name: '红烧带鱼',
           type: '',
@@ -391,7 +433,7 @@ export default {
         },
         {
           id: 218,
-          name: '土豆肥牛',
+          name: '洋葱肥牛',
           type: '',
           materials: '',
         },
