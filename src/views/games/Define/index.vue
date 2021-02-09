@@ -30,58 +30,57 @@
     </div>
 
     <div class="table-box">
-      <game-table :urls="urls" @edit="edit">
-        <el-table
-          :border="false"
-          :data="tableData"
-          style="width: 100%">
-          <el-table-column
-            prop="name"
-            label="分类名称"
-            width="220">
-          </el-table-column>
-          <el-table-column
-            prop="intro"
-            label="简介">
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            label="创建时间"
-            width="170">
-            <template slot-scope="scope">
-              <div>
-                {{moment(scope.row.create_time).format('YYYY-MM-DD HH:mm:ss')}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="id"
-            align="center"
-            label="操作"
-            width="170">
-            <template slot-scope="scope">
-              <div>
-                <span class="text-cursor" @click="edit(scope.row)">编辑</span>
-                  <el-divider direction="vertical"></el-divider>
-                <span class="text-cursor" @click="stop(scope.row)">停用</span>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </game-table>
+      <el-table
+        :border="false"
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="name"
+          label="分类名称"
+          width="220">
+        </el-table-column>
+        <el-table-column
+          prop="intro"
+          label="简介">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          label="创建时间"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              {{moment(scope.row.create_time).format('YYYY-MM-DD HH:mm:ss')}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="id"
+          align="center"
+          label="操作"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              <span class="text-cursor" @click="edit(scope.row)">编辑</span>
+                <el-divider direction="vertical"></el-divider>
+              <span class="text-cursor" @click="stop(scope.row)">停用</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
 import tableMixins from '@/mixins/tableMixins'
 import {GameDefineSortLst} from '@/api/api'
 import moment from 'moment'
+import Pagination from '@/components/Pagination'
 export default {
   name: 'Define',
-  components: { GameTable, Tabs },
+  components: { Tabs, Pagination },
   mixins: [tableMixins],
   data() {
     return {

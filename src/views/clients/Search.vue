@@ -44,26 +44,95 @@
     </div>
 
     <div class="table-box">
-      <TablePage 
-        :urls="urls"
-        :border="false"
-        :columns="columns"
-        @operation="operation" />
-        <!-- <GameTable :urls="urls" /> -->
+        <el-table
+        :data="tableData"
+        @sort-change="sortTableChange"
+        style="width: 100%">
+        <el-table-column
+          prop="id"
+          label="客户编号"
+          align="center"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="nickname"
+          label="客户信息"
+          align="center"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="age"
+          align="center"
+          label="账户余额">
+        </el-table-column>
+        <el-table-column
+          prop="game_num"
+          align="center"
+          label="畅玩卡/有效期"
+          width="100">
+        </el-table-column>
+        
+        <el-table-column
+          prop="total_fee"
+          align="center"
+          label="累计消费金额"
+          sortable
+          width="170">
+        </el-table-column>
+        <el-table-column
+          prop="fee_times"
+          align="center"
+          label="消费次数"
+          width="170">
+        </el-table-column>
+        <el-table-column
+          prop="fee_times"
+          align="center"
+          label="上次消费时间"
+          width="170">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          align="center"
+          label="注册时间"
+          sortable
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          align="center"
+          label="操作"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              <span class="text-cursor" @click="operation(scope.row)">详情</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import TablePage from '@/components/TablePage'
 import Tabs from '@/components/Tabs'
 import {UserListDat, BaseChannelLst} from '@/api/api'
 import {getAjax} from '@/utils/ajax'
+import Pagination from '@/components/Pagination'
+import tableMixins from '@/mixins/tableMixins'
 export default {
   name: 'ClientsSearch',
-  components: { TablePage, Tabs },
+  components: { Tabs, Pagination },
+  mixins: [tableMixins],
   data() {
     return {
+
       ruleForm: {
         um: '',
         ch: '',
@@ -77,70 +146,6 @@ export default {
         { key: 0, label: '全部', value: '全部' },
         { key: 1, label: '畅玩卡用户', value: '畅玩卡用户' },
         { key: 2, label: '非畅玩卡用户', value: '非畅玩卡用户' },
-      ],
-      columns: [
-        {
-          title: '客户编号',
-          key: 'id',
-          label: 'id',
-          width: 100,
-        },
-        {
-          title: '客户信息',
-          key: 'nickname',
-          label: 'nickname',
-          width: 240,
-        },
-         {
-          title: '账户余额',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '畅玩卡/有效期',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '累计消费金额',
-          key: 'total_fee',
-          label: 'total_fee',
-          width: 140,
-        },
-        {
-          title: '消费次数',
-          key: 'fee_times',
-          label: 'fee_times',
-          width: 100,
-        },
-        {
-          title: '上次消费时间',
-          key: 'age',
-          label: 'age',
-          width: 240,
-          sort: true,
-        },
-        {
-          title: '注册时间',
-          key: 'age',
-          label: 'age',
-          width: 240,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 100,
-          render: [
-            {
-              fnName: 'operation',
-              title: '详情'
-            }
-          ]
-        }
       ],
     }
   },

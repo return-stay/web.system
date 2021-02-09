@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'hidden':hidden}" class="pagination-container">
+  <div :class="{'hidden':hidden}" :style="'text-align:' +  position" class="pagination-container">
     <el-pagination
       :background="background"
       :current-page.sync="currentPage"
@@ -30,12 +30,12 @@ export default {
     },
     limit: {
       type: Number,
-      default: 20
+      default: 15
     },
     pageSizes: {
       type: Array,
       default() {
-        return [10, 20, 30, 50]
+        return [15, 25, 35, 50]
       }
     },
     layout: {
@@ -53,12 +53,18 @@ export default {
     hidden: {
       type: Boolean,
       default: false
+    },
+    position: {
+      type: String,
+      default: 'center',
     }
   },
   computed: {
     currentPage: {
       get() {
-        return this.page
+        const query = this.$route.query
+        let num = Number(query.currentPage)
+        return num || this.page
       },
       set(val) {
         this.$emit('update:page', val)
@@ -93,7 +99,8 @@ export default {
 <style scoped>
 .pagination-container {
   background: #fff;
-  padding: 32px 16px;
+  padding: 16px 16px;
+  margin-top: 0;
 }
 .pagination-container.hidden {
   display: none;

@@ -139,17 +139,9 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="block" style="text-align: center;">
-        <el-pagination
-          @size-change="paginationData.handleSizeChange"
-          @current-change="paginationData.handleCurrentChange"
-          :current-page="paginationData.currentPage"
-          :page-sizes="paginationData.pageSizes"
-          :page-size="paginationData.pageSize"
-          layout="total, prev, pager, next, jumper"
-          :total="paginationData.total">
-        </el-pagination>
-      </div>
+
+      <Pagination :total="totalNumber" @pagination="pagination" />
+      
     </div>
   </div>
 </template>
@@ -157,13 +149,13 @@
 <script>
 import { postAjax, getAjax} from '@/utils/ajax'
 import { TradeListDat, BaseChannelLst, BaseDeliveryCompanyLst, BaseTradeStatusLst, TradeCloseSet } from '@/api/api'
-
+import Pagination from '@/components/Pagination'
 import Tabs from '@/components/Tabs'
 import TableMixins from '@/mixins/tableMixins'
 import moment from 'moment'
 export default {
   name: 'OrderTable',
-  components: { Tabs},
+  components: { Tabs, Pagination },
   mixins: [TableMixins],
   props: {
     searchIconShow: {

@@ -3,6 +3,67 @@ import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
+
+const ajax = (options) => {
+  options.url = process.env.VUE_APP_BASE_API + options.url
+  let assignOptions = Object.assign({
+    time: 60000,
+    withCredentials: true,
+    headers: {
+      'X-Token': getToken(),
+      'Content-Type': 'application/json'
+    },
+  }, options)
+  return new Promise((resolve, reject)=> {
+    axios(assignOptions).then(res=> {
+      if(res.status === 200) {
+        let resdata = res.data
+        console.log(resdata)
+        const resdataCode = resdata.code
+        if(resdataCode === 1) {
+          resolve(resdata)
+        }else if (resdataCode === 0) {
+          resolve(resdata)
+        }else if(resdataCode !== 1) {
+          Message({
+            message: resdata.message || 'Error',
+            type: 'error',
+            duration: 5 * 1000
+          })
+          if (resdataCode === 50008 || resdataCode === 50012 || resdataCode === 50014) {
+            // to re-login
+            MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
+              confirmButtonText: 'Re-Login',
+              cancelButtonText: 'Cancel',
+              type: 'warning'
+            }).then(() => {
+              store.dispatch('user/resetToken').then(() => {
+                location.reload()
+              })
+            })
+          }
+          return reject(new Error(resdata.message || 'Error'))
+        }else {
+          reject(resdata)
+        }
+      }else {
+        reject(res)
+      }
+      
+    }).catch(error=> {
+      console.log('err' + error) // for debug
+      Message({
+        message: error.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      reject(error)
+    })
+  })
+}
+
+
+
 // create an axios instance
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
@@ -92,4 +153,4 @@ service.interceptors.response.use(
   }
 )
 
-export default service
+export default ajax

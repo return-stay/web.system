@@ -1,7 +1,7 @@
 <template>
   <div class="view-box ta-box">
     <el-form ref="form" :model="form" label-width="120px">
-      <div class="ta-header">奖杯信息</div>
+      <div class="ta-header">添加公司信息</div>
       <div class="ta-form">
         <el-form-item label="显示名称：" prop="view_name">
           <el-input size="small" placeholder="请输入显示名称" v-model="form.v" />
@@ -34,7 +34,7 @@
 import UploadImage from '@/components/Upload'
 import {GameCompanyInf, GameCompanySet } from '@/api/api'
 import { postAjax } from '@/utils/ajax'
-import {convertToBinary} from '@/utils'
+import ajax from '@/utils/request'
 export default {
   name: 'AddCompany',
   components: {UploadImage},
@@ -81,35 +81,27 @@ export default {
     },
     onSubmit() {
       let params = this.form
-
       const { id } = this.$route.query
-      // let fd = new FormData()
+      let fd = new FormData()
       if(id) {
-        params.id = id
-        // fd.append('id', id)
+        fd.append('id', id)
       }
+      fd.append('v', params.v)
+      fd.append('org', params.org)
+      fd.append('logo', new Blob([params.logo]))
+      fd.append('i', params.i)
 
-      convertToBinary(params.logo, (filed) => {
-        params.logo = filed
-
-        // fd.append('v', params.v)
-        // fd.append('org', params.org)
-        // fd.append('logo', params.logo)
-        // fd.append('i', params.id)
-        // console.log(fd)
-        console.log(params)
-        postAjax({
-          url: GameCompanySet,
-          data: params
-        }).then(res=> {
-          console.log(res)
-          if(res.code === 1) {
-            this.$message.success('添加成功')
-            this.$router.back(-1)
-          }
-        })
+      ajax({
+        method: 'post',
+        url: GameCompanySet,
+        data: fd,
+      }).then(res=> {
+        console.log(res)
+        if(res.code === 1) {
+          this.$message.success('添加成功')
+          this.$router.back(-1)
+        }
       })
-      
     },
     detail() {
       console.log("detail")

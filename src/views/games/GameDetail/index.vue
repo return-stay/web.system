@@ -9,7 +9,7 @@
 
       <inventory :btns="{isconfirm: true}" v-if="tabAction === 1" />
 
-      <pricing-adjustment v-if="tabAction === 2" />
+      <Pricing v-if="tabAction === 2" />
 
     </div>
   </div>
@@ -20,10 +20,11 @@ import Tabs from '@/components/Tabs'
 // import BasicInformation from './BasicInformation'
 import BasicInfo from '../Release/BasicInfo'
 import Inventory from '../Release/Inventory'
-import PricingAdjustment from '../PricingManage/PricingAdjustment'
+// import PricingAdjustment from '../PricingManage/PricingAdjustment'
+import Pricing from '../Release/Pricing'
 export default {
   name: 'ClientsDetail',
-  components: { Tabs ,BasicInfo, Inventory, PricingAdjustment },
+  components: { Tabs ,BasicInfo, Inventory, Pricing },
   data() {
     return {
       tabAction: 0,

@@ -2,21 +2,21 @@
   <div class="cs-box">
     <div class="title">
       <span class="title-text">查询</span>
-      <span class="title-add" @click="add"><i class="el-icon-plus"></i>添加渠道</span>
+      <span class="title-add" @click="add"><i class="el-icon-plus"></i>添加图片位</span>
     </div>
     <div class="search-box">
       <el-form ref="ruleForm" :model="ruleForm" label-width="100px">
-        <el-form-item label="位置：" prop="region">
+        <el-form-item label="位置：" prop="lid">
           <div class="search-form-line">
-            <el-select size="small" v-model="ruleForm.region" placeholder="请选择">
-              <el-option label="全部" value="0"></el-option>
+            <el-select size="small" v-model="ruleForm.lid" placeholder="请选择">
+              <el-option v-for="item in locationList" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
           </div>
         </el-form-item>
-        <el-form-item label="类型：" prop="region">
+        <el-form-item label="类型：" prop="tp">
           <div class="search-form-line">
-            <el-select size="small" v-model="ruleForm.region" placeholder="请选择">
-              <el-option label="全部" value="0"></el-option>
+            <el-select size="small" v-model="ruleForm.tp" placeholder="请选择">
+              <el-option v-for="item in typeList" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
           </div>
         </el-form-item>
@@ -32,22 +32,89 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @edit="edit" />
+      <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="disc_no"
+          label="预览图"
+          width="120">
+          <template slot-scope="{row}">
+            <img class="il-table-img" :src="IMG_URL + row.img" alt="">
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="location_name"
+          label="位置"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="type_name"
+          label="类型"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="type_name"
+          label="内容"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="title"
+          label="标题/描述"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="area_name"
+          label="状态"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="update_time"
+          label="更新时间"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="操作"
+          width="120">
+          <template slot-scope="{row}">
+            <span class="text-cursor" @click="edit(row)">编辑</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor" @click="operation(row)">停用</span>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <Pagination  :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
+import { IMG_URL, BaseContentTypeList, BaseContentLocationList, ContentInfoLst} from '@/api/api'
+import {getList} from '@/utils/data'
 import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
+import tableMixins from '@/mixins/tableMixins'
+import Pagination from '@/components/Pagination'
+import moment from 'moment'
 export default {
   name: 'ImagesLocation',
-  components: { GameTable, Tabs },
+  components: { GameTable, Tabs, Pagination },
+  mixins: [tableMixins],
   data() {
     return {
+      IMG_URL: IMG_URL,
+      moment: moment,
+      urls: {
+        list: ContentInfoLst,
+      },
       ruleForm: {
-        name: '',
-        date1: '',
+        tp: '',
+        lid: '',
       },
       tabAction: 0,
       tabslist: [
@@ -55,79 +122,18 @@ export default {
         { key: 1, label: '未使用', value: '未使用' },
         { key: 2, label: '已停用', value: '已停用' },
       ],
-      columns: [
-        {
-          title: '预览图',
-          key: 'name',
-          label: 'name',
-          width: 100,
-        },
-        {
-          title: '位置',
-          key: 'game',
-          label: 'game',
-        },
-         {
-          title: '类型',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '内容',
-          key: 'age',
-          label: 'age',
-          width: 200,
-        },
-        {
-          title: '标题/描述',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '状态',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '更新时间',
-          key: 'age',
-          label: 'age',
-          width: 200,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 160,
-          render: [
-            {
-              fnName: 'edit',
-              title: '编辑'
-            },
-            {
-              fnName: 'release',
-              title: '发布'
-            },
-          ]
-        }
-      ],
-      tableData: []
+      typeList: [],
+      locationList: [],
     }
   },
   mounted() {
-    let data = []
-    for(let i = 0;i<5;i++) {
-      data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
+    this.getSearchListInit()
   },
   methods: {
+    async getSearchListInit() {
+      this.typeList = await getList(BaseContentTypeList)
+      this.locationList =  await getList(BaseContentLocationList)
+    },
     onSubmit(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -189,6 +195,9 @@ export default {
   }
   .table-box {
     margin-top: 14px;
+    .il-table-img {
+      height: 40px;
+    }
   }
 }
 </style>

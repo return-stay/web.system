@@ -402,7 +402,7 @@ export function formatDate(value, fmt) {
 
 // 去除对象空值
 export function removeEmptyField(obj) {
-  var newObj = {}
+  var newObj = null
   if (typeof obj === 'string') {
     obj = JSON.parse(obj)
   }

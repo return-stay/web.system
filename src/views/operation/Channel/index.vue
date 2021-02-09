@@ -30,20 +30,89 @@
     </div>
 
     <div class="table-box">
-      <TablePage :isPagination="false" :urls="urls" :border="false" :columns="columns" @edit="edit" />
+      <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="id"
+          label="渠道编号"
+          align="center"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="渠道名称"
+          align="center"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="age"
+          align="center"
+          label="说明">
+        </el-table-column>
+        <el-table-column
+          prop="age"
+          align="center"
+          label="访问片段"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          align="center"
+          label="修改时间"
+          sortable
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="status_name"
+          align="center"
+          label="创建时间"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          align="center"
+          label="操作"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              <span class="text-cursor" @click="qr(scope.row)">QR</span>
+              <el-divider direction="vertical"></el-divider>
+              <span class="text-cursor" @click="edit(scope.row)">编辑</span>
+              <el-divider direction="vertical"></el-divider>
+              <span class="text-cursor" @click="operation(scope.row)">停用</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import TablePage from '@/components/TablePage'
 import Tabs from '@/components/Tabs'
 import {ChannelListDat} from '@/api/api'
+import tableMixins from '@/mixins/tableMixins'
+import Pagination from '@/components/Pagination'
+import moment from 'moment'
 export default {
   name: 'Channel',
-  components: { TablePage, Tabs },
+  components: { Tabs, Pagination },
+  mixins: [tableMixins],
   data() {
     return {
+      moment,
       urls: {
         list: ChannelListDat,
         listMethod: 'get',
@@ -97,26 +166,6 @@ export default {
           width: 200,
           sort: true,
         },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 160,
-          render: [
-            {
-              fnName: 'qr',
-              title: 'QR'
-            },
-            {
-              fnName: 'edit',
-              title: '编辑'
-            },
-            {
-              fnName: 'operation',
-              title: '停用'
-            },
-          ]
-        }
       ],
     }
   },

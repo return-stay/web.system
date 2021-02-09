@@ -219,12 +219,6 @@ export default {
           type: '',
           materials: '尖椒',
         },
-        {
-          id: 127,
-          name: '香菜土豆',
-          type: '',
-          materials: '土豆',
-        },
         // {
         //   id: 128,
         //   name: '干锅包菜',

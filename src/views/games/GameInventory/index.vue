@@ -60,74 +60,74 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" @edit="edit">
-        <el-table
-          :data="tableData"
-          style="width: 100%">
-          <el-table-column
-            prop="id"
-            label="盘编号"
-            width="80">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="游戏"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="shelves_id"
-            label="货架号"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="disc_no"
-            label="奖杯编号"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="cost"
-            label="成本价"
-            width="100">
-            <template slot-scope="{row}">
-              <span>{{Number((row.cost/100).toFixed(2))}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="order_memo"
-            label="备注"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="status"
-            label="状态"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            label="添加时间"
-            width="180">
-            <template slot-scope="{row}">
-              <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="操作"
-            width="120">
-            <template slot-scope="{row}">
-              <span class="text-cursor" @click="edit(row)">编辑</span>
-              <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor">下架</span>
-            </template>
-          </el-table-column>
-        </el-table>
-      </game-table>
+      <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="id"
+          label="盘编号"
+          width="80">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="游戏"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="shelves_id"
+          label="货架号"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="disc_no"
+          label="奖杯编号"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="cost"
+          label="成本价"
+          width="100">
+          <template slot-scope="{row}">
+            <span>{{Number((row.cost/100).toFixed(2))}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="order_memo"
+          label="备注"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          label="状态"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          label="添加时间"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="操作"
+          width="120">
+          <template slot-scope="{row}">
+            <span class="text-cursor" @click="edit(row)">编辑</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor">下架</span>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import GameTable from '@/components/TablePage/GameTable'
+import Pagination from '@/components/Pagination'
 import Tabs from '@/components/Tabs'
 import tableMixins from '@/mixins/tableMixins'
 import {DiscListDat, BaseSortLst, BaseAreaLst,BaseLanguageLst,BasePlatformLst,BaseDefinesortLst,BaseGroupLst,BaseGameCompanyLst} from '@/api/api'
@@ -135,7 +135,7 @@ import {getList} from '@/utils/data'
 import moment from 'moment'
 export default {
   name: 'GameInventory',
-  components: { GameTable, Tabs },
+  components: { Tabs, Pagination },
   mixins: [tableMixins],
   data() {
     return {

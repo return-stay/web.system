@@ -19,6 +19,15 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     GameDefineSortLst = '/game/define/sort.lst', // 游戏内容分类列表
     GameDefineSortGamesSet = '/game/define/sort/games.set', ///id=游戏ID&gms=id1,id2,id3 内容分类id
     GameDefinesortsSet = '/game/definesorts.set',//id=gameID&dss=id1,id2,id3
+
+    GameTrophyLst = '/game/trophy.lst',//游戏奖杯列表
+    GameTrophySet = '/game/trophy.set', //更新奖杯
+    GameTrophyInf = '/game/trophy.inf',//奖杯详情
+    GameTrophyNewSet = 'game/trophy/new.set', //新建奖杯
+
+    GamePriceSet = '/game/price.set', //定价
+    GamePriceInf = 'game/price.inf', //定价详情
+    GamePriceLst = '/game/price.lst', //定价列表
     
 
     TradeListDat = '/trade/list.dat', // 订单列表 tid 订单 cstime,cetime 创建开始、结束时间 pstime,petime 支付开始、结束时间 st状态 dcid物流方式 ch渠道 page页数
@@ -29,6 +38,13 @@ const baseApi = process.env.VUE_APP_BASE_API, //
 
 
     ChannelListDat = '/channel/list.dat', //渠道列表
+
+
+    ContentInfoLst = '/content/list.dat',//图片位管理
+    ContentInfoDat= '/content/info.dat',//图片位详情
+    ContentOffSet = '/content/off.set', //图片位关
+    ContentOnSet = '/content/on.set', //图片位开
+    ContentInfoSet = '/content/info.set',//添加图片位
 
     DiscFreeLst = '/disc/free.lst', //可租借游戏盘列表
     DiscOrderListDat = '/disc/order/list.dat', //游戏盘订单列表
@@ -45,6 +61,9 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     BaseDefinesortLst = '/base/definesort.lst', 
     BaseGroupLst = '/base/group.lst', //获取系列列表
     BaseGameCompanyLst = '/base/game/company.lst', //获取游戏公司列表
+    BaseTrophyLevelLst = '/base/trophy/level.lst', //获取难易度
+    BaseContentTypeList = '/base/content/type.lst', //
+    BaseContentLocationList = '/base/content/location.lst', //
 
     DiscListDat = '/disc/list.dat', // 游戏库存列表
     DiscInfoDat = '/disc/info.dat',
@@ -87,6 +106,14 @@ export {
   GameDefineSortLst,
   GameDefineSortGamesSet,
   GameDefinesortsSet,
+  GameTrophyLst,
+  GameTrophySet,
+  GameTrophyInf,
+  GameTrophyNewSet,
+
+  GamePriceSet,
+  GamePriceInf,
+  GamePriceLst,
 
   TradeListDat,
   ChannelListDat,
@@ -110,6 +137,15 @@ export {
   BaseDefinesortLst,
   BaseGroupLst,
   BaseGameCompanyLst,
+  BaseTrophyLevelLst,
+  BaseContentTypeList,
+  BaseContentLocationList,
+
+  ContentInfoLst,
+  ContentInfoDat,
+  ContentOffSet,
+  ContentOnSet,
+  ContentInfoSet,
 
   DiscListDat,
   DiscInfoDat,

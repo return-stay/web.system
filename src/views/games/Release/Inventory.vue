@@ -76,7 +76,6 @@
 import {postList} from "@/utils/data"
 import {GameMiniLst, DiscInfoSet, DiscInfoDat} from '@/api/api'
 import { postAjax } from '@/utils/ajax'
-import { param } from '@/utils'
 export default {
   name: 'Inventory',
   props: {
@@ -118,7 +117,7 @@ export default {
       this.gamelist = r
     },
     getInfo() {
-      const id = this.$route.query.id
+      const id = this.$route.params.id
       postAjax({
         url: DiscInfoDat,
         data: {

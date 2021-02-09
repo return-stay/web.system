@@ -130,7 +130,7 @@
 import Upload from '@/components/Upload'
 import Uploads from '@/components/Upload/Uploads'
 import PopImage from '@/components/PopImage'
-import UploadImageOrder from '@/components/Upload/UploadImageOrder'
+// import UploadImageOrder from '@/components/Upload/UploadImageOrder'
 import {
   GameInfoSet,
   GameInfoDat, 

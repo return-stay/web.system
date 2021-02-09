@@ -96,19 +96,93 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @edit="edit" />
+      <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="id"
+          label="奖杯编号"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="游戏"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="奖杯完成度"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="group"
+          label="类型/系列"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="开发公司"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="deposit"
+          label="押金"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="day_rent"
+          label="日租金"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="depot"
+          label="库存"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          label="创建时间"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="操作"
+          width="220">
+          <template slot-scope="{row}">
+            <span class="text-cursor">调价</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor">库存</span>
+            <el-divider direction="vertical" @click="edit(row)"></el-divider>
+            <span class="text-cursor" @click="operation(row)">详情</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor">下架</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import GameTable from '@/components/TablePage/GameTable'
+import {GamePriceLst} from '@/api/api'
 import Tabs from '@/components/Tabs'
+import moment from 'moment'
+import tableMixins from '@/mixins/tableMixins'
+import Pagination from '@/components/Pagination'
 export default {
   name: 'PricingManage',
-  components: { GameTable, Tabs },
+  components: { Tabs, Pagination },
+  mixins: [tableMixins],
   data() {
     return {
+      moment: moment,
+      urls: {
+        list: GamePriceLst,
+      },
       ruleForm: {
         name: '',
         date1: '',
@@ -120,80 +194,6 @@ export default {
         { key: 1, label: '未定价', value: '未定价' },
         { key: 2, label: '已定价', value: '已定价' },
       ],
-      columns: [
-        {
-          title: '奖杯编号',
-          key: 'name',
-          label: 'name',
-          width: 100,
-        },
-        {
-          title: '游戏',
-          key: 'game',
-          label: 'game',
-          width: 240,
-        },
-         {
-          title: '奖杯完成度',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '类型/系列',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '开发公司',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '押金',
-          key: 'age',
-          label: 'age',
-          width: 260,
-        },
-        {
-          title: '日租金',
-          key: 'age',
-          label: 'age',
-          width: 260,
-        },
-        {
-          title: '库存',
-          key: 'age',
-          label: 'age',
-          width: 260,
-        },
-        {
-          title: '添加时间',
-          key: 'age',
-          label: 'age',
-          width: 200,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 120,
-          render: [
-            {
-              fnName: 'edit',
-              title: '编辑'
-            },
-            {
-              fnName: 'operation',
-              title: '下架'
-            },
-          ]
-        }
-      ],
-      tableData: []
     }
   },
   mounted() {

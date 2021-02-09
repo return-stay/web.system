@@ -1,13 +1,13 @@
 <template>
   <div>
-    <!-- <img v-if="file.url" :src="file.url" alt=""> -->
     <el-upload
       class="avatar-uploader"
       :name='name'
       :data="params"
-      :action="uploadUrl"
+      action="#"
+      :auto-upload="false"
       :show-file-list="false"
-      :on-success="handleAvatarSuccess"
+      :on-change="handleChange"
       :before-upload="beforeAvatarUpload">
       <img v-if="imageUrlShow" :src="imageUrlShow" class="avatar">
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -17,6 +17,8 @@
 
 <script>
 import {IMG_URL} from '@/api/api'
+import {beforeAvatarUpload} from './upload'
+import {convertToBinary} from '@/utils'
 export default {
   name: 'UploadImage',
   props: {
@@ -32,32 +34,28 @@ export default {
       type: String,
       default: '',
     },
-    url: {
+    imageUrl: {
       type: String,
-      default: ''
+      default: '',
     },
   },
   computed: {
     imageUrlShow() {
-      let img = ''
       if(this.imageUrl) {
         return this.imageUrl
       }
-      if(this.url) {
-        return IMG_URL + this.url
+      if(this.imgUrl) {
+        return this.imgUrl
       }
-      return ''
     },
   },
   data() {
     return {
+      imgUrl: '',
       uploadUrl: IMG_URL + this.api,
-      file: {},
-      fileList: [],
       dialogImageUrl: '',
       dialogVisible: false,
       disabled: false,
-      imageUrl: '',
     };
   },
   mounted() {
@@ -65,39 +63,14 @@ export default {
   },
   methods: {
     handleChange(file, fileList) {
-      console.log(file, fileList)
-      this.file = file
-      this.fileList = fileList
+      console.log(file)
+      convertToBinary(file.raw, (res) => {
+        this.imgUrl = res
+      })
       this.$emit('change', file, fileList)
     },
-    handleAvatarSuccess(res, file) {
-      console.log(res)
-      if(res.code === 1) {
-        this.$emit('success')
-      }
-      this.imageUrl = URL.createObjectURL(file.raw);
-    },
-    handlePreview(file) {
-      console.log(file)
-    },
-    handleRemove(file) {
-      console.log(file);
-    },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
-
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
-      }
-      return isJPG && isLt2M;
-    },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
+      return beforeAvatarUpload(file)
     },
   }
 }

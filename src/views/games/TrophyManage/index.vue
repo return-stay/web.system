@@ -19,9 +19,9 @@
           </el-form-item>
         </div>
         <div class="search-form-line">
-          <el-form-item label="奖杯完成度：">
-            <el-select size="small" v-model="ruleForm.region" placeholder="请选择奖杯完成度">
-              <el-option label="全部" value="0"></el-option>
+          <el-form-item label="奖杯完成度：" prop="l">
+            <el-select size="small" v-model="ruleForm.l" placeholder="请选择奖杯完成度">
+              <el-option v-for="item in trophyLevelLst" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="开发公司：">
@@ -55,8 +55,8 @@
           </el-form-item>
         </div>
         <el-form-item label="">
-          <el-button type="primary" @click="onSubmit('ruleForm')">筛选</el-button>
-          <el-button type="text" @click="resetForm('ruleForm')">清空筛选</el-button>
+          <el-button type="primary" @click="onSearchSubmit('ruleForm')">筛选</el-button>
+          <el-button type="text" @click="resetSearchForm('ruleForm')">清空筛选</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -66,23 +66,108 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @edit="edit" />
+      <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="disc_no"
+          label="奖杯编号"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="view_name"
+          label="关联游戏"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{row.game_info.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="level_name"
+          label="奖杯完成度"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop=""
+          label="奖杯数量"
+          width="180">
+          <template slot-scope="{row}">
+            <span v-if="row.platinum">白{{row.platinum}} </span>
+            <span v-if="row.gold">&nbsp;金{{row.gold}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="platinum"
+          label="平台"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{row.game_info.platform_name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="area_name"
+          label="版本"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{row.game_info.area_name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop=""
+          label="语言"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{row.game_info.language_name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          label="创建时间"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="操作"
+          width="120">
+          <template slot-scope="{row}">
+            <span class="text-cursor" @click="edit(row)">编辑</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor" @click="operation(row)">停用</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import GameTable from '@/components/TablePage/GameTable'
+import { GameTrophyLst, BaseTrophyLevelLst } from '@/api/api'
+import tableMixins from '@/mixins/tableMixins'
 import Tabs from '@/components/Tabs'
+import moment from 'moment'
+import { getList } from '@/utils/data'
+import Pagination from '@/components/Pagination'
 export default {
   name: 'TrophyManage',
-  components: { GameTable, Tabs },
+  components: { Tabs, Pagination },
+  mixins: [tableMixins],
   data() {
     return {
+      moment: moment,
+      trophyLevelLst: [],
+      urls: {
+        list: GameTrophyLst,
+        methods: "post",
+      },
+      rules: {},
       ruleForm: {
+        l: 0,
         name: '',
-        date1: '',
-        date2: '',
+        region: '',
       },
       tabAction: 0,
       tabslist: [
@@ -157,17 +242,10 @@ export default {
           ]
         }
       ],
-      tableData: []
     }
   },
   mounted() {
-    let data = []
-    for(let i = 0;i<5;i++) {
-      data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
+    this.getSearchListInit()
   },
   methods: {
     onSubmit(formName) {
@@ -179,6 +257,9 @@ export default {
           return false;
         }
       });
+    },
+    async getSearchListInit() {
+      this.trophyLevelLst = await getList(BaseTrophyLevelLst)
     },
     resetForm(formName) {
       console.log(formName)
@@ -193,7 +274,7 @@ export default {
     edit(row) {
       this.$router.push({
         path: '/game/trophy/add',
-        query: {id: row.id}
+        query: {id: row.disc_no}
       })
     },
   }

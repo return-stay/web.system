@@ -80,89 +80,89 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :tableData="tableData" @operation="operation">
-        <el-table
-          :data="tableData"
-          style="width: 100%">
-          <el-table-column
-            prop="id"
-            label="商品编号"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="view_name"
-            label="游戏"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="奖杯完成度"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="sort_name"
-            label="类型/系列"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="开发公司"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="deposit"
-            label="押金"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="day_rent"
-            label="日租金"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="disc_count"
-            label="库存"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            label="创建时间"
-            width="180">
-            <template slot-scope="{row}">
-              <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            label="操作"
-            width="220">
-            <template slot-scope="{row}">
-              <span class="text-cursor">调价</span>
-              <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor">库存</span>
-              <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor" @click="operation(row)">详情</span>
-              <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor">下架</span>
-            </template>
-          </el-table-column>
-        </el-table>
-      </game-table>
+      <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="id"
+          label="商品编号"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="view_name"
+          label="游戏"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="奖杯完成度"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="sort_name"
+          label="类型/系列"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="开发公司"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="deposit"
+          label="押金"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="day_rent"
+          label="日租金"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="disc_count"
+          label="库存"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          label="创建时间"
+          width="180">
+          <template slot-scope="{row}">
+            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="操作"
+          width="220">
+          <template slot-scope="{row}">
+            <span class="text-cursor">调价</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor">库存</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor" @click="operation(row)">详情</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor">下架</span>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
+import Pagination from '@/components/Pagination'
 import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
 import {GameListDat, BaseSortLst,BaseAreaLst,BaseLanguageLst,BasePlatformLst,BaseDefinesortLst,BaseGroupLst,BaseGameCompanyLst} from '@/api/api'
 import tableMixins from '@/mixins/tableMixins'
-import { getAjax } from '@/utils/ajax'
 import {getList} from '@/utils/data'
 import moment from 'moment'
 export default {
   name: 'GameSearch',
-  components: { GameTable, Tabs },
+  components: { GameTable, Tabs, Pagination },
   mixins: [tableMixins],
   data() {
     return {

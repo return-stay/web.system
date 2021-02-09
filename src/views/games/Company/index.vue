@@ -30,79 +30,77 @@
     </div>
 
     <div class="table-box">
-      <game-table :urls="urls" >
-
-        <el-table
-          :data="tableData"
-          @sort-change="sortTableChange"
-          style="width: 100%">
-          <el-table-column
-            prop="logo_url"
-            label="LOGO"
-            align="center"
-            width="100">
-            <template slot-scope="scope">
-              <img style="width: 100%;" :src="scope.row.logo_url" alt="">
-              <!-- <div>图</div> -->
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="view_name"
-            label="显示名称"
-            align="center"
-            width="180">
-          </el-table-column>
-          <el-table-column
-            prop="original_name"
-            align="center"
-            label="原始名称">
-          </el-table-column>
-          <el-table-column
-            prop="game_num"
-            align="center"
-            label="游戏数量"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            align="center"
-            label="创建时间"
-            sortable
-            width="170">
-            <template slot-scope="scope">
-              <div>
-                {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            align="center"
-            label="操作"
-            width="170">
-            <template slot-scope="scope">
-              <div>
-                <span class="text-cursor" @click="edit(scope.row)">编辑</span>
-                  <el-divider direction="vertical"></el-divider>
-                <span class="text-cursor" @click="stop(scope.row)">停用</span>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-      </game-table>
+      <el-table
+        :data="tableData"
+        @sort-change="sortTableChange"
+        style="width: 100%">
+        <el-table-column
+          prop="logo_url"
+          label="LOGO"
+          align="center"
+          width="100">
+          <template slot-scope="scope">
+            <img style="width: 100%;" :src="scope.row.logo_url" alt="">
+            <!-- <div>图</div> -->
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="view_name"
+          label="显示名称"
+          align="center"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="original_name"
+          align="center"
+          label="原始名称">
+        </el-table-column>
+        <el-table-column
+          prop="game_num"
+          align="center"
+          label="游戏数量"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          align="center"
+          label="创建时间"
+          sortable
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          align="center"
+          label="操作"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              <span class="text-cursor" @click="edit(scope.row)">编辑</span>
+                <el-divider direction="vertical"></el-divider>
+              <span class="text-cursor" @click="stop(scope.row)">停用</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import GameTable from '@/components/TablePage/GameTable'
+import Pagination from '@/components/Pagination'
 import Tabs from '@/components/Tabs'
 import {GameCompanyLst} from "@/api/api"
 import tableMixins from '@/mixins/tableMixins'
 import moment from 'moment'
 export default {
   name: 'DevelopmentCompany',
-  components: { GameTable, Tabs },
+  components: { Tabs, Pagination },
   mixins: [tableMixins],
   data() {
     return {

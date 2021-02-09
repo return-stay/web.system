@@ -9,7 +9,8 @@ export default {
         handleCurrentChange: this.handleCurrentChange,
         // ...pagination,
       }, //分页
-      totalPage: 0,
+      totalNumber: 0, //总数据量
+      tabalPage: 0, //总页数
       tableData: [], //列表数据源
     }
   },
@@ -26,17 +27,15 @@ export default {
       const {currentPage = 1} = this.$route.query
       const searchobj = removeEmptyField(this.searchobj)
       const urls = this.urls
-      let obj = {}
+      let obj = {
+        page: Number(currentPage),
+      }
       if(urls.typeJson === 'json') {
-        obj = {
-          page: Number(currentPage),
-          data: JSON.stringify(searchobj)
+        if(searchobj) {
+          obj.data = JSON.stringify(searchobj)
         }
       }else {
-        obj = {
-          page: Number(currentPage),
-          ...searchobj,
-        }
+        Object.assign(obj, searchobj)
       }
       return obj
     },
@@ -68,14 +67,22 @@ export default {
       requestAajx.then(res=> {
         console.log(res)
         if(res.code === 1) {
-          this.totalPage = res.data.total
-          this.pageSize = res.data.pages
-          this.tableData = res.data.list || res.data;
-          this.initPagination()
+          const resdata = res.data
+          this.totalNumber = res.count || res.data.total || res.data.count || resdata.length
+          this.totalPage = res.pages || res.data.pages
+          this.tableData = resdata.list || res.data;
         }else {
           this.tableData = []
         }
       })
+    },
+    // page 当前第几页  limit 每页多少条
+    pagination({page}) {
+      const query = this.$route.query
+      this.$router.push({
+        query: {...query, currentPage: page}
+      })
+      this.getList()
     },
     handleCurrentChange(val) {
       const query = this.$route.query
@@ -84,21 +91,6 @@ export default {
       })
       // this.$emit('handleCurrentChange', val)
       this.getList()
-    },
-    // 初始化分页器
-    initPagination () {
-      // const pagination = this.pagination
-      const totalPage = this.totalPage
-      const {currentPage = 1, pageSize = 15} = this.$route.query
-      this.paginationData = {
-        pageSizeS: [10, 20, 50, 100, 200],
-        pageSize: Number(pageSize),
-        total: totalPage,
-        currentPage: Number(currentPage),
-        handleSizeChange: this.handleSizeChange,
-        handleCurrentChange: this.handleCurrentChange,
-        // ...pagination,
-      }
     },
     onSearchSubmit(formName) {
       this.$refs[formName].validate((valid) => {
