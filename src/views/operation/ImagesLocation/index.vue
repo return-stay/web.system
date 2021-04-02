@@ -6,23 +6,21 @@
     </div>
     <div class="search-box">
       <el-form ref="ruleForm" :model="ruleForm" label-width="100px">
-        <el-form-item label="位置：" prop="lid">
-          <div class="search-form-line">
-            <el-select size="small" v-model="ruleForm.lid" placeholder="请选择">
+        <div class="search-form-line">
+          <el-form-item label="位置：" prop="lid">
+            <el-select size="small" v-model="ruleForm.lid" placeholder="请选择位置">
               <el-option v-for="item in locationList" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
-          </div>
-        </el-form-item>
-        <el-form-item label="类型：" prop="tp">
-          <div class="search-form-line">
-            <el-select size="small" v-model="ruleForm.tp" placeholder="请选择">
+          </el-form-item>
+          <el-form-item label="类型：" prop="tp">
+            <el-select size="small" v-model="ruleForm.tp" placeholder="请选择类型">
               <el-option v-for="item in typeList" :key="item.value" :label="item.name" :value="item.value"></el-option>
             </el-select>
-          </div>
-        </el-form-item>
+          </el-form-item>
+        </div>
         <el-form-item label="">
-          <el-button type="primary" @click="onSubmit('ruleForm')">筛选</el-button>
-          <el-button type="text" @click="resetForm('ruleForm')">清空筛选</el-button>
+          <el-button type="primary" @click="onSearchSubmit('ruleForm')">筛选</el-button>
+          <el-button type="text" @click="resetSearchForm('ruleForm')">清空筛选</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -40,21 +38,23 @@
           label="预览图"
           width="120">
           <template slot-scope="{row}">
-            <img class="il-table-img" :src="IMG_URL + row.img" alt="">
+            <div v-if="row.img" style="height: 40px;">
+              <ImageLarger :src="row.img" imgstyle="height: 100%;" />
+            </div>
           </template>
         </el-table-column>
         <el-table-column
           prop="location_name"
           label="位置"
-          width="180">
+          width="120">
         </el-table-column>
         <el-table-column
           prop="type_name"
           label="类型"
-          width="180">
+          width="120">
         </el-table-column>
         <el-table-column
-          prop="type_name"
+          prop="relation_name"
           label="内容"
           width="180">
         </el-table-column>
@@ -66,7 +66,11 @@
         <el-table-column
           prop="area_name"
           label="状态"
-          width="180">
+          width="120">
+          <template slot-scope="{row}">
+            <span v-if="row.active">启用</span>
+            <span v-else>停用</span>
+          </template>
         </el-table-column>
         <el-table-column
           prop="update_time"
@@ -83,27 +87,41 @@
           <template slot-scope="{row}">
             <span class="text-cursor" @click="edit(row)">编辑</span>
             <el-divider direction="vertical"></el-divider>
-            <span class="text-cursor" @click="operation(row)">停用</span>
+            <el-popconfirm
+              v-if="row.active"
+              title="确定停用该图片位吗？"
+              @onConfirm="stopUsing(row)"
+            >
+              <span slot="reference" class="text-cursor">停用</span>
+            </el-popconfirm>
+            <el-popconfirm
+              v-else
+              title="确定启用该图片位吗？"
+              @onConfirm="enable(row)"
+            >
+              <span slot="reference" class="text-cursor">启用</span>
+            </el-popconfirm>    
           </template>
         </el-table-column>
       </el-table>
-
-      <Pagination  :total="totalNumber" @pagination="pagination" />
+      <Pagination :limit="limit" :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import { IMG_URL, BaseContentTypeList, BaseContentLocationList, ContentInfoLst} from '@/api/api'
+import { IMG_URL, BaseContentTypeList, BaseContentLocationList, ContentInfoLst, ContentOffSet, ContentOnSet} from '@/api/api'
 import {getList} from '@/utils/data'
 import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
 import tableMixins from '@/mixins/tableMixins'
 import Pagination from '@/components/Pagination'
 import moment from 'moment'
+import {stopOrEnableRequest} from '@/utils/ajax'
+import ImageLarger from '@/components/ImageLarger'
 export default {
   name: 'ImagesLocation',
-  components: { GameTable, Tabs, Pagination },
+  components: { GameTable, Tabs, Pagination, ImageLarger },
   mixins: [tableMixins],
   data() {
     return {
@@ -116,11 +134,10 @@ export default {
         tp: '',
         lid: '',
       },
-      tabAction: 0,
+      tabAction: -1,
       tabslist: [
-        { key: 0, label: '全部', value: '全部' },
-        { key: 1, label: '未使用', value: '未使用' },
-        { key: 2, label: '已停用', value: '已停用' },
+        { key: -1, label: '全部', value: '全部' },
+        { key: 0, label: '已停用', value: '已停用' },
       ],
       typeList: [],
       locationList: [],
@@ -134,21 +151,11 @@ export default {
       this.typeList = await getList(BaseContentTypeList)
       this.locationList =  await getList(BaseContentLocationList)
     },
-    onSubmit(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!');
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
+    tabsChange(e) {
+      this.tabSearch({
+        st: e.key,
+      })
     },
-    resetForm(formName) {
-      console.log(formName)
-      this.$refs[formName].resetFields();
-    },
-    tabsChange() {},
     add() {
       this.$router.push({
         path: '/operation/location/add'
@@ -158,6 +165,24 @@ export default {
       this.$router.push({
         path: '/operation/location/add',
         query: {id: row.id}
+      })
+    },
+    stopUsing(row) {
+      stopOrEnableRequest({
+        url: ContentOffSet,
+        data: {id: row.id},
+        successText: '停用成功',
+      }, () => {
+        this.getList()
+      })
+    },
+    enable(row) {
+      stopOrEnableRequest({
+        url: ContentOnSet,
+        data: {id: row.id},
+        successText: '启用成功',
+      }, () => {
+        this.getList()
       })
     },
   }

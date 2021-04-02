@@ -53,7 +53,14 @@ const orderRouter = [
         name: 'OrderDetail',
         hidden: true,
         meta: { title: '订单详情', noCache: true, icon: 'circle' },
-      }
+      },
+      {
+        path: 'afterSaleDetail/:id',
+        component: () => import('@/views/order/AfterSaleDetail'),
+        name: 'AfterSaleDetail',
+        hidden: true,
+        meta: { title: '售后详情', noCache: true, icon: 'circle' },
+      },
     ]
   },
   {
@@ -81,6 +88,13 @@ const orderRouter = [
         name: 'ClientsDetail',
         hidden: true,
         meta: { title: '客户详情', noCache: true, icon: 'circle' },
+      },
+      {
+        path: 'cardDetail/:id',
+        component: () => import('@/views/clients/CardDeail'),
+        name: 'CardDetail',
+        hidden: true,
+        meta: { title: '开卡记录', noCache: true, icon: 'circle' },
       },
     ]
   },

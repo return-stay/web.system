@@ -15,24 +15,47 @@
             </el-input>
           </el-form-item>
           <el-form-item label="微信昵称：">
-            <el-input size="small" v-model="userInfo.nickname" :disabled="true"></el-input>
+            <el-input size="small" v-model="userInfo.nickname" :disabled="true">
+              <i
+                style="color: #838383;"
+                class="el-icon-lock el-input__icon"
+                slot="suffix">
+              </i>
+            </el-input>
           </el-form-item>
           <el-form-item label="微信头像：">
             <div class="wechart-photo">
-              <image-larger />
+              <image-larger :src="userInfo.avatar_url" />
             </div>
           </el-form-item>
           <el-form-item label="收件人名称：">
-            <el-input size="small" v-model="form.name" :disabled="true"></el-input>
+            <el-input size="small" v-model="userInfo.username" :disabled="true">
+              <i
+                style="color: #838383;"
+                class="el-icon-lock el-input__icon"
+                slot="suffix">
+              </i>
+            </el-input>
           </el-form-item>
           <el-form-item label="收件人电话：">
-            <el-input size="small" v-model="form.name" :disabled="true"></el-input>
+            <el-input size="small" v-model="userInfo.mobile" :disabled="true">
+              <i
+                style="color: #838383;"
+                class="el-icon-lock el-input__icon"
+                slot="suffix">
+              </i>
+            </el-input>
           </el-form-item>
           <el-form-item label="注册时间：">
-            <el-input size="small" v-model="userInfo.create_time" :disabled="true"></el-input>
+            <el-input size="small" v-model="userInfo.create_time" :disabled="true">
+              <i
+                style="color: #838383;"
+                class="el-icon-lock el-input__icon"
+                slot="suffix">
+              </i>
+            </el-input>
           </el-form-item>
         </el-col>
-        
       </div>
 
 
@@ -40,7 +63,7 @@
       <div class="bi-form-box clearfix">
         <el-col :span="9">
           <el-form-item label="账户余额：">
-            <el-input size="small" v-model="form.name" :disabled="true">
+            <el-input size="small" :value="Number((userInfo.free_balance/100).toFixed(2))||null" :disabled="true">
               <span
                 style="color: #000;"
                 slot="suffix">元
@@ -50,7 +73,7 @@
         </el-col>
         <el-col :span="9">
           <el-form-item label="其中押金：">
-            <el-input size="small" v-model="form.name" :disabled="true">
+            <el-input size="small" :value="Number((userInfo.froze_balance/100).toFixed(2))||null" :disabled="true">
               <span
                 style="color: #000;"
                 slot="suffix">元
@@ -61,7 +84,7 @@
         <el-row>
           <el-col :span="9">
             <el-form-item label="累计消费：">
-              <el-input size="small" v-model="form.name" :disabled="true">
+              <el-input size="small" :value="Number((userInfo.total_fee/100).toFixed(2))||null" :disabled="true">
                 <span
                   style="color: #000;"
                   slot="suffix">元
@@ -78,7 +101,7 @@
         <el-row>
           <el-col :span="9">
             <el-form-item label="卡片类型：">
-              <el-input size="small" v-model="form.name" :disabled="true">
+              <el-input size="small" v-model="cardTypeName" :disabled="true">
                 <i
                   style="color: #838383;"
                   class="el-icon-lock el-input__icon"
@@ -91,7 +114,7 @@
         <el-row>
           <el-col :span="9">
             <el-form-item label="开通时间：">
-              <el-input size="small" v-model="form.name" :disabled="true">
+              <el-input size="small" v-model="startTime" :disabled="true">
                 <i
                   style="color: #838383;"
                   class="el-icon-lock el-input__icon"
@@ -104,7 +127,7 @@
         <el-row>
           <el-col :span="9">
             <el-form-item label="有效期：">
-              <el-input size="small" v-model="form.name" :disabled="true">
+              <el-input size="small" v-model="endTime" :disabled="true">
                 <i
                   style="color: #838383;"
                   class="el-icon-lock el-input__icon"
@@ -121,20 +144,45 @@
 
 <script>
 import ImageLarger from '@/components/ImageLarger'
+import {postAjax} from '@/utils/ajax'
+import { UserInfoDat } from '@/api/api'
+import moment from 'moment'
 export default {
   name: 'BasicInformation',
   components: {ImageLarger},
-  props: {
-    userInfo: {
-      type: Object,
-      default: () => {}
-    }
-  },
   data() {
     return {
+      userInfo: {},
+      startTime: null,
+      endTime: null,
+      cardTypeName: '',
       form: {
         name: '',
       }
+    }
+  },
+  mounted() {
+    this.getInfo()
+  },
+  methods: {
+    getInfo() {
+      const { id } = this.$route.params
+      postAjax({
+        url: UserInfoDat,
+        data: {
+          id: id
+        }
+      }).then(res=> {
+        console.log(res)
+        if(res.code === 1) {
+          let resdata = res.data
+          this.userInfo = resdata
+
+          this.endTime = moment(resdata.end_time).format('YYYY-MM-DD')
+          this.startTime = moment(resdata.start_time).format('YYYY-MM-DD')
+          this.cardTypeName = resdata.card_type === 2? '畅玩季卡' : '畅玩年卡'
+        }
+      })
     }
   }
 }

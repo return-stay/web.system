@@ -1,21 +1,21 @@
 <template>
   <div class="view-box ta-box">
     <div class="view-box-title">添加专题</div>
-    <el-form ref="form" :model="form" label-width="120px">
+    <el-form ref="form" :model="form" :rules="rules" label-width="120px">
       <div class="ta-header">专题信息</div>
       <div class="ta-form">
         <el-row>
           <el-col :span="20">
-            <el-form-item label="专题标题：">
-              <el-input size="small" placeholder="前台显示，使用中文名称" />
+            <el-form-item label="专题标题：" prop="tt">
+              <el-input size="small" v-model="form.tt" placeholder="前台显示，使用中文名称" />
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
         </el-row>
         <el-row>
           <el-col :span="20">
-            <el-form-item label="描述：" prop="desc">
-              <el-input type="textarea" placeholder="专题页显示的描述，不超过500个汉字" v-model="form.desc" :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
+            <el-form-item label="描述：" prop="des">
+              <el-input type="textarea" placeholder="专题页显示的描述，不超过500个汉字" v-model="form.des" :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
@@ -23,7 +23,7 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="专题图：">
-              <UploadImageOrder uploadClass='upload-demo' uploadText="添加图片" />
+              <UploadImage :imageUrl="img" uploadClass='upload-demo' uploadText="添加图片"  @change="uploadChange" />
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
@@ -32,36 +32,13 @@
       
       <div class="ta-header">专题游戏</div>
       <div class="ta-form">
-        <el-row>
-          <el-col :span="20">
-            <el-form-item label="选择游戏：">
-              <el-select size="small" style="width: 100%;" v-model="form.region" placeholder="优先使用奖杯编号和游戏名称检索">
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="2">
-            <el-button size="small" style="margin-left: 10px;">添加到专题</el-button>
-          </el-col>
-        </el-row>
-        <el-row>
-
-          <el-col :span="20">
-            <el-form-item label="已选择：" prop="desc">
-              <el-input type="textarea" v-model="form.desc" :autosize="{ minRows: 8 }"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="2" style="height: 100%;">
-            <el-button size="small" style="margin-left: 10px;">从专题去掉</el-button>
-          </el-col>
-        </el-row>
+        <SelectGames :propsList="gameIds" addText="添加到专题" @addCallback="addCallback"></SelectGames>
       </div>
       
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
           <el-button>保存并预览</el-button>
-          <el-button type="primary" @click="onSubmit">发布专题</el-button>
+          <el-button type="primary" @click="onSubmit('form')">发布专题</el-button>
           <!-- <el-button>取消</el-button> -->
         </el-form-item>
       </div>
@@ -69,36 +46,105 @@
   </div>
 </template>
 
-
 <script>
-import UploadImageOrder from '@/components/Upload/UploadImageOrder'
+import UploadImage from '@/components/Upload'
+import SelectGames from '@/components/SelectGames'
+import {TopicInfoDat, TopicInfoSet} from '@/api/api'
+import { postAjax } from '@/utils/ajax'
+import ajax from '@/utils/request'
 export default {
   name: 'AddGameSubject',
-  components: {UploadImageOrder},
+  components: { UploadImage, SelectGames },
   data() {
     return {
+      gameIds: [],
       form: {
-        region: '',
+        tt: '',
+        des: '',
+      },
+      fdimg: '',
+      img: '',
+      rules: {
+        tt: [
+          { required: true, message: '请输入专题标题', trigger: 'blur' }
+        ],
       }
     }
   },
-  methods: {
-    onSubmit() {
-      console.log('submit!');
-      console.log(this.form)
-    },
-    detail() {
-      console.log("detail")
+  mounted() {
+    const { id } = this.$route.query
+    if(id) {
+      this.getInfo(id)
     }
+  },
+  methods: {
+    getInfo(id) {
+      postAjax({
+        url: TopicInfoDat,
+        data: {
+          id
+        }
+      }).then(res=> {
+        if(res.code === 1) {
+          const resdata = res.data
+
+          this.form = {
+            tt: resdata.title,
+            des: resdata.description,
+          }
+          this.img = resdata.img
+          this.gameIds = resdata.game_id_list
+        }
+      })
+    },
+    uploadChange(file) {
+      this.img = ''
+      this.fdimg = file.raw
+    },
+    addCallback(e) {
+      this.gameIds = e
+    },
+    addSubjectRequest() {
+      let params = this.form
+      const { id } = this.$route.query
+      let fd = new FormData(), messageText = '添加成功'
+      if(id) {
+        fd.append('id', id)
+        messageText = '编辑成功'
+      }
+      fd.append('tt', params.tt)
+      fd.append('des', params.des)
+      if(!this.img) {
+        fd.append('img', this.fdimg)
+      }
+      
+      fd.append('gms', this.gameIds.join('-'))
+
+      ajax({
+        method: 'post',
+        formdata: true,
+        url: TopicInfoSet,
+        data: fd,
+        headers: {
+          'Content-Type': 'multipart/form-data', // 关键
+        },
+      }).then(res=> {
+        if(res.code === 1) {
+          this.$message.success(messageText)
+          this.$router.back(-1)
+        }
+      })
+    },
+    onSubmit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.addSubjectRequest()
+        }
+      })
+    },
   }
 }
 </script>
-
-<style lang="scss">
-.ta-form .el-form-item {
-  margin-bottom: 14px;
-}
-</style>
 <style lang="scss" scoped>
 .ta-box {
   .ta-header {

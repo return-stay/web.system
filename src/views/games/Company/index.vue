@@ -13,7 +13,7 @@
                 <el-option label="全部" value="0"></el-option>
               </el-select> -->
               <el-form-item prop="key" style="margin-bottom: 0;">
-                <el-input size="small" style="width: 194px;margin-left: 10px;" v-model="ruleForm.key"></el-input>
+                <el-input size="small" style="width: 194px;" placeholder="请搜索原始名称" v-model="ruleForm.key"></el-input>
               </el-form-item>
             </div>
           </el-form-item>
@@ -37,33 +37,27 @@
         <el-table-column
           prop="logo_url"
           label="LOGO"
-          align="center"
-          width="100">
-          <template slot-scope="scope">
-            <img style="width: 100%;" :src="scope.row.logo_url" alt="">
-            <!-- <div>图</div> -->
+          width="110">
+          <template slot-scope="{row}">
+            <div style="height: 40px;">
+              <ImageLarger fit="contain" :src="row.logo" imgstyle="height: 100%;" />
+            </div>
           </template>
         </el-table-column>
         <el-table-column
           prop="view_name"
-          label="显示名称"
-          align="center"
-          width="180">
+          label="显示名称">
         </el-table-column>
         <el-table-column
           prop="original_name"
-          align="center"
           label="原始名称">
         </el-table-column>
         <el-table-column
           prop="game_num"
-          align="center"
-          label="游戏数量"
-          width="100">
+          label="游戏数量">
         </el-table-column>
         <el-table-column
           prop="create_time"
-          align="center"
           label="创建时间"
           sortable
           width="170">
@@ -75,19 +69,31 @@
         </el-table-column>
         <el-table-column
           prop="address"
-          align="center"
           label="操作"
-          width="170">
-          <template slot-scope="scope">
+          width="120">
+          <template slot-scope="{row}">
             <div>
-              <span class="text-cursor" @click="edit(scope.row)">编辑</span>
-                <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor" @click="stop(scope.row)">停用</span>
+              <span class="text-cursor" @click="edit(row)">编辑</span>
+              <el-divider direction="vertical"></el-divider>
+              <el-popconfirm
+                v-if="row.active"
+                title="确定停用该图片位吗？"
+                @onConfirm="stopUsing(row)"
+              >
+                <span slot="reference" class="text-cursor">停用</span>
+              </el-popconfirm>
+              <el-popconfirm
+                v-else
+                title="确定启用该图片位吗？"
+                @onConfirm="enable(row)"
+              >
+                <span slot="reference" class="text-cursor">启用</span>
+              </el-popconfirm> 
             </div>
           </template>
         </el-table-column>
       </el-table>
-      <Pagination :total="totalNumber" @pagination="pagination" />
+      <Pagination :limit="limit" :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
@@ -95,31 +101,36 @@
 <script>
 import Pagination from '@/components/Pagination'
 import Tabs from '@/components/Tabs'
-import {GameCompanyLst} from "@/api/api"
+import { GameCompanyLst, IMG_URL, GameCompanyOnset, GameCompanyOffset } from "@/api/api"
 import tableMixins from '@/mixins/tableMixins'
 import moment from 'moment'
+import ImageLarger from '@/components/ImageLarger'
+import { stopOrEnableRequest } from '@/utils/ajax'
 export default {
   name: 'DevelopmentCompany',
-  components: { Tabs, Pagination },
+  components: { Tabs, Pagination, ImageLarger },
   mixins: [tableMixins],
   data() {
     return {
+      IMG_URL,
       moment: moment,
       urls: {list: GameCompanyLst},
       ruleForm: {
         key: '',
       },
-      tabAction: 0,
+      tabAction: -1,
       tabslist: [
-        { key: 0, label: '全部', value: '全部' },
-        { key: 1, label: '未使用', value: '未使用' },
-        { key: 2, label: '已停用', value: '已停用' },
+        { key: -1, label: '全部', value: '全部' },
+        { key: 0, label: '未使用', value: '未使用' },
+        { key: 1, label: '已停用', value: '已停用' },
       ],
     }
   },
   methods: {
-    tabsChange(ev) {
-      this.tabAction = e.key
+    tabsChange(e) {
+      this.tabSearch({
+        st: e.key
+      })
     },
     add() {
       this.$router.push({
@@ -127,13 +138,29 @@ export default {
       })
     },
     edit(row) {
-      // console.log(row)
       this.$router.push({
         path: '/game/company/add',
         query: {id: row.id}
       })
     },
-    stop() {},
+    stopUsing(row) {
+      stopOrEnableRequest({
+        url: GameCompanyOffset,
+        data: {id: row.id},
+        successText: '停用成功',
+      }, () => {
+        this.getList()
+      })
+    },
+    enable(row) {
+      stopOrEnableRequest({
+        url: GameCompanyOnset,
+        data: {id: row.id},
+        successText: '启用成功',
+      }, () => {
+        this.getList()
+      })
+    },
   }
 }
 </script>

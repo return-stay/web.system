@@ -5,144 +5,185 @@
     </div>
     <div class="search-box">
       <el-form ref="ruleForm" :model="ruleForm" label-width="100px">
-        <el-form-item label="搜索条件：">
-          <el-col :span="6">
+        <el-form-item label="搜索条件：" prop="um">
+          <!-- <el-col :span="6">
             <el-select v-model="ruleForm.region" placeholder="请选择">
               <el-option label="全部" value="0"></el-option>
             </el-select>
-          </el-col>
+          </el-col> -->
           <el-col :span="6">
-            <el-input style="margin-left: 10px;" v-model="ruleForm.name"></el-input>
+            <el-input v-model="ruleForm.um"></el-input>
           </el-col>
         </el-form-item>
         <el-row>
-          <el-form-item label="来源渠道：">
+          <el-form-item label="来源渠道：" prop="ch">
             <el-col :span="6">
-              <el-select v-model="ruleForm.region" placeholder="请选择渠道">
-                <el-option label="全部" value="0"></el-option>
+              <el-select v-model="ruleForm.ch" placeholder="请选择渠道">
+                <el-option v-for="item in channelList" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
               </el-col>
               <el-col :span="10">
-                <el-form-item label="开卡类型：">
-                  <el-select v-model="ruleForm.region" placeholder="请选择渠道">
-                    <el-option label="全部" value="0"></el-option>
+                <el-form-item label="开卡类型：" prop="ct">
+                  <el-select v-model="ruleForm.ct" placeholder="请选择渠道">
+                    <el-option label="年卡" value="1"></el-option>
+                    <el-option label="季卡" value="2"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
           </el-form-item>
         </el-row>
-        
         <el-form-item label="开卡时间：">
           <el-col :span="6">
-            <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
+            <el-form-item prop="s_time">
+              <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.s_time" style="width: 100%;"></el-date-picker>
+            </el-form-item>
           </el-col>
           <el-col class="line" :span="1">至</el-col>
           <el-col :span="6">
-            <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.date2" style="width: 100%;"></el-date-picker>
+            <el-form-item prop="e_time">
+              <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.e_time" style="width: 100%;"></el-date-picker>
+            </el-form-item> 
           </el-col>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="onSubmit('ruleForm')">筛选</el-button>
-          <el-button type="text">清空筛选</el-button>
+          <el-button type="primary" @click="onSearchSubmit('ruleForm')">筛选</el-button>
+          <el-button type="text" @click="resetSearchForm('ruleForm')">清空筛选</el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="table-box">
-      <table-page :urls="{list: UserTradeLst}" :border="false" :columns="columns" @detail="detail" />
+      <el-table
+        :data="tableData"
+        @sort-change="sortTableChange"
+        style="width: 100%">
+        <el-table-column
+          prop="card_no"
+          label="开卡编号"
+          align="center"
+          width="120">
+        </el-table-column>
+        <el-table-column
+          prop="username"
+          label="客户信息"
+          align="center"
+          width="300">
+          <template slot-scope="{row}">
+            <div class="table-user" style="text-align: left;">
+              <div class="table-user-l"></div>
+              <div class="table-user-r">
+                <p>微信昵称：{{row.username}}</p>
+                <p>收货手机号：{{row.mobile||'17600112792'}}</p>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="card_type"
+          align="center"
+          label="开卡类型">
+          <template slot-scope="{row}">
+            <div v-if="row.card_type === 1">年卡</div>
+            <div v-if="row.card_type === 2">季卡</div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="card_end_time"
+          align="center"
+          label="开卡后有效期"
+          width="170">
+          <template slot-scope="{row}">
+            <div>
+              {{moment(row.card_end_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="total_fee"
+          align="center"
+          label="消费金额"
+          sortable
+          width="100">
+          <template slot-scope="{row}">
+            <div>
+              {{Number((row.total_fee/100).toFixed(2))}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="channel_name"
+          align="center"
+          label="来源渠道"
+          width="100">
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          align="center"
+          label="开卡时间"
+          sortable
+          width="170">
+          <template slot-scope="{row}">
+            <div>
+              {{moment(row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          align="center"
+          label="操作"
+          width="100">
+          <template slot-scope="scope">
+            <div>
+              <span class="text-cursor" @click="detail(scope.row)">详情</span>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import TablePage from '@/components/TablePage'
 import Tabs from '@/components/Tabs'
-import {UserTradeLst} from '@/api/api'
+import { UserVipFeeLst, BaseChannelLst } from '@/api/api'
+import tableMixins from '@/mixins/tableMixins'
+import Pagination from '@/components/Pagination'
+import moment from 'moment'
+import { getList } from '@/utils/data'
 export default {
   name: 'OpenCardRecords',
-  components: { TablePage, Tabs },
+  components: { Tabs, Pagination },
+  mixins: [ tableMixins ],
   data() {
     return {
-      UserTradeLst: UserTradeLst,
+      moment: moment,
       ruleForm: {
-        name: '',
-        date1: '',
-        date2: '',
+        um: '',
+        ch: '',
+        ct: '',
+        s_time: '',
+        e_time: '',
       },
-      columns: [
-        {
-          title: '开卡编号',
-          key: 'name',
-          label: 'name',
-          width: 100,
-        },
-        {
-          title: '客户信息',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-         {
-          title: '开卡类型',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '开卡后有效期',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '消费金额',
-          key: 'age',
-          label: 'age',
-          width: 140,
-        },
-        {
-          title: '来源渠道',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '开卡时间',
-          key: 'age',
-          label: 'age',
-          width: 240,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 100,
-          render: [
-            {
-              fnName: 'detail',
-              title: '详情'
-            }
-          ]
-        }
-      ],
-      tableData: []
+      urls: {
+        list: UserVipFeeLst,
+      },
+      channelList: [],
     }
   },
   mounted() {
-    let data = []
-    for(let i = 0;i<5;i++) {
-      data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
+    this.getSearchListInit()
   },
   methods: {
     detail(row) {
       this.$router.push({
-        path: '/clients/detail/' + row.id
+        path: '/clients/detail/' + row.user_id
       })
     },
+
+    async getSearchListInit () {
+      this.channelList = await getList(BaseChannelLst)
+    }
   }
 }
 </script>
@@ -171,6 +212,17 @@ export default {
   }
   .table-box {
     margin-top: 14px;
+  }
+  .table-user {
+    display: flex;
+    &-l {
+      width: 50px;
+      height: 50px;
+      margin-right: 10px;
+    }
+    &-r {
+      flex: 1;
+    }
   }
 }
 </style>

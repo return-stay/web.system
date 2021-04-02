@@ -23,12 +23,21 @@ export default {
     
   },
   mounted() {
-    const {id} = this.$route.query
+    const {id} = this.$route.params
+    const {serial = ''} = this.$route.query
     let addtitle = ''
     if(id) {
-      addtitle = '编辑游戏盘-盘编号'
+      addtitle = '编辑游戏盘-盘编号：' + serial
+      this.btns = {
+        issave: true,
+        fnName: 'saveCallback'
+      }
     }else {
       addtitle = '添加游戏盘'
+      this.btns = {
+        add: true,
+        fnName: 'saveCallback',
+      }
     }
     this.addtitle = addtitle
   },

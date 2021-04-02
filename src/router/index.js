@@ -76,7 +76,7 @@ export const constantRoutes = [
     path: '/vegetables',
     component: () => import('@/views/vegetables'),
     hidden: true
-},
+  },
   // {
   //   path: '/',
   //   component: Layout,
@@ -94,7 +94,7 @@ export const constantRoutes = [
     path: '/',
     component: Layout,
     hidden: true,
-    redirect: '/order',
+    redirect: '/survey',
   },
   {
     path: '/profile',

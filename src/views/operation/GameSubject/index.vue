@@ -7,20 +7,16 @@
     <div class="search-box">
       <el-form ref="ruleForm" :model="ruleForm" label-width="100px">
         <div class="search-form-line">
-          <el-form-item label="检索：" prop="region">
-            <div class="search-form-line">
-              <el-select size="small" v-model="ruleForm.region" placeholder="请选择">
-                <el-option label="全部" value="0"></el-option>
-              </el-select>
-              <el-form-item prop="name" style="margin-bottom: 0;">
-                <el-input size="small" style="width: 194px;margin-left: 10px;" v-model="ruleForm.name"></el-input>
-              </el-form-item>
-            </div>
+          <el-form-item label="专题名称：" prop="tt">
+            <el-input size="small" style="width: 194px" placeholder="请输入专题名称" v-model="ruleForm.tt"></el-input>
+          </el-form-item>
+          <el-form-item label="游戏名称：" prop="gnm">
+            <el-input size="small" style="width: 194px" placeholder="请输入游戏名称" v-model="ruleForm.gnm"></el-input>
           </el-form-item>
         </div>
         <el-form-item label="">
-          <el-button type="primary" @click="onSubmit('ruleForm')">筛选</el-button>
-          <el-button type="text" @click="resetForm('ruleForm')">清空筛选</el-button>
+          <el-button type="primary" @click="onSearchSubmit('ruleForm')">筛选</el-button>
+          <el-button type="text" @click="resetSearchForm('ruleForm')">清空筛选</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -30,105 +26,123 @@
     </div>
 
     <div class="table-box">
-      <game-table :border="false" :columns="columns" :tableData="tableData" @edit="edit" />
+      <el-table
+        :data="tableData"
+        style="width: 100%">
+        <el-table-column
+          prop="img"
+          align="center"
+          label="专题图"
+          width="120">
+          <template slot-scope="{row}">
+            <div v-if="row.img" style="height: 40px;">
+              <ImageLarger :src="row.img" imgstyle="height: 100%;" />
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="title"
+          align="center"
+          label="专题名称">
+        </el-table-column>
+        <el-table-column
+          prop="description"
+          align="center"
+          label="简介">
+        </el-table-column>
+        <el-table-column
+          prop="game_id_list"
+          align="center"
+          label="游戏数量"
+          width="170">
+          <template slot-scope="scope">
+            <div v-if="scope.row.game_id_list">
+              {{scope.row.game_id_list.length}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="update_time"
+          align="center"
+          label="更细时间"
+          width="170">
+          <template slot-scope="scope">
+            <div>
+              {{moment(scope.row.update_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop=""
+          align="center"
+          label="操作"
+          width='120'>
+          <template slot-scope="{row}">
+            <span class="text-cursor" @click="edit(row)">编辑</span>
+            <el-divider direction="vertical"></el-divider>
+            <el-popconfirm
+              v-if="row.active"
+              title="确定停用该专题吗？"
+              @onConfirm="stopUsing(row)"
+            >
+              <span slot="reference" class="text-cursor">停用</span>
+            </el-popconfirm>
+            <el-popconfirm
+              v-else
+              title="确定启用该启用吗？"
+              @onConfirm="enable(row)"
+            >
+              <span slot="reference" class="text-cursor">启用</span>
+            </el-popconfirm>
+          </template>
+        </el-table-column>
+      </el-table>
+      <Pagination :limit="limit" :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
-import GameTable from '@/components/TablePage/GameTable'
+import {IMG_URL, TopicOnSet, TopicOffSet} from '@/api/api'
 import Tabs from '@/components/Tabs'
+import tableMixins from '@/mixins/tableMixins'
+import {TopicListDat} from '@/api/api'
+import moment from 'moment'
+import Pagination from '@/components/Pagination'
+import {stopOrEnableRequest} from '@/utils/ajax'
+import ImageLarger from '@/components/ImageLarger'
 export default {
   name: 'GameSubject',
-  components: { GameTable, Tabs },
+  components: { Tabs, Pagination, ImageLarger },
+  mixins: [tableMixins],
   data() {
     return {
+      IMG_URL,
+      moment: moment,
       ruleForm: {
-        name: '',
-        date1: '',
+        tt: '',
+        gnm: '',
       },
-      tabAction: 0,
+      urls: {
+        list: TopicListDat,
+      },
+      tabAction: -1,
       tabslist: [
-        { key: 0, label: '全部', value: '全部' },
+        { key: -1, label: '全部', value: '全部' },
         { key: 1, label: '未使用', value: '未使用' },
-        { key: 2, label: '已停用', value: '已停用' },
+        { key: 0, label: '已停用', value: '已停用' },
       ],
-      columns: [
-        {
-          title: '专题图',
-          key: 'names',
-          label: 'names',
-          width: 100,
-        },
-        {
-          title: '专题名称',
-          key: 'names',
-          label: 'names',
-        },
-         {
-          title: '简介',
-          key: 'age',
-          label: 'age',
-          width: 200,
-        },
-        {
-          title: '游戏数量',
-          key: 'age',
-          label: 'age',
-          width: 200,
-        },
-        {
-          title: '创建时间',
-          key: 'age',
-          label: 'age',
-          width: 200,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 160,
-          render: [
-            {
-              fnName: 'edit',
-              title: '编辑'
-            },
-            {
-              fnName: 'release',
-              title: '停用'
-            },
-          ]
-        }
-      ],
-      tableData: []
     }
   },
   mounted() {
-    let data = []
-    for(let i = 0;i<5;i++) {
-      data.push({id: i, name: 'cao' + i, age: 1+i, lll: '0' + i })
-    }
-    setTimeout(() => {
-      this.tableData = data
-    }, 10)
+
   },
   methods: {
-    onSubmit(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!');
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
+    tabsChange(e) {
+      this.tabSearch({
+        st: e.key,
+      })
     },
-    resetForm(formName) {
-      console.log(formName)
-      this.$refs[formName].resetFields();
-    },
-    tabsChange() {},
     add() {
       this.$router.push({
         path: '/operation/subject/add'
@@ -138,6 +152,24 @@ export default {
       this.$router.push({
         path: '/operation/subject/add',
         query: {id: row.id}
+      })
+    },
+    stopUsing(row) {
+      stopOrEnableRequest({
+        url: TopicOffSet,
+        data: {id: row.id},
+        successText: '停用成功',
+      }, () => {
+        this.getList()
+      })
+    },
+    enable(row) {
+      stopOrEnableRequest({
+        url: TopicOnSet,
+        data: {id: row.id},
+        successText: '启用成功',
+      }, () => {
+        this.getList()
       })
     },
   }

@@ -2,6 +2,8 @@
  * Created by PanJiaChen on 16/11/18.
  */
 
+import moment from "moment"
+
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
@@ -400,26 +402,28 @@ export function formatDate(value, fmt) {
   }
 }
 
-// 去除对象空值
 export function removeEmptyField(obj) {
-  var newObj = null
+  let newObj = null
   if (typeof obj === 'string') {
     obj = JSON.parse(obj)
   }
   if (obj instanceof Array) {
     newObj = []
   }
-  if (obj instanceof Object) {
-    for (var attr in obj) {
-      // 属性值不为'',null,undefined才加入新对象里面(去掉'',null,undefined)
+  if(obj instanceof Object) {
+    newObj = {}
+    for(var attr in obj) {
       if (obj.hasOwnProperty(attr) && obj[attr] !== '' && obj[attr] !== null && obj[attr] !== undefined) {
-        if (obj[attr] instanceof Object) {
-          // 空数组或空对象不加入新对象(去掉[],{})
+        if(obj[attr] instanceof Object) {
           if(JSON.stringify(obj[attr]) === '{}' || JSON.stringify(obj[attr]) === '[]') {
-              continue
+            continue
           }
-          // 属性值为对象,则递归执行去除方法
-          newObj[attr] = removeEmptyField(obj[attr])
+          if(['s_time', 'e_time','st', 'et', 'pstime', 'petime', 'stime', 'etime', 'cstime', 'cetime', 'publish_start_time', 'publish_end_time'].indexOf(attr) !== -1) {
+            console.log(obj[attr])
+            newObj[attr] = new Date(obj[attr]).getTime()
+          }else {
+            newObj[attr] = obj[attr]
+          }
         } else if (
           typeof obj[attr] === 'string' &&
           ((obj[attr].indexOf('{') > -1 && obj[attr].indexOf('}') > -1) ||
@@ -452,7 +456,6 @@ export function convertToBinary (filed, callback, size) {
   if (file) {
     //将文件以Data URL形式读入页面  
     imgUrlBase64 = reader.readAsDataURL(file);
-    console.log(imgUrlBase64);
 
     reader.onload = function (e) {
       //var ImgFileSize = reader.result.substring(reader.result.indexOf(",") + 1).length;//截取base64码部分（可选可不选，需要与后台沟通）

@@ -1,11 +1,11 @@
 <template>
   <div class="view-box ta-box">
-    <el-form ref="form" :model="form" label-width="120px">
+    <el-form ref="form" :model="form" :rules="rules" label-width="120px">
       <div class="ta-header">游戏系列信息</div>
       <div class="ta-form">
         <el-row>
           <el-col :span="20">
-            <el-form-item label="系列名称：" prop="nm">
+            <el-form-item label="内容分类名称：" prop="nm">
               <el-input size="small" v-model="form.nm" placeholder="前台显示，使用中文名称" />
             </el-form-item>
           </el-col>
@@ -20,15 +20,11 @@
           <el-col :span="2"></el-col>
         </el-row>
       </div>
-      <div class="ta-header">系列游戏</div>
+      <div class="ta-header">分类游戏</div>
       <div class="ta-form">
         <el-row>
           <el-col :span="20">
             <el-form-item label="选择游戏：">
-              <!-- <el-select size="small" style="width: 100%;" v-model="form.region" placeholder="优先使用奖杯编号和游戏名称检索">
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select> -->
               <div class="block">
                 <el-cascader
                   :value="selectKeys"
@@ -42,11 +38,10 @@
             </el-form-item>
           </el-col>
           <el-col :span="2">
-            <el-button size="small" style="margin-left: 10px;" @click="addSeriesList">添加到系列</el-button>
+            <el-button size="small" style="margin-left: 10px;" @click="addSeriesList">添加到内容分类</el-button>
           </el-col>
         </el-row>
         <el-row>
-
           <el-col :span="20">
             <el-form-item label="已选择：" prop="desc">
               <div class="select-game-list">
@@ -64,7 +59,7 @@
       
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
-          <el-button type="primary" @click="onSubmit">确定添加</el-button>
+          <el-button type="primary" @click="onSubmit('form')">确定添加</el-button>
           <!-- <el-button>取消</el-button> -->
         </el-form-item>
       </div>
@@ -75,7 +70,7 @@
 
 <script>
 import UploadImageOrder from '@/components/Upload/UploadImageOrder'
-import { GameDefineSortInf, GameDefineSortSet, GameMiniLst } from '@/api/api'
+import { GameDefineSortInf, GameDefineSortSet, GameMiniLst, GameDefineSortGamesSet } from '@/api/api'
 import {postAjax} from '@/utils/ajax'
 export default {
   name: 'AddDefine',
@@ -89,7 +84,10 @@ export default {
         nm: '',
         i: '',
         isa: null,
-      }
+      },
+      rules: {
+        nm: [ { required: true, message: '请输入系列名称', trigger: 'blur' } ],
+      },
     }
   },
   mounted() {
@@ -100,30 +98,40 @@ export default {
     this.getGameList()
   },
   methods: {
-    onSubmit() {
-      console.log('submit!');
-      console.log(this.form)
-      this.addSeries()
-    },
-    // 获取游戏公司列表
-    getGameList() {
-      postAjax({
-        url: '',
-      }).then(res=> {
-        console.log(res)
-        if(res.code === 1) {
-          this.gameList = res.data
+    onSubmit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.addSeries()
+          this.addSeriesGames()
         }
       })
     },
     paramsSet() {
-      const {id} = this.$route.query, ids = this.ids
+      const {id} = this.$route.query
       let obj = this.form
-      if(id) {
-        obj.id = id
+      if(id) { 
+        obj.id = id 
       }
-      obj.gms = ids.join(',')
       return obj
+    },
+    addSeriesGames() {
+      const {id} = this.$route.query
+      const ids = this.ids
+      let obj = {}
+      if(id) {
+        obj.id = id 
+      }
+      if(ids && ids.length>0) {
+        obj.gms = ids.join(',')
+        postAjax({
+          url: GameDefineSortGamesSet,
+          data: obj,
+        }).then(res=> {
+          if(res.code === 1) {
+            console.log(res)
+          }
+        })
+      }
     },
     addSeries() {
       postAjax({
@@ -174,8 +182,6 @@ export default {
 
       this.selectList = list
       this.ids = ids
-
-
       this.selectKeys = []
     },
     getGameList() {
@@ -193,11 +199,6 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.ta-form .el-form-item {
-  margin-bottom: 14px;
-}
-</style>
 <style lang="scss" scoped>
 .ta-box {
   .ta-header {

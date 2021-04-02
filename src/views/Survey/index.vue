@@ -1,9 +1,22 @@
 <template>
   <div class="view-box s-box">
     <div class="s-box-title">
-      <span>正在使用：白金饭小程序-正式版</span>
+      <span v-if="edition === 'dev'">正在使用：白金饭小程序-测试版</span>
+      <span v-if="edition === 'pro'">正在使用：白金饭小程序-正式版</span>
 
-      <span class="s-box-title-r"><svg-icon icon-class="cut" class="icon" /> 切换版本</span>
+      <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
+        <div class="avatar-wrapper">
+          <span slot="reference" class="s-box-title-r"><svg-icon icon-class="cut" class="icon" /> 切换版本</span>
+        </div>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item>
+            <span @click="setEdition('pro')">正式版</span>
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <span @click="setEdition('dev')">测试版</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
     </div>
 
 
@@ -44,7 +57,7 @@
     </div>
 
     <div class="s-cont">
-      <div class="s-cont-item" v-for="item in contArr" :key="item.id">
+      <div class="s-cont-item" v-for="item in contArr" :key="item.id" @click="navitionGo(item)">
         <img class="s-cont-item-img" :src="item.img" alt="">
         <div class="s-cont-item-div">{{item.text}}</div>
       </div>
@@ -59,57 +72,68 @@ export default {
   name: 'Survey',
   data() {
     return {
+      edition: 'dev',
       info: {},
       contArr: [
         {
           id: 1,
           img: '',
           text: '发布游戏',
+          path: '/game/release',
         },
         {
           id: 2,
           img: '',
           text: '上架游戏盘',
+          path: '/game/inventory/add',
         },
         {
           id: 3,
           img: '',
           text: '添加图片广告',
+          path: '/operation/location/add',
         },
         {
           id: 4,
           img: '',
           text: '制作专题',
+          path: '/operation/subject/add',
         },
         {
           id: 5,
           img: '',
           text: '添加游戏系列',
+          path: '/game/series/add',
         },
         {
           id: 6,
           img: '',
           text: '添加游戏公司',
+          path: '/game/company/add',
         },
         {
           id: 7,
           img: '',
           text: '定价调整',
+          path: '/game/pricing/add',
         },
         {
           id: 8,
           img: '',
-          text: '常用功能',
+          text: '内容给分类',
+          path: '/game/define/add',
         },
         {
           id: 9,
           img: '',
-          text: '常用功能',
+          text: '渠道管理',
+          path: '/operation/channel/index',
         },
         {
           id: 10,
           img: '',
           text: '奖杯调整',
+          path: '/game/trophy/add',
         },
       ],
     }
@@ -118,6 +142,14 @@ export default {
     this.getInfo()
   },
   methods: {
+    navitionGo(row) {
+      this.$router.push({
+        path: row.path
+      })
+    },
+    setEdition(type) {
+      this.edition = type
+    },
     getInfo() {
       postAjax({
         url: SummaryInfoDat,
@@ -185,6 +217,7 @@ export default {
       display: flex;
       align-items: center;
       padding-left: 20px;
+      cursor: pointer;
       &-img {
         width: 56px;
         height: 56px;

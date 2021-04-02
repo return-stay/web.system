@@ -34,7 +34,11 @@ export default {
     pagination: {
       type: Object,
       default: () => {}
-    }
+    },
+    tableData:{
+      type: Array,
+      default: () => []
+    },
   },
   data() {
     return {

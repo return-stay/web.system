@@ -21,7 +21,17 @@ export default {
     stepList: {
       type: Array,
       default: () => []
-    }
+    },
+    stepAction: {
+      type: String | Number,
+      default: 0
+    },
+  },
+  computed: {
+    getAction() {
+      console.log(this.stepAction)
+      return this.stepAction
+    },
   },
   data() {
     return {
@@ -30,11 +40,13 @@ export default {
   },
   methods: {
     next(n) {
-      this.stepClick(n)
+      // this.stepClick(n)
+      this.dataAction = n
+      this.$emit('change', n)
     },
     stepClick(label) {
-      this.dataAction = label
-      this.$emit('change', label)
+      // this.dataAction = label
+      // this.$emit('change', label)
     }
   }
 }

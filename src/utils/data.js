@@ -22,7 +22,7 @@ const getList = async (url) => {
 
 const postList = async (url) => {
   let req = await postSearchList(url)
-  let list = req.data || []
+  let list =  req.data.list ||req.data || []
   return list
 }
 export {

@@ -55,8 +55,6 @@
               <h5>上传该游戏发货照片（盒、盘面的正反各1张）</h5>
               <div class="od-game-item-cont-middle-un-imgs">
                 <div class="od-game-item-cont-middle-un-imgs-item" v-for="(pi, pin) in item.photoList" :key="pin">
-                  <!-- <image-larger :src="pi.path" alt="" /> -->
-                  <!-- <UploadImageOrder :name="pi.field" :src="pi.path" :params="{oid: item.id,field: 'disca' }" /> -->
                   <UploadImageOrder v-if="'disca' === pi.field" name="disca" :src="pi.path" :params="{oid: item.id,field: 'disca' }" />
                   <UploadImageOrder v-if="'discb' === pi.field" name="discb" :src="pi.path" :params="{oid: item.id,field: 'discb' }" />
                   <UploadImageOrder v-if="'boxa' === pi.field" name="boxa" :src="pi.path" :params="{oid: item.id,field: 'boxa' }" />
@@ -137,7 +135,6 @@ export default {
       epsno: '',
       value: '',
       companyValue: '',
-      freeList: [],
       companyLst: [],
       orderList: [{id: 0, freeList: [{id: 0}], photoList: [], game_info: {},disc_info: {} }], //用户租借游戏盘列表
       options: [{
@@ -172,7 +169,7 @@ export default {
         }
       })
     },
-    setPhotoList(photoList) {
+    setPhotoList(photoList = []) {
       let arr = [
         { field: 'disca', path: '' },
         { field: 'discb', path: '' },

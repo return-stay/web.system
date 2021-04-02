@@ -77,18 +77,21 @@ export default {
   },
   methods: {
     handleAvatarSuccess(res, file) {
+      console.log(res)
+      console.log(file)
       this.dialogImageUrl = URL.createObjectURL(file.raw);
       this.dialogVisible = true;
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+      console.log(file.type)
+      const isJPG = (file.type === 'image/jpeg' || file.type === 'image/png');
+      const isLt2M = file.size / 1024 / 1024 < 10
 
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
+        this.$message.error('上传图片只能是 JPG或 PNG 格式!');
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
+        this.$message.error('上传图片大小不能超过 1OMB!');
       }
       return isJPG && isLt2M;
     },
@@ -148,7 +151,6 @@ export default {
 }
 .avatar {
   width: 100px;
-  height: 100px;
   display: block;
 }
 

@@ -5,9 +5,9 @@
     </div>
 
     <div class="cd-cont-box">
-      <BasicInfo v-if="tabAction === 0" />
+      <BasicInfo v-if="tabAction === 0 && gameInfo.id" @next="next" :isNext="false" :gameInfo="gameInfo" />
 
-      <inventory :btns="{isconfirm: true}" v-if="tabAction === 1" />
+      <Inventory :btns="{isconfirm: true}" v-if="tabAction === 1 && gameInfo.id"  @next="next" :pGameInfo="gameInfo" />
 
       <Pricing v-if="tabAction === 2" />
 
@@ -20,13 +20,15 @@ import Tabs from '@/components/Tabs'
 // import BasicInformation from './BasicInformation'
 import BasicInfo from '../Release/BasicInfo'
 import Inventory from '../Release/Inventory'
-// import PricingAdjustment from '../PricingManage/PricingAdjustment'
 import Pricing from '../Release/Pricing'
+import {GameInfoDat} from '@/api/api'
+import {postAjax} from '@/utils/ajax'
 export default {
   name: 'ClientsDetail',
   components: { Tabs ,BasicInfo, Inventory, Pricing },
   data() {
     return {
+      gameInfo: {},
       tabAction: 0,
       tabslist: [
         { key: 0, label: '基本信息', value: '基本信息' },
@@ -35,11 +37,55 @@ export default {
       ],
     }
   },
+  created() {
+    this.init()
+  },
+  mounted() {
+    const id = this.$route.params.id
+    if(id) {
+      this.getGameInfo(id)
+    }
+  },
   methods: {
+    init() {
+      const {type} = this.$route.query
+      let num = 0;
+      switch(type) {
+        case 'detail':
+          num = 0
+          break;
+        case 'stock':
+          num = 1
+          break;
+        case 'price':
+          num = 2
+          break;
+        default:
+          num = 0
+      }
+      this.tabAction = num
+    },
+    next(i) {
+      console.log(i)
+      this.tabAction = Number(i)
+    },
     tabsChange(item) {
       console.log(item)
       this.tabAction = item.key
-    }
+    },
+    getGameInfo(id) {
+      postAjax({
+        url: GameInfoDat,
+        data:{
+          id: id,
+        },
+      }).then(res=> {
+        if(res.code === 1) {
+          const resdata = res.data
+          this.gameInfo = resdata
+        }
+      })
+    },
   }
 }
 </script>

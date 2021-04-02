@@ -1,0 +1,76 @@
+.oqt-game-li-cont-b {
+  display: flex;
+  &-l, &-r {
+    flex: 1;
+  }
+  &-l {
+    margin-right: 100px;
+    &-step {
+      margin-top: 20px;
+    }
+    &-s {
+      border-top: 1px solid #BABABA;
+      display: flex;
+      margin-top: 10px;
+      padding-top: 10px;
+      >div {
+        flex: 1;
+        font-size: 14px;
+        color:#707070;
+      }
+      &-lease, &-settl {
+        line-height: 18px;
+        margin-right: 4px;
+        &-li {
+          display: flex;
+          justify-content: space-between;
+          &-text {
+            color: #000;
+          }
+        }
+      }
+      &-lease {
+        margin-right: 60px;
+      }
+      .oqt-game-li-cont-b-l-s-all {
+        color: #000;
+        margin-top: 8px;
+        text-align: right;
+        font-size: 16px;
+        >span {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+  
+  &-r {
+    border-top: 1px solid #BABABA;
+    margin-left: 20px;
+    &-top {
+      padding-top: 20px;
+      &-imgs {
+        margin-top: 20px;
+        display: flex;
+        height: 100px;
+        &-img {
+          margin-left: 10px;
+          width: 100px;
+          height: 100px;
+          >img {
+            width: 100%;
+          }
+        }
+      }
+    }
+    &-select {
+      margin-top: 10px;
+      &-t {
+        font-size: 14px;
+        display: inline-block;
+        width: 98px;
+        text-align: right;
+      }
+    }
+  }
+}

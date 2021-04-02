@@ -5,13 +5,13 @@
     </div>
 
     <div class="cd-cont-box">
-      <basic-information :userInfo="userInfo" v-if="tabAction === 0" />
+      <basic-information v-if="tabAction === 0" />
 
-      <order-history v-if="tabAction === 1" />
+      <order-history :userInfo="userInfo" v-if="tabAction === 1" />
 
-      <account-records v-if="tabAction === 2" />
+      <account-records :userInfo="userInfo" v-if="tabAction === 2" />
 
-      <after-sales-record v-if="tabAction === 3" />
+      <after-sales-record :userInfo="userInfo" v-if="tabAction === 3" />
     </div>
   </div>
 </template>
@@ -40,7 +40,7 @@ export default {
     }
   },
   mounted() {
-    this.getInfo()
+    // this.getInfo()
   },
   methods: {
     tabsChange(item) {

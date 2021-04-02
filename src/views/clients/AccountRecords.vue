@@ -1,87 +1,80 @@
 <template>
   <div>
-    <table-page
-      :isPagination="false"
-      :border="false" 
-      :columns="columns" 
-      :tableData="tableData" 
-      @manage="manage"
-      />
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column
+        prop="type_name"
+        label="记录内容"
+        align="center">
+      </el-table-column>
+      <el-table-column
+        prop=""
+        label="客户"
+        align="center">
+        <template slot-scope="{row}">
+          <div>
+            <div><span>{{row.username}}</span><span>（微信昵称{{row.nickname}}）</span></div>
+            <div>手机号 <span>{{row.mobile}}</span></div>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="fee_time"
+        label="发生时间"
+        align="center">
+        <template slot-scope="{row}">
+          <span>{{moment(row.fee_time).format("YYYY-MM-DD")}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="fee"
+        label="金额"
+        align="center">
+        <template slot-scope="{row}">
+          <span>{{Number(((row.fee/100).toFixed(2)))||null}}元</span>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
 <script>
-import TablePage  from '@/components/TablePage'
-import TableMixins from '@/mixins/tableMixins'
+import {UserFeeLst} from '@/api/api'
+import {postAjax} from '@/utils/ajax'
+import moment from 'moment'
 export default {
   name: 'AccountRecords',
-  components: {TablePage},
-  mixins: [TableMixins],
-  data() {
-    return {
-      columns: [
-        {
-          title: '单号',
-          key: 'name',
-          label: 'name',
-          width: 240,
-        },
-        {
-          title: '记录内容',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-         {
-          title: '客户',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '发生时间',
-          key: 'age',
-          label: 'age',
-          width: 240,
-          sort: true,
-        },
-        {
-          title: '金额',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '状态',
-          key: 'age',
-          label: 'age',
-          width: 240,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          align: 'center',
-          width: 120,
-          render: [
-            {
-              fnName: 'manage',
-              title: '查看',
-            },
-          ]
-        }
-      ],
-      tableData: [
-        {
-          id: 0,
-          age: 0,
-          name: 'name',
-        }
-      ],
+  props: {
+    userInfo: {
+      type: Object,
+      default: () => {}
     }
   },
+  data() {
+    return {
+      moment,
+      tableData: [],
+    }
+  },
+  mounted() {
+    this.getFeeList()
+  },
   methods: {
-    manage() {}
+    manage() {},
+    getFeeList() {
+      const { id } = this.$route.params
+      postAjax({
+        url: UserFeeLst,
+        data: {
+          uid: id,
+        }
+      }).then(res=> {
+        if(res.code === 1) {
+          this.tableData = res.data.list
+        }
+      })
+    },
   }
 }
 </script>

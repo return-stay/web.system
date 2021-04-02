@@ -9,7 +9,7 @@
       :show-file-list="false"
       :on-change="handleChange"
       :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrlShow" :src="imageUrlShow" class="avatar">
+      <img v-if="imageUrlShow && imgShow" :src="imageUrlShow" @error='defImg' class="avatar">
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
   </div>
@@ -19,6 +19,7 @@
 import {IMG_URL} from '@/api/api'
 import {beforeAvatarUpload} from './upload'
 import {convertToBinary} from '@/utils'
+const defaultImg = require('@/assets/default_add.png')
 export default {
   name: 'UploadImage',
   props: {
@@ -34,6 +35,10 @@ export default {
       type: String,
       default: '',
     },
+    isNeedId: {
+      type: Boolean,
+      default: false,
+    },
     imageUrl: {
       type: String,
       default: '',
@@ -41,29 +46,44 @@ export default {
   },
   computed: {
     imageUrlShow() {
-      if(this.imageUrl) {
-        return this.imageUrl
-      }
       if(this.imgUrl) {
         return this.imgUrl
+      }
+      let imageUrl = this.imageUrl
+      if(imageUrl && typeof imageUrl === 'string') {
+        console.log(imageUrl.indexOf('http'))
+        if(imageUrl.indexOf('http')>-1) {
+          return  imageUrl
+        }else {
+          return IMG_URL + imageUrl
+        }
+      } else {
+        return ''
       }
     },
   },
   data() {
     return {
+      imgShow: true,
       imgUrl: '',
       uploadUrl: IMG_URL + this.api,
       dialogImageUrl: '',
       dialogVisible: false,
       disabled: false,
+      defaultImg: defaultImg,
     };
   },
   mounted() {
     this.uploadUrl = IMG_URL + this.api
   },
   methods: {
+    defImg(event) {
+      console.log(event)
+      let img = event.srcElement;
+      img.src = this.defaultImg;
+      img.onerror = null; //防止闪图
+    },
     handleChange(file, fileList) {
-      console.log(file)
       convertToBinary(file.raw, (res) => {
         this.imgUrl = res
       })
@@ -97,7 +117,6 @@ export default {
   }
   .avatar {
     width: 100px;
-    height: 100px;
     display: block;
   }
 </style>

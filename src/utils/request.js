@@ -6,19 +6,22 @@ import qs from 'qs'
 
 const ajax = (options) => {
   options.url = process.env.VUE_APP_BASE_API + options.url
+
+  if((options.method === 'post' || options.method === 'POST') && !options.formdata) {
+    options.data = qs.stringify(options.data)
+  }
   let assignOptions = Object.assign({
     time: 60000,
     withCredentials: true,
     headers: {
       'X-Token': getToken(),
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
   }, options)
   return new Promise((resolve, reject)=> {
     axios(assignOptions).then(res=> {
       if(res.status === 200) {
         let resdata = res.data
-        console.log(resdata)
         const resdataCode = resdata.code
         if(resdataCode === 1) {
           resolve(resdata)
@@ -42,7 +45,7 @@ const ajax = (options) => {
               })
             })
           }
-          return reject(new Error(resdata.message || 'Error'))
+          reject(resdata.message || 'Error')
         }else {
           reject(resdata)
         }

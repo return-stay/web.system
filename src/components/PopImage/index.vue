@@ -77,9 +77,6 @@ export default {
       this.largerShow = false
     },
     largerImg() {
-      console.log('kkk')
-      
-      console.log('jjjj')
       this.largerShow = true
       this.isPopShow = false
     },
@@ -137,7 +134,8 @@ export default {
     align-items: center;
     justify-content: center;
     .img-larger-image {
-      width: 60%;
+      max-width: 60%;
+      max-height: 80%;
     }
   }
 }

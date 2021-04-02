@@ -23,6 +23,12 @@
               <el-date-picker type="date" placeholder="结束时间" v-model="ruleForm.cetime" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
+          <el-col :span="10">
+            <el-button style="margin-left: 10px;" @click="setPlaceOrder('day')">今天</el-button>
+            <el-button style="margin-left: 10px;" @click="setPlaceOrder('today')">昨天</el-button>
+            <el-button style="margin-left: 10px;" @click="setPlaceOrder('7days')">最近7天</el-button>
+            <el-button style="margin-left: 10px;" @click="setPlaceOrder('30days')">最近30天</el-button>
+          </el-col>
         </el-form-item>
         <el-form-item label="支付时间：">
           <el-col :span="5">
@@ -35,6 +41,12 @@
             <el-form-item prop="petime">
               <el-date-picker type="date" placeholder="结束时间" v-model="ruleForm.petime" style="width: 100%;"></el-date-picker>
             </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-button style="margin-left: 10px;" @click="setPayTime('day')">今天</el-button>
+            <el-button style="margin-left: 10px;" @click="setPayTime('today')">昨天</el-button>
+            <el-button style="margin-left: 10px;" @click="setPayTime('7days')">最近7天</el-button>
+            <el-button style="margin-left: 10px;" @click="setPayTime('30days')">最近30天</el-button>
           </el-col>
         </el-form-item>
         <el-row>
@@ -78,29 +90,24 @@
         <el-table-column
           prop="transaction_id"
           label="订单号"
-          align="center"
-          width="100">
+          width="120">
         </el-table-column>
         <el-table-column
           prop="game_info"
-          label="商品"
-          align="center"
-          width="180">
+          label="商品">
         </el-table-column>
         <el-table-column
           prop="username"
-          align="center"
-          label="收货人">
+          label="收货人"
+          width="180">
         </el-table-column>
         <el-table-column
           prop="game_num"
-          align="center"
           label="游戏数量"
           width="100">
         </el-table-column>
         <el-table-column
           prop="create_time"
-          align="center"
           label="创建时间"
           sortable
           width="170">
@@ -112,35 +119,48 @@
         </el-table-column>
         <el-table-column
           prop="fee"
-          align="center"
           label="余额"
           sortable
-          width="170">
+          width="100">
+          <template slot-scope="{row}">
+            <div>
+              {{Number((row.fee/100).toFixed(2))}}
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="status_name"
-          align="center"
           label="订单状态"
           width="170">
         </el-table-column>
         <el-table-column
           prop="address"
-          align="center"
           label="操作"
           width="170">
-          <template slot-scope="scope">
+          <template slot-scope="{row}">
             <div>
-              <span class="text-cursor" @click="shipments(scope.row)">发货</span>
+              <template v-if="tabAction === 30">
+                <span class="text-cursor" @click="navigateTo(row, 'deliver')">发货</span>
+                <el-divider direction="vertical"></el-divider>
+              </template>
+              <template v-if="tabAction === 90">
+                <span class="text-cursor" @click="navigateTo(row, 'quality')">质检</span>
+                <el-divider direction="vertical"></el-divider>
+              </template>
+              <span class="text-cursor" @click="navigateTo(row, 'check')">查看</span>
               <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor" @click="check(scope.row)">查看</span>
-              <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor" @click="close(scope.row)">关闭</span>
+              <el-popconfirm
+                title="确定关闭该订单吗？"
+                @onConfirm="close(row)"
+              >
+                <span slot="reference" class="text-cursor">关闭</span>
+              </el-popconfirm>
             </div>
           </template>
         </el-table-column>
       </el-table>
 
-      <Pagination :total="totalNumber" @pagination="pagination" />
+      <Pagination :limit="limit" :total="totalNumber" @pagination="pagination" />
       
     </div>
   </div>
@@ -153,6 +173,7 @@ import Pagination from '@/components/Pagination'
 import Tabs from '@/components/Tabs'
 import TableMixins from '@/mixins/tableMixins'
 import moment from 'moment'
+import DateUtil from '@/utils/date'
 export default {
   name: 'OrderTable',
   components: { Tabs, Pagination },
@@ -169,6 +190,15 @@ export default {
     title: {
       type: String,
       default: '',
+    },
+    action: {
+      type: Number,
+      default: -999,
+    },
+  },
+  computed: {
+    tabAction() {
+      return this.dataAction || this.action
     }
   },
   data() {
@@ -177,7 +207,6 @@ export default {
       urls: {
         list: TradeListDat,
       },
-      tabAction: -1,
       ruleForm: {
         tid: '',
         cstime: '',
@@ -188,13 +217,14 @@ export default {
         dcid: '',
         ch: '',
       },
+      dataAction: 0,
       rules: {
         tid: [
           { required: false, message: '请输入订单ID', trigger: 'change' }
         ],
       },
       tabslist: [
-        { key: -1, label: '全部', value: '全部' },
+        { key: -999, label: '全部', value: '全部' },
         { key: 1, label: '待支付', value: '待支付' },
         { key: 2, label: '待发货', value: '待发货' },
         { key: 3, label: '已发货', value: '已发货' },
@@ -204,26 +234,90 @@ export default {
         { key: 7, label: '已退款', value: '已退款' },
         { key: 8, label: '已完成', value: '已完成' },
       ],
-      tableData: [],
       channelList: [],
       companyLst: [],
+    }
+  },
+  created() {
+    if(this.tabAction > 0) {
+      this.isMountedRequest = false
     }
   },
   mounted() {
     this.getChannelList()
     this.getDeliveryCompanyLst()
     this.getTradeStatusLst()
+    if(this.tabAction > 0) {
+      this.tabSearch({st: this.tabAction})
+    }
   },
   methods: {
+    setPayTime(type) {
+      let pstime ='' , petime = '';
+      switch(type) {
+        case 'day':
+          const {start, end} = DateUtil.getDay()
+          pstime = start
+          petime = end
+          break;
+        case 'today':
+          const {stoday, etoday} = DateUtil.getToday()
+          pstime = stoday
+          petime = etoday
+          break;
+        case '7days':
+          const {s7day, e7day } = DateUtil.get7day()
+          pstime = s7day
+          petime = e7day
+          break;
+        case '30days':
+          const {s30day, e30day} = DateUtil.get30Day()
+          pstime = s30day
+          petime = e30day
+          break;
+        default:
+
+      }
+      this.ruleForm.pstime = pstime
+      this.ruleForm.petime = petime
+    },
+    setPlaceOrder(type) {
+      let cstime ='' , cetime = '';
+      switch(type) {
+        case 'day':
+          const {start, end} = DateUtil.getDay()
+          cstime = start
+          cetime = end
+          break;
+        case 'today':
+          const {stoday, etoday} = DateUtil.getToday()
+          cstime = stoday
+          cetime = etoday
+          break;
+        case '7days':
+          const {s7day, e7day } = DateUtil.get7day()
+          cstime = s7day
+          cetime = e7day
+          break;
+        case '30days':
+          const {s30day, e30day} = DateUtil.get30Day()
+          cstime = s30day
+          cetime = e30day
+          break;
+        default:
+
+      }
+      this.ruleForm.cstime = cstime
+      this.ruleForm.cetime = cetime
+    },
     // 获取订单状态
     getTradeStatusLst () {
       getAjax({
         url: BaseTradeStatusLst,
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           const resdata = res.data
-          let arr = [{ key: -1, label: '全部', value: '全部' },]
+          let arr = [{ key: -999, label: '全部', value: '全部' },]
           for(let i = 0;i<resdata.length; i++ ) {
             arr.push({
               key: resdata[i].value,
@@ -259,20 +353,12 @@ export default {
         }
       })
     },
-    rowClick(row, column, event) {
-      console.log(row, column)
+    navigateTo(row, type) {
       this.$router.push({
-        path: '/order/detail/' + row.id
-      })
-    },
-    shipments(row) {
-      this.$router.push({
-        path: '/order/detail/' + row.id
-      })
-    },
-    check(row) {
-      this.$router.push({
-        path: '/order/detail/' + row.id
+        path: '/order/detail/' + row.id,
+        query: {
+          type: type
+        }
       })
     },
     close(row) {
@@ -283,7 +369,6 @@ export default {
       }).then(() => {
         this.confimRequest(row.id)
       })
-      
     },
     confimRequest (id) {
       postAjax({
@@ -297,15 +382,16 @@ export default {
             message: '成功关闭该订单',
             type: 'success'
           });
-          this.$refs.tablechild.getList()
+          this.getList()
         }
-        console.log(res)
       })
     },
     tabsChange(item) {
-      this.tabAction = item.key
-      this.resetSearchForm('ruleForm')
-      this.$refs.tablechild.search({st: item.key});
+      this.dataAction = item.key
+      if(this.searchConditionShow) {
+        this.resetSearchForm('ruleForm')
+      }
+      this.tabSearch({st: item.key});
     },
     showSearch() {
       this.$router.push({

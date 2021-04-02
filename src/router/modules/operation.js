@@ -9,6 +9,7 @@ const operationRouter = [
   {
     path: '/operation/channel',
     component: Layout,
+    redirect: '/operation/channel/index',
     meta: { title: '管理后台', icon: 'operation-cd' },
     children: [
       {
@@ -29,6 +30,7 @@ const operationRouter = [
   {
     path: '/operation/location',
     component: Layout,
+    redirect: '/operation/location/index',
     meta: { title: '管理后台', icon: 'operation-cd' },
     children: [
       {
@@ -49,6 +51,7 @@ const operationRouter = [
   {
     path: '/operation/subject',
     component: Layout,
+    redirect: '/operation/subject/index',
     meta: { title: '管理后台', icon: 'operation-cd' },
     children: [
       {
@@ -71,19 +74,19 @@ const operationRouter = [
     meta: { title: '设置' },
     disabled: true
   },
-  {
-    path: '/setting/activity',
-    component: Layout,
-    meta: { title: '设置', icon: 'operation-cd' },
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/settings/Activity'),
-        name: 'SettingActivity',
-        meta: { title: '全场活动设置', noCache: true, icon: 'activity' },
-      },
-    ]
-  },
+  // {
+  //   path: '/setting/activity',
+  //   component: Layout,
+  //   meta: { title: '设置', icon: 'operation-cd' },
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/settings/Activity'),
+  //       name: 'SettingActivity',
+  //       meta: { title: '全场活动设置', noCache: true, icon: 'activity' },
+  //     },
+  //   ]
+  // },
   {
     path: '/setting/switch',
     component: Layout,

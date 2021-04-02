@@ -18,22 +18,42 @@ export default {
     },
     action: {
       type: Number,
-      default: 0,
+      default: -1,
     }
   },
   computed: {
     actionKey() {
-      return this.action
+      if(this.dataAction<0) {
+        return this.action
+        // let stn = Number(this.$route.query.st)
+        // if(stn>-1) {
+        //   return stn 
+        // }else {
+        //   return this.action
+        // } 
+      }else {
+        return this.dataAction
+      }
     }
   },
   data() {
     return {
-      dataAction: 0,
+      dataAction: -1,
     }
   },
   methods: {
     tabclick(item) {
-      // this.dataAction = item.key
+      this.dataAction = item.key
+      // console.log(this.$route)
+      // const {path, params, query} = this.$route
+      // let p = path;
+      // if(params.id) {
+      //   p = p+ '/id' + params.id
+      // }
+      // this.$router.push({
+      //   path: p,
+      //   query: {...query, st: item.key}
+      // })
       this.$emit('change', {...item})
     }
   }

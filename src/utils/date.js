@@ -6,6 +6,42 @@ let nowYear = now.getYear(); // 当前年
 nowYear += (nowYear < 2000) ? 1900 : 0;
  
 const DateUtil = {
+  // 获取当前天
+  getDay() {
+    // console.log(nowMonth)
+    let sday = new Date(now.getFullYear(), nowMonth, nowDay,0,0,0)
+    let eday = new Date()
+    return {
+      start: sday,
+      end: eday,
+    }
+  },
+  // 获取昨天
+  getToday() {
+    let sday = new Date(now.getFullYear(), nowMonth, nowDay-1, 0, 0, 0)
+    let eday = new Date(now.getFullYear(), nowMonth, nowDay, 0, 0, 0)
+    return {
+      stoday: sday, 
+      etoday: eday
+    }
+  },
+  // 获取最近7天
+  get7day() {
+    let sday = new Date(now.getFullYear(), nowMonth, nowDay-7, 0, 0, 0)
+    let eday = new Date(now.getFullYear(), nowMonth, nowDay)
+    return {
+      s7day: sday, 
+      e7day: eday
+    }
+  },
+  get30Day() {
+    let sday = new Date(now.getFullYear(), nowMonth, nowDay-30, 0, 0, 0)
+    let eday = new Date(now.getFullYear(), nowMonth, nowDay)
+    return {
+      s30day: sday, 
+      e30day: eday,
+    }
+  },
   /**
    * 获得当前日期
    * 

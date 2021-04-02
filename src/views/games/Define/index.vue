@@ -13,7 +13,7 @@
                 <el-option label="全部" value="0"></el-option>
               </el-select> -->
               <el-form-item prop="key" style="margin-bottom: 0;">
-                <el-input size="small" style="width: 194px;margin-left: 10px;" v-model="ruleForm.key"></el-input>
+                <el-input size="small" style="width: 194px;" placeholder="请输入分类名称" v-model="ruleForm.key"></el-input>
               </el-form-item>
             </div>
           </el-form-item>
@@ -36,8 +36,7 @@
         style="width: 100%">
         <el-table-column
           prop="name"
-          label="分类名称"
-          width="220">
+          label="分类名称">
         </el-table-column>
         <el-table-column
           prop="intro"
@@ -45,8 +44,7 @@
         </el-table-column>
         <el-table-column
           prop="create_time"
-          label="创建时间"
-          width="170">
+          label="创建时间">
           <template slot-scope="scope">
             <div>
               {{moment(scope.row.create_time).format('YYYY-MM-DD HH:mm:ss')}}
@@ -55,19 +53,31 @@
         </el-table-column>
         <el-table-column
           prop="id"
-          align="center"
           label="操作"
           width="170">
-          <template slot-scope="scope">
+          <template slot-scope="{row}">
             <div>
-              <span class="text-cursor" @click="edit(scope.row)">编辑</span>
-                <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor" @click="stop(scope.row)">停用</span>
+              <span class="text-cursor" @click="edit(row)">编辑</span>
+              <el-divider direction="vertical"></el-divider>
+              <el-popconfirm
+                v-if="row.active"
+                title="确定停用该内容分类吗？"
+                @onConfirm="stopUsing(row)"
+              >
+                <span slot="reference" class="text-cursor">停用</span>
+              </el-popconfirm>
+              <el-popconfirm
+                v-else
+                title="确定启用该内容分类吗？"
+                @onConfirm="enable(row)"
+              >
+                <span slot="reference" class="text-cursor">启用</span>
+              </el-popconfirm> 
             </div>
           </template>
         </el-table-column>
       </el-table>
-      <Pagination :total="totalNumber" @pagination="pagination" />
+      <Pagination :limit="limit" :total="totalNumber" @pagination="pagination" />
     </div>
   </div>
 </template>
@@ -75,9 +85,10 @@
 <script>
 import Tabs from '@/components/Tabs'
 import tableMixins from '@/mixins/tableMixins'
-import {GameDefineSortLst} from '@/api/api'
+import {GameDefineSortLst, GameDefineOnSet, GameDefineOffSet} from '@/api/api'
 import moment from 'moment'
 import Pagination from '@/components/Pagination'
+import {stopOrEnableRequest} from '@/utils/ajax'
 export default {
   name: 'Define',
   components: { Tabs, Pagination },
@@ -89,11 +100,11 @@ export default {
       ruleForm: {
         key: '',
       },
-      tabAction: 0,
+      tabAction: -1,
       tabslist: [
-        { key: 0, label: '全部', value: '全部' },
-        { key: 1, label: '未使用', value: '未使用' },
-        { key: 2, label: '已停用', value: '已停用' },
+        { key: -1, label: '全部', value: '全部' },
+        { key: 1, label: '已启用', value: '已启用' },
+        { key: 0, label: '已停用', value: '已停用' },
       ],
     }
   },
@@ -102,8 +113,9 @@ export default {
   },
   methods: {
     tabsChange(e) {
-      console.log(e)
-      this.tabAction = e.key
+      this.tabSearch({
+        st: e.key,
+      })
     },
     add() {
       this.$router.push({
@@ -116,8 +128,23 @@ export default {
         query: {id: row.id}
       })
     },
-    stop() {
-      
+    stopUsing(row) {
+      stopOrEnableRequest({
+        url: GameDefineOffSet,
+        data: {id: row.id},
+        successText: '停用成功',
+      }, () => {
+        this.getList()
+      })
+    },
+    enable(row) {
+      stopOrEnableRequest({
+        url: GameDefineOnSet,
+        data: {id: row.id},
+        successText: '启用成功',
+      }, () => {
+        this.getList()
+      })
     },
   }
 }

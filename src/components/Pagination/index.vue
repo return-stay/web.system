@@ -26,11 +26,11 @@ export default {
     },
     page: {
       type: Number,
-      default: 1
+      default: 1,
     },
     limit: {
       type: Number,
-      default: 15
+      default: 20,
     },
     pageSizes: {
       type: Array,
@@ -40,7 +40,7 @@ export default {
     },
     layout: {
       type: String,
-      default: 'total, sizes, prev, pager, next, jumper'
+      default: 'total, prev, pager, next, jumper'
     },
     background: {
       type: Boolean,

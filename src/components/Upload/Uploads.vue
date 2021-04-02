@@ -2,23 +2,23 @@
   <div>
     <el-upload
       class="avatar-uploader"
-      :action="uploadUrl"
       :name='name'
       :data="params"
-      list-type="picture-card"
-      :on-preview="handlePictureCardPreview"
-      :on-remove="handleRemove"
-      :on-success="handleSuccess">
-      <i class="el-icon-plus"></i>
+      action="#"
+      :auto-upload="false"
+      :show-file-list="false"
+      :on-change="handleChange"
+      :before-upload="beforeAvatarUpload">
+      <img v-if="imageUrlShow" :src="imageUrlShow" class="avatar">
+      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
-    <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt="">
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import {baseApi} from '@/api/api'
+import {IMG_URL} from '@/api/api'
+import {beforeAvatarUpload} from './upload'
+import {convertToBinary} from '@/utils'
 export default {
   name: 'Uploads',
   props: {
@@ -30,36 +30,58 @@ export default {
       type: Object,
       default: () => {},
     },
-    url: {
+    api: {
       type: String,
-      default: ''
+      default: '',
+    },
+    isNeedId: {
+      type: Boolean,
+      default: false,
+    },
+    imageUrl: {
+      type: String,
+      default: '',
+    },
+  },
+  computed: {
+    imageUrlShow() {
+      if(this.imgUrl) {
+        return this.imgUrl
+      }
+      if(this.imageUrl && typeof this.imageUrl === 'string') {
+        return IMG_URL + this.imageUrl
+      }
     },
   },
   data() {
     return {
-      uploadUrl: '',
+      imgUrl: '',
+      uploadUrl: IMG_URL + this.api,
       dialogImageUrl: '',
-      dialogVisible: false
+      dialogVisible: false,
+      disabled: false,
     };
   },
   mounted() {
-    this.uploadUrl = baseApi + this.url
+    this.uploadUrl = IMG_URL + this.api
   },
   methods: {
-    handleSuccess() {
-      this.$emit('success')
+    handleChange(file, fileList) {
+      if(this.isNeedId && !this.params.id) {
+        this.$message.warning('请先添加游戏')
+      }else {
+        convertToBinary(file.raw, (res) => {
+          this.imgUrl = res
+        })
+        this.$emit('change', file, fileList)
+      }
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
+    beforeAvatarUpload(file) {
+      return beforeAvatarUpload(file)
     },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
-    }
   }
 }
 </script>
-
 
 <style>
   .avatar-uploader .el-upload {
@@ -72,7 +94,7 @@ export default {
   .avatar-uploader .el-upload:hover {
     border-color: #409EFF;
   }
-  .el-upload--picture-card {
+  .avatar-uploader-icon {
     font-size: 28px;
     color: #8c939d;
     width: 100px;
@@ -80,13 +102,8 @@ export default {
     line-height: 100px;
     text-align: center;
   }
-  .el-upload-list--picture-card .el-upload-list__item {
-    width: 100px;
-    height: 100px;
-  }
   .avatar {
     width: 100px;
-    height: 100px;
     display: block;
   }
 </style>

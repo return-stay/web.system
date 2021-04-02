@@ -41,13 +41,27 @@ const gameRouter = [
         meta: { title: '游戏盘库存', noCache: true, icon: 'circle' }
       },
       {
+        path: 'inventory/edit/:id',
+        component: () => import('@/views/games/GameInventory/AddGameInventory'),
+        name: 'EditGameInventory',
+        hidden: true,
+        meta: { title: '游戏盘库存', noCache: true, icon: 'circle' }
+      },
+      {
         path: 'pricing/manage',
         component: () => import('@/views/games/PricingManage'),
         name: 'PricingManage',
         meta: { title: '定价调整', noCache: true, icon: 'circle' }
       },
       {
-        path: 'pricing/adjustment',
+        path: 'pricing/add',
+        component: () => import('@/views/games/PricingManage/PricingAdjustment'),
+        name: 'PricingAdjustmentAdd',
+        hidden: true,
+        meta: { title: '定价调整', noCache: true, icon: 'circle' }
+      },
+      {
+        path: 'pricing/adjustment/:id',
         component: () => import('@/views/games/PricingManage/PricingAdjustment'),
         name: 'PricingAdjustment',
         hidden: true,
@@ -83,28 +97,28 @@ const gameRouter = [
         path: 'series',
         component: () => import('@/views/games/Series'),
         name: 'Series',
-        meta: { title: '游戏系列管理', noCache: true, icon: 'circle' }
+        meta: { title: '系列管理', noCache: true, icon: 'circle' }
       },
       {
         path: 'series/add',
         component: () => import('@/views/games/Series/AddSeries'),
         name: 'AddSeries',
         hidden: true,
-        meta: { title: '游戏系列管理', noCache: true, icon: 'circle' }
+        meta: { title: '系列管理', noCache: true, icon: 'circle' }
       },
-      {
-        path: 'define',
-        component: () => import('@/views/games/Define'),
-        name: 'Define',
-        meta: { title: '内容分类', noCache: true, icon: 'circle' }
-      },
-      {
-        path: 'define/add',
-        component: () => import('@/views/games/Define/AddDefine'),
-        name: 'AddDefine',
-        hidden: true,
-        meta: { title: '内容分类', noCache: true, icon: 'circle' }
-      },
+      // {
+      //   path: 'define',
+      //   component: () => import('@/views/games/Define'),
+      //   name: 'Define',
+      //   meta: { title: '内容分类', noCache: true, icon: 'circle' }
+      // },
+      // {
+      //   path: 'define/add',
+      //   component: () => import('@/views/games/Define/AddDefine'),
+      //   name: 'AddDefine',
+      //   hidden: true,
+      //   meta: { title: '内容分类', noCache: true, icon: 'circle' }
+      // },
     ]
   },
 ]

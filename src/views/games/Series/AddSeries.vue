@@ -1,6 +1,6 @@
 <template>
   <div class="view-box ta-box">
-    <el-form ref="form" :model="form" label-width="120px">
+    <el-form ref="form" :model="form" :rules="rules" label-width="120px">
       <div class="ta-header">游戏系列信息</div>
       <div class="ta-form">
         <el-row>
@@ -64,8 +64,8 @@
       
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
-          <el-button type="primary" @click="onSubmit">确定添加</el-button>
-          <!-- <el-button>取消</el-button> -->
+          <el-button v-if="type === 'add'" type="primary" @click="onSubmit('form')">确定添加</el-button>
+          <el-button v-else type="primary" @click="onSubmit('form')">保存游戏系列</el-button>
         </el-form-item>
       </div>
     </el-form>
@@ -82,6 +82,7 @@ export default {
   components: {UploadImageOrder},
   data() {
     return {
+      type: 'add',
       gameMiniList: [],
       selectList: [],
       selectKeys: [],
@@ -89,28 +90,43 @@ export default {
         nm: '',
         i: '',
         isa: null,
-      }
+      },
+      rules: {
+        nm: [ { required: true, message: '请输入系列名称', trigger: 'blur' } ],
+      },
     }
+  },
+  props: {
+    isNavition: {
+      type: Boolean,
+      default: true,
+    },
+    isRequired: { //参数是否必填
+      type: Boolean,
+      default: true,
+    },
   },
   mounted() {
     const {id} = this.$route.query
     if(id) {
+      this.type = 'edit'
       this.getDetail()
     }
     this.getGameList()
   },
   methods: {
-    onSubmit() {
-      console.log('submit!');
-      console.log(this.form)
-      this.addSeries()
+    onSubmit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.addSeries()
+        }
+      })
     },
     // 获取游戏公司列表
     getGameList() {
       postAjax({
         url: '',
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.gameList = res.data
         }
@@ -130,15 +146,17 @@ export default {
         url: GameGroupSet,
         data: this.paramsSet(),
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.$message.success('添加成功')
-          this.$router.back(-1)
+          if(this.isNavition) {
+            this.$router.back(-1)
+          }else {
+            this.$emit('callback', res.data.id)
+          }
         }
       })
     },
     getDetail() {
-      console.log(this.$route)
       const {id} = this.$route.query
       postAjax({
         url: GameGroupinf,
@@ -146,7 +164,6 @@ export default {
           id: id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           const resdata = res.data
           this.form = {
@@ -158,11 +175,13 @@ export default {
       })
     },
     cascaderChange(e) {
-      console.log(e)
       this.selectKeys = e
     },
     addSeriesList() {
-      let list = [], ids=[], selectKeys = this.selectKeys,gameMiniList = this.gameMiniList
+      let list = this.selectList, 
+      ids=[], 
+      selectKeys = this.selectKeys,
+      gameMiniList = this.gameMiniList
       for(let i = 0;i<selectKeys.length;i++) {
         for(let j = 0;j<gameMiniList.length;j++) {
           if(selectKeys[i][0] === gameMiniList[j].id) {
@@ -174,8 +193,6 @@ export default {
 
       this.selectList = list
       this.ids = ids
-
-
       this.selectKeys = []
     },
     getGameList() {
@@ -193,11 +210,6 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.ta-form .el-form-item {
-  margin-bottom: 14px;
-}
-</style>
 <style lang="scss" scoped>
 .ta-box {
   .ta-header {

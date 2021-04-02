@@ -8,7 +8,6 @@
       :data="computedData"
       :style="tableStyle"
     >
-
       <el-table-column
         v-for="(item, index) in datacolumns" :key="index"
         :fixed="item.fixed"
@@ -103,14 +102,11 @@ export default {
   },
   created() {
     const columns = this.columns()
-    console.log(columns)
     for(let i = 0; i<columns.length;i++) {
-      console.log(columns[i].render)
       if(columns[i].render) {
         columns[i].renderFunc = columns[i].render
       }
     }
-    console.log(columns)
     this.datacolumns = columns
   },
   data() {
@@ -137,12 +133,10 @@ export default {
   
   methods: {
     handleBtnClick(row,fnName) {
-      console.log(fnName)
       this.$emit(`${fnName}`,row)
     },
     // 点击某行处理
     rowClick(row, column, event) {
-      console.log(row, column, event)
       this.$emit('row-click', row, column, event)
     },
     // 数据源处理
@@ -226,7 +220,6 @@ export default {
       console.log(row)
     },
     shipments(row) {
-      console.log(row)
       this.$emit('shipments', row)
     }
   }

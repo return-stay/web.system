@@ -1,6 +1,6 @@
 <template>
   <div>
-    <order-table  :tabAction="3" title="待质检订单" />
+    <order-table  :tabAction="3" :action="90"  title="待质检订单" />
   </div>
 </template>
 

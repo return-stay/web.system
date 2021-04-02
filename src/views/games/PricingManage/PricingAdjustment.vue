@@ -1,6 +1,7 @@
 <template>
   <div class="view-box bi-box">
-    <el-form ref="form" :model="form" label-width="120px">
+    <Pricing />
+    <!-- <el-form ref="form" :model="form" label-width="120px">
       <div class="title">定价</div>
       <div class="bi-form-box clearfix">
         <el-row>
@@ -80,17 +81,17 @@
       <div class="gd-btns">
         <el-button type="primary" @click="onSubmit">保存并预览</el-button>
       </div>
-    </el-form>
+    </el-form> -->
   </div>
 </template>
 
 <script>
 import ImageLarger from '@/components/ImageLarger'
 import UploadImageOrder from '@/components/Upload/UploadImageOrder'
-
+import Pricing from '../Release/Pricing'
 export default {
   name: 'PricingAdjustment',
-  components: { ImageLarger, UploadImageOrder },
+  components: { ImageLarger, UploadImageOrder, Pricing },
   data() {
     return {
       disabled: false,

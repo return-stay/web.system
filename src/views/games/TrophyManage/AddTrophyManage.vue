@@ -1,20 +1,123 @@
 <template>
   <div class="view-box ta-box">
 
-    <div class="ta-game-list" v-if="tableData.length>0">
+    <div class="ta-game-list" v-if="gameList.length>0">
       <div class="ta-header" style="margin-bottom: 10px;">关联游戏</div>
-      <game-table :border="false" :columns="columns" :tableData="tableData" @detail="detail" :isPagination="false" />
+      <GameTable :border="false" :columns="columns" @detail="detail" :isPagination="false">
+        <el-table
+          :data="gameList"
+          style="width: 100%">
+          <el-table-column
+            prop="disc_no"
+            label="奖杯编号"
+            align="center"
+            width="100">
+            <span>{{disc_no}}</span>
+          </el-table-column>
+          <el-table-column
+            prop="name"
+            align="center"
+            label="关联游戏">
+            <template slot-scope="{row}">
+              <div class="table-games">
+                <div class="table-games-l">
+                  <!-- <img src="" alt=""> -->
+                  <ImageLarger :src="row.cover" />
+                </div>
+                <div class="table-games-r">
+                  <p>{{row.platform_name}}  {{row.name}}</p>
+                  <p>{{row.area_name}}  {{row.language_name}}</p>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="level_name"
+            align="center"
+            label="奖杯完成度"
+            width="100">
+          </el-table-column>
+          <el-table-column
+            prop="platinum"
+            align="center"
+            label="类型/系列"
+            width="100">
+            <template slot-scope="{row}">
+              <span>{{row.t}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="area_name"
+            align="center"
+            label="开发公司">
+            <template slot-scope="{row}">
+              <span>{{row.l}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop=""
+            align="center"
+            label="押金"
+            width="100">
+            <template slot-scope="{row}">
+              <span>{{row.deposit}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="create_time"
+            align="center"
+            label="日租金"
+            width="100">
+            <template slot-scope="{row}">
+              <span>{{row.day_rent}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="create_time"
+            align="center"
+            label="库存"
+            width="100">
+            <template slot-scope="{row}">
+              <span>{{row.c}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="create_time"
+            align="center"
+            label="创建时间"
+            width="170">
+            <template slot-scope="{row}">
+              <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="address"
+            align="center"
+            label="操作"
+            width="120">
+            <template slot-scope="{row}">
+              <span class="text-cursor" @click="edit(row)">编辑</span>
+              <el-divider direction="vertical"></el-divider>
+              <span class="text-cursor" @click="operation(row)">停用</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </GameTable>
     </div>
-    <el-form ref="form" :model="form" label-width="120px">
+    <el-form :model="form" :rules="rules" ref="form" label-width="120px">
       <div class="ta-header">奖杯信息</div>
       <div class="ta-form">
-        <el-form-item label="奖杯编号">
+        <el-form-item label="奖杯编号" prop="dn">
           <el-input size="small" v-model="form.dn" placeholder="请输入奖杯编号" />
         </el-form-item>
-        <el-form-item label="奖杯名称">
+
+        <el-form-item label="奖杯名称" prop="nm" v-if="isRequired">
           <el-input size="small" v-model="form.nm" placeholder="请输入奖杯名称" />
         </el-form-item>
-        <el-form-item label="完成度">
+        <el-form-item label="奖杯名称" v-else>
+          <el-input size="small" v-model="form.nm" placeholder="请输入奖杯名称" />
+        </el-form-item>
+        <el-form-item label="完成度" prop="l">
           <el-select size="small" style="width: 100%;" v-model="form.l" placeholder="请选择完成度">
             <el-option v-for="item in trophyLevelLst" :key="item.value" :label="item.name" :value="item.value"></el-option>
           </el-select>
@@ -34,7 +137,7 @@
       </div>
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
-          <el-button type="primary" @click="onSubmit">确定添加</el-button>
+          <el-button type="primary" @click="submitForm('form')">确定添加</el-button>
           <!-- <el-button>取消</el-button> -->
         </el-form-item>
       </div>
@@ -48,12 +151,15 @@ import GameTable from '@/components/TablePage/GameTable'
 import { getList } from '@/utils/data'
 import {postAjax} from '@/utils/ajax'
 import {BaseTrophyLevelLst, GameTrophyNewSet, GameTrophySet, GameTrophyInf} from '@/api/api'
+import moment from 'moment'
+import ImageLarger from '@/components/ImageLarger'
 export default {
   name: 'AddTrophyManage',
-  components: {GameTable},
+  components: {GameTable, ImageLarger},
   data() {
     return {
       disc_no: '',
+      moment,
       trophyLevelLst: [],
       columns: [
         {
@@ -123,7 +229,6 @@ export default {
         }
       ],
       gameList: [],
-      tableData: [],
       form: {
         dn: '',
         nm: '',
@@ -132,52 +237,69 @@ export default {
         g: 0,
         s: 0,
         c: 0,
+      },
+      rules: {
+        dn: [ { required: true, message: '请输入活动编号', trigger: 'blur' } ],
+        nm: [ { required: true, message: '请输入奖杯名称', trigger: 'blur' } ],
+        l: [ { required: true, message: '请输入完成度', trigger: 'blur' } ],
       }
     }
   },
+  props: {
+    isNavition: {
+      type: Boolean,
+      default: false,
+    },
+    isRequired: {
+      type: Boolean,
+      default: true,
+    },
+    tname: {
+      type: String,
+      default: '',
+    },
+  },
   mounted() {
-    console.log(this.$route)
     const {id} = this.$route.query
+    this.getSearchListInit()
     if(id) {
       this.disc_no = id
       this.getInfo(id)
     }
-    this.getSearchListInit()
+    if(this.tname) {
+      this.form.nm = this.tname
+    }
   },
   methods: {
-    onSubmit() {
-      if(this.disc_no) {
-        this.editRequest()
-      }else {
-        this.newAddRequest()
-      }
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.editOrAddRequest()
+        }
+      });
     },
-    // 编辑请求
-    editRequest() {
+    // 编辑或者添加
+    editOrAddRequest() {
+      let url = GameTrophyNewSet, messageSuccess = '添加成功';
+
+      if(this.disc_no) {
+        url = GameTrophySet
+        messageSuccess = '编辑成功'
+      }
       postAjax({
-        url: GameTrophySet,
+        url: url,
         data: {
           ...this.form
         },
       }).then(res=>{
         if(res.code === 1) {
-          this.$message.success("添加成功")
-          this.$router.go(-1)
-        }
-      })
-    },
-    // 添加请求
-    newAddRequest () {
-      postAjax({
-        url: GameTrophyNewSet,
-        data: {
-          ...this.form
-        }
-      }).then(res=> {
-        console.log(res)
-        if(res.code === 1) {
-          this.$message.success("添加成功")
-          this.$router.go(-1)
+          this.$message.success(messageSuccess)
+          if(this.isNavition) {
+            this.$router.go(-1)
+          }else {
+            this.$emit('callback', this.form.dn)
+          }
+          
         }
       })
     },
@@ -191,11 +313,18 @@ export default {
           dn: id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           const info = res.data
-          this.info = info
-          this.gameList = info.game_list
+          this.form = {
+            dn: info.disc_no,
+            nm: info.name,
+            l: info.level || null,
+            p: info.platinum,
+            g: info.gold,
+            s: info.sliver,
+            c: info.copper,
+          }
+          this.gameList = info.game_list || []
         }
       })
     },
@@ -208,13 +337,31 @@ export default {
 
 <style lang="scss">
 .ta-form .el-form-item {
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 </style>
 <style lang="scss" scoped>
 .ta-box {
   .ta-game-list {
     margin-bottom: 30px;
+    .table-games {
+      display: flex;
+      &-l {
+        width: 60px;
+        height: 60px;
+        flex-shrink: 0;
+        >img {
+          width: 100%;
+        }
+      }
+      &-r {
+        margin-left: 4px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+    }
   }
   .ta-header {
     height: 40px;
@@ -224,6 +371,7 @@ export default {
     padding-left: 20px;
     margin-bottom: 20px;
   }
+  
   .ta-form {
     width: 50%;
   }

@@ -1,19 +1,19 @@
 <template>
   <div class="view-box ta-box">
-    <el-form ref="form" :model="form" label-width="120px">
-      <div class="ta-header">添加公司信息</div>
+    <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+      <div class="ta-header">{{title}}公司信息</div>
       <div class="ta-form">
-        <el-form-item label="显示名称：" prop="view_name">
+        <el-form-item label="显示名称：" prop="v">
           <el-input size="small" placeholder="请输入显示名称" v-model="form.v" />
         </el-form-item>
-        <el-form-item label="原始名称：" prop="original_name">
+        <el-form-item label="原始名称：" prop="org">
           <el-input size="small" placeholder="请输入原始名称" v-model="form.org" />
         </el-form-item>
         <el-form-item label="公司介绍：" prop="i">
           <el-input type="textarea" v-model="form.i" :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
         </el-form-item>
         <el-form-item label="公司LOGO：" prop="logo">
-          <upload-image @change="uploadChange" />
+          <upload-image :imageUrl="logo"  @change="uploadChange" />
           <!-- <input type="file"> -->
           <!-- <el-input type="file" size="small" placeholder="请输入原始名称" v-model="form.logo" /> -->
         </el-form-item>
@@ -21,7 +21,8 @@
       
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
-          <el-button type="primary" @click="onSubmit">确定添加</el-button>
+          <el-button v-if="type === 'add'" type="primary" @click="onSubmit('form')">确定添加</el-button>
+          <el-button v-if="type === 'edit'" type="primary" @click="onSubmit('form')">保存修改</el-button>
           <!-- <el-button>取消</el-button> -->
         </el-form-item>
       </div>
@@ -40,12 +41,24 @@ export default {
   components: {UploadImage},
   data() {
     return {
+      title: '添加',
+      type: 'add',
+      logo: '',
       form: {
         v: '',
         org: '',
-        logo: '',
         i: '',
-      }
+      },
+      rules: {
+        v: [ { required: true, message: '请输入公司显示名称', trigger: 'blur' } ],
+        org: [{ required: true, message: '请输入公司原始名称', trigger: 'blur' }],
+      },
+    }
+  },
+  props: {
+    isNavition: {
+      type: Boolean,
+      default: true,
     }
   },
   mounted() {
@@ -53,12 +66,14 @@ export default {
     console.log(this.$route)
     if(id) {
       this.getInfo(id)
+      this.title = '编辑'
+      this.type = 'edit'
     }
   },
   methods: {
     uploadChange(file) {
       console.log(file)
-      this.form.logo = file.raw
+      this.logo = file.raw
     },
     getInfo(id) {
       postAjax({
@@ -74,12 +89,14 @@ export default {
 
           this.form = {
             v: resdata.view_name,
-            org: resdata.original_name
+            org: resdata.original_name,
+            i: resdata.intro,
           }
+          this.logo = resdata.logo
         }
       })
     },
-    onSubmit() {
+    companyRequest() {
       let params = this.form
       const { id } = this.$route.query
       let fd = new FormData()
@@ -88,33 +105,42 @@ export default {
       }
       fd.append('v', params.v)
       fd.append('org', params.org)
-      fd.append('logo', new Blob([params.logo]))
+      if(this.logo) {
+        fd.append('logo', this.logo)
+      }
       fd.append('i', params.i)
 
       ajax({
         method: 'post',
+        formdata: true,
         url: GameCompanySet,
         data: fd,
+        headers: {
+          'Content-Type': 'multipart/form-data', // 关键
+        },
       }).then(res=> {
         console.log(res)
         if(res.code === 1) {
           this.$message.success('添加成功')
-          this.$router.back(-1)
+          if(this.isNavition) {
+            this.$router.back(-1)
+          }else {
+            this.$emit('callback', res.data.id)
+          }
         }
       })
     },
-    detail() {
-      console.log("detail")
-    }
+    onSubmit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.companyRequest()
+        }
+      })
+    },
   }
 }
 </script>
 
-<style lang="scss">
-.ta-form .el-form-item {
-  margin-bottom: 14px;
-}
-</style>
 <style lang="scss" scoped>
 .ta-box {
   .ta-header {

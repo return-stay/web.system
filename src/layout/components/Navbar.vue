@@ -14,7 +14,7 @@
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip> -->
 
-        <settings-comp class="right-menu-item hover-effect" />
+        <!-- <settings-comp class="right-menu-item hover-effect" /> -->
 
       </template>
       

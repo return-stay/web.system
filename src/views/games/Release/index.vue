@@ -6,11 +6,11 @@
     </div>
 
     <div class="gr-cont">
-      <basic-info v-if="stepAction === '0'" @next="oneNext" />
+      <basic-info v-if="stepAction === '0'" @next="oneNext" :gameInfo="gameInfo" />
 
-      <inventory v-if="stepAction === '1'" @next="oneNext"  />
+      <inventory v-if="stepAction === '1'" @next="oneNext" :pid="gid" />
 
-      <pricing v-if="stepAction === '2'" @puback="puback"  />
+      <pricing v-if="stepAction === '2'" @puback="puback" :pid="gid" />
     </div>
 
   </div>
@@ -21,6 +21,8 @@ import Steps from '@/components/Steps'
 import BasicInfo from './BasicInfo'
 import Inventory from './Inventory'
 import Pricing from './Pricing'
+import {GameInfoDat} from '@/api/api'
+import {postAjax} from '@/utils/ajax'
 export default {
   name: 'GameRelease',
   components: { Steps, BasicInfo, Inventory, Pricing },
@@ -32,18 +34,42 @@ export default {
         {id: 2, label: '2', value: '上架并定价'}
       ],
       stepAction: '0',
+      gid: '',
+      gameInfo: {},
+    }
+  },
+  mounted() {
+    const id = this.$route.params.id
+    console.log(id)
+    if(id) {
+      this.getGameInfo(id)
     }
   },
   methods: {
     stepsChange(e) {
       this.stepAction = e
     },
-    oneNext(n) {
+    oneNext(n, gid) {
+      console.log(gid)
       this.stepAction = n
+      this.gid = gid
       this.$refs.stepchild.next(n)
     },
     puback() {
       this.oneNext('0')
+    },
+    getGameInfo(id) {
+      postAjax({
+        url: GameInfoDat,
+        data:{
+          id: id,
+        },
+      }).then(res=> {
+        if(res.code === 1) {
+          const resdata = res.data
+          this.gameInfo = resdata
+        }
+      })
     },
   }
 }
