@@ -13,9 +13,7 @@
           <el-input type="textarea" v-model="form.i" :autosize="{ minRows: 4, maxRows: 6 }"></el-input>
         </el-form-item>
         <el-form-item label="公司LOGO：" prop="logo">
-          <upload-image :imageUrl="logo"  @change="uploadChange" />
-          <!-- <input type="file"> -->
-          <!-- <el-input type="file" size="small" placeholder="请输入原始名称" v-model="form.logo" /> -->
+          <upload-image :imageUrl="logo" defaultText='宽高比 2:1'  @change="uploadChange" />
         </el-form-item>
       </div>
       

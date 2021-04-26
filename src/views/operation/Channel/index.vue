@@ -51,25 +51,25 @@
           label="访问片段">
         </el-table-column>
         <el-table-column
-          prop="create_time"
+          prop="update"
           align="center"
           label="修改时间"
           sortable
           width="170">
-          <template slot-scope="scope">
-            <div>
-              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+          <template slot-scope="{row}">
+            <div v-if="row.update">
+              {{moment(row.update).format("YYYY-MM-DD HH:mm:ss")}}
             </div>
           </template>
         </el-table-column>
         <el-table-column
-          prop="status_name"
+          prop="create"
           align="center"
           label="创建时间"
           width="170">
-          <template slot-scope="scope">
-            <div>
-              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+          <template slot-scope="{row}">
+            <div v-if="row.create">
+              {{moment(row.create).format("YYYY-MM-DD HH:mm:ss")}}
             </div>
           </template>
         </el-table-column>
@@ -145,7 +145,7 @@ export default {
     },
     edit(row) {
       this.$router.push({
-        path: '/operation/channel/add',
+        path: '/operation/channel/eidt',
         query: {id: row.id}
       })
     },

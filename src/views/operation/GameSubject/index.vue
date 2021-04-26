@@ -42,12 +42,10 @@
         </el-table-column>
         <el-table-column
           prop="title"
-          align="center"
           label="专题名称">
         </el-table-column>
         <el-table-column
           prop="description"
-          align="center"
           label="简介">
         </el-table-column>
         <el-table-column
@@ -67,7 +65,7 @@
           label="更细时间"
           width="170">
           <template slot-scope="scope">
-            <div>
+            <div v-if="scope.row.update_time">
               {{moment(scope.row.update_time).format("YYYY-MM-DD HH:mm:ss")}}
             </div>
           </template>
@@ -89,7 +87,7 @@
             </el-popconfirm>
             <el-popconfirm
               v-else
-              title="确定启用该启用吗？"
+              title="确定启用该专题吗？"
               @onConfirm="enable(row)"
             >
               <span slot="reference" class="text-cursor">启用</span>
@@ -150,7 +148,7 @@ export default {
     },
     edit(row) {
       this.$router.push({
-        path: '/operation/subject/add',
+        path: '/operation/subject/edit',
         query: {id: row.id}
       })
     },

@@ -22,8 +22,6 @@ import BasicInformation from './BasicInformation'
 import AfterSalesRecord from './AfterSalesRecord'
 import OrderHistory from './OrderHistory'
 import AccountRecords from './AccountRecords'
-import {UserInfoDat} from '@/api/api'
-import { postAjax } from '@/utils/ajax'
 export default {
   name: 'ClientsDetail',
   components: { Tabs ,BasicInformation, AfterSalesRecord, OrderHistory, AccountRecords },
@@ -39,28 +37,10 @@ export default {
       ],
     }
   },
-  mounted() {
-    // this.getInfo()
-  },
   methods: {
     tabsChange(item) {
-      console.log(item)
       this.tabAction = item.key
     },
-    getInfo() {
-      const { id } = this.$route.params
-      postAjax({
-        url: UserInfoDat,
-        data: {
-          id: id
-        }
-      }).then(res=> {
-        console.log(res)
-        if(res.code === 1) {
-          this.userInfo = res.data
-        }
-      })
-    }
   }
 }
 </script>

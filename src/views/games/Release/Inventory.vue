@@ -21,10 +21,11 @@
             width="100">
           </el-table-column>
           <el-table-column
+            prop=""
             align="center"
             label="游戏">
-            <template>
-              <div class="table-games" v-if="gameInfo.id">
+            <template slot-scope="{row}">
+              <div class="table-games" v-if="gameInfo && gameInfo.id">
                 <div class="table-games-l">
                   <ImageLarger :src="gameInfo.cover" imgstyle="height: 50px;" />
                 </div>
@@ -33,13 +34,22 @@
                   <p>{{gameInfo.area_name}}  {{gameInfo.language_name}}</p>
                 </div>
               </div>
-              <div class="table-games" v-else>
+              <!-- <div class="table-games" v-if="pGameInfo && pGameInfo.id">
                 <div class="table-games-l">
                   <ImageLarger :src="pGameInfo.cover" imgstyle="height: 50px;" />
                 </div>
                 <div class="table-games-r">
                   <p>{{pGameInfo.platform_name}}  {{pGameInfo.view_name}}</p>
                   <p>{{pGameInfo.area_name}}  {{pGameInfo.language_name}}</p>
+                </div>
+              </div> -->
+              <div class="table-games" v-if="row.id">
+                <div class="table-games-l">
+                  <ImageLarger :src="row.cover" imgstyle="height: 50px;" />
+                </div>
+                <div class="table-games-r">
+                  <p>{{row.platform_name}}  {{row.name}}</p>
+                  <p>{{row.area_name}}  {{row.language_name}}</p>
                 </div>
               </div>
             </template>
@@ -58,9 +68,12 @@
             prop="cost"
             align="center"
             label="成本价">
+            <template slot-scope="{row}">
+              <span>{{Number(((row.cost/100).toFixed(2)))}}</span>
+            </template>
           </el-table-column>
           <el-table-column
-            prop="order_memo"
+            prop="memo"
             align="center"
             label="备注">
           </el-table-column>
@@ -102,7 +115,7 @@
         <el-row>
           <el-col :span='12'>
             <el-form-item label="盘号：" prop="sn">
-              <el-input v-model="form.sn" size="small"></el-input>
+              <el-input v-model="form.sn" size="small" @blur="checkCartridgeNumber"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -110,13 +123,7 @@
         <el-row>
           <el-col :span='24'>
             <el-form-item label="成本价：" prop="c">
-              <!-- <el-input v-model="form.c" size="small">
-                <span
-                  style="color: #000;"
-                  slot="suffix">元
-                </span>
-              </el-input> -->
-              <el-input-number v-model="form.c" :min="0" controls-position="right" :precision="2" :step="1" size="small">
+              <el-input-number v-model="form.c" :min="0" :max="500" controls-position="right" :precision="2" :step="1" size="small">
               </el-input-number>
               <span style="color: #000;border:none;padding: 10px;">元</span>
             </el-form-item>
@@ -136,7 +143,7 @@
         </el-form-item>
         <el-form-item v-if="type === 'edit'" label="状态：" prop="st">
           <el-select v-model="form.st" size="small" :disabled="form.st===2">
-            <el-option :disabled="!item.disabled" v-for="item in statsList" :key="item.value" :value="item.value" :label="item.name"></el-option>
+            <el-option v-for="item in getStatsList" :key="item.value" :value="item.value" :label="item.name"></el-option>
           </el-select>
         </el-form-item>
       </div>
@@ -154,7 +161,7 @@
           <el-button @click="cancel">取消</el-button>
         </template>
         <template v-if="btns.isconfirm">
-          <el-button type="primary" @click="submitCallback('form')">确定增加库存</el-button>
+          <el-button type="primary" @click="submitCallback('form', 'addconfim')">确定增加库存</el-button>
         </template>
       </div>
     </el-form>
@@ -162,8 +169,8 @@
 </template>
 
 <script>
-import {postList} from "@/utils/data"
-import {GameMiniLst, DiscInfoSet, DiscInfoDat, DiscListDat,BaseDiscStateLst} from '@/api/api'
+import {postList, getStoreList} from "@/utils/data"
+import { GameMiniLst, DiscInfoSet, DiscInfoDat, DiscListDat,BaseDiscStateLst, DiscInfoCheck } from '@/api/api'
 import { getAjax, postAjax } from '@/utils/ajax'
 import  ImageLarger from '@/components/ImageLarger'
 import moment from 'moment'
@@ -196,12 +203,14 @@ export default {
       moment,
       type: 'add',
       isGameDisabled: false,
+      isCheckRepeatBool: true, //盘号是否重复
       gamelist: [],
       gameInfo: {},
       otherList: [], //其他游戏盘列表
       statsList: [], //盘的状态列表
       paramsid: '',
-      gameid: null,
+      gameid: null, //游戏ID
+      iid: null, //游戏盘的ID
       form: {
         gid: null,
         sn: '',
@@ -211,61 +220,83 @@ export default {
         st: 1,
       },
       rules: {
-        gid: [{ required: true, message: '请选择游戏', trigger: 'blur' }],
+        gid: [{ required: true, message: '请选择游戏', trigger: 'change' }],
         sn: [{ required: true, message: '请输入盘号', trigger: 'blur' }],
         c: [{ required: true, message: '请输入成本价', trigger: 'blur' }],
         sf: [{ required: true, message: '请输入货架号', trigger: 'blur' }],
       },
     }
   },
+  computed: {
+    getStatsList() {
+      let st = this.form.st
+      let statusList = this.statsList
+      let list = []
+      if([1,3,9].indexOf(st) > -1) {
+        for(let i = 0;i<statusList.length;i++) {
+          let v = statusList[i].value
+          if([1,3,9].indexOf(v) > -1) {
+            list.push(statusList[i])
+          }
+        }
+      }else {
+        list = statusList
+      }
+      return list
+    },
+  },
   mounted() {
-    const id = this.$route.params.id
-    const {serial} = this.$route.query
     this.getGameList()
-    this.form.gid = Number(id) || null
-    if(serial) {
-      this.getDiscInfo(id)
-    }
-    if(this.$route.path.indexOf('game/inventory/edit')>-1) {
-      this.type = 'edit'
-      this.getStatusList()
-    }
-    if(this.$route.path.indexOf('/game/detail')>-1) {
-      this.getDiscList(id)
-      this.isGameDisabled = true
-    }
-    this.pGetInfo()
+    this.judgeScene()
   },
   methods: {
+    // 判断页面的存在环境， 游戏详情还是游戏盘详情
+    judgeScene () {
+      const id = this.$route.params.id
+      // 游戏盘详情
+      if(this.$route.path.indexOf('game/inventory/edit')>-1) {
+        this.type = 'edit'
+        this.iid = Number(id) || null
+        this.getStatusList()
+        const {serial} = this.$route.query
+        if(serial) {
+          this.getDiscInfo(id)
+        }
+        this.isGameDisabled = true
+      }
+      // 游戏详情
+      if(this.$route.path.indexOf('/game/detail')>-1) {
+        this.form.gid = Number(id) || null
+        this.gameid = id
+        this.getDiscList(id)
+        this.isGameDisabled = true
+      }
+      // 发布游戏
+      if(this.$route.path.indexOf('/game/release')>-1) {
+        if(this.pid) {
+          this.form.gid = this.pid
+          this.gameid = this.pid
+        }
+        this.isGameDisabled = true
+      }
+    },
+    // 获取盘编号列表
     getStatusList() {
       getAjax({
         url: BaseDiscStateLst,
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           let list = res.data
-          for(let i = 0;i<list.length;i++) {
-            let v = list[i].value
-            if([1, 3, 9].indexOf(v)>-1) {
-              list[i].disabled = true
-            }
-          }
           this.statsList = list
         }
       })
     },
     async getGameList () {
-      let r = await postList(GameMiniLst)
+      let r = await getStoreList(GameMiniLst)
       for(let i = 0;i<r.length;i++) {
         r[i].detailinfo = `${r[i].platform_name} | ${r[i].view_name} | ${r[i].area_name} ${r[i].language_name}`
       }
       this.gamelist = r
-    },
-    pGetInfo() {
-      if(this.pid) {
-        this.form.gid = this.pid
-        this.gameid = this.pid
-      }
     },
     // 游戏盘详情
     getDiscInfo(id) {
@@ -297,24 +328,35 @@ export default {
       })
     },
     next(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
+      if(this.otherList.length>0) {
+        if(this.form.sn && this.form.sf) {
           this.addRequest(() => {
             this.$emit('next', '2', this.pid)
           })
-        } else {
-          return false;
+        }else {
+          this.$emit('next', '2', this.pid)
         }
-      })
+      }else {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            this.addRequest(() => {
+              this.$emit('next', '2', this.pid)
+            })
+          } else {
+            return false;
+          }
+        })
+      }
     },
     cancel() {
       this.$emit('cancel')
     },
     addRequest(callback) {
-      const id = this.$route.params.id
-      let params = this.form, successtext = '添加成功'
-      if(id) {
-        params.id = id
+      if(!this.isCheckRepeatBool) return this.$message.warning('奖杯编码重复，请修改')
+      const iid = this.iid
+      let params = JSON.parse(JSON.stringify(this.form)), successtext = '添加成功'
+      if(iid) {
+        params.id = iid
         successtext = '保存成功'
       }
       if(!params.st) {
@@ -335,16 +377,16 @@ export default {
       })
     },
     submitCallback(formName, type) {
-      console.log(formName)
       const that = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
           that.addRequest(() => {
             console.log(type)
-            if(type ==='continue') {
-              that.$refs[formName].resetFields();
+            if(type ==='continue' || type === 'addconfim') {
               const id = this.gameid
+              that.$refs[formName].resetFields();
               this.form.gid = Number(id) || null
+              that.gameListAddInventory()
             }
           })
         } else {
@@ -352,6 +394,17 @@ export default {
         }
       })
     },
+
+    // 游戏列表进入的添加游戏
+    gameListAddInventory() {
+      let routerPath = this.$route.path
+      if(routerPath.indexOf('/game/detail')>-1 || routerPath.indexOf('/game/release') > -1) {
+        const id = this.gameid
+        this.getDiscList(id)
+        this.isGameDisabled = true
+      }
+    },
+    
     // 通过游戏ID获取该游戏的盘列表
     getDiscList (id) {
       postAjax({
@@ -372,6 +425,31 @@ export default {
       this.$router.push({
         path: '/game/inventory/edit/' + row.id,
         query: {serial: row.serial}
+      })
+    },
+    // 校验盘编号是否重复
+    checkCartridgeNumber() {
+      this.isCheckRepeat()
+    },
+    isCheckRepeat(callback) {
+      let sn = this.form.sn
+      postAjax({
+        url: DiscInfoCheck,
+        data: {
+          sn: sn
+        },
+      }).then(res=> {
+        if(res.code === 1) {
+          if(res.data.is_exist) {
+            this.isCheckRepeatBool = false
+            this.$message.warning('盘号重复，请修改')
+          }else {
+            this.isCheckRepeatBool = true
+            callback && callback()
+          }
+        }else {
+          this.isCheckRepeatBool = false
+        }
       })
     },
   }

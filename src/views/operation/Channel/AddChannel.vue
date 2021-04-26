@@ -1,6 +1,6 @@
 <template>
   <div class="view-box ta-box">
-    <div class="view-box-title">添加渠道</div>
+    <div class="view-box-title">{{title}}渠道</div>
     <el-form ref="form" :model="form" :rules="rules" label-width="120px">
       <div class="ta-header">录入信息</div>
       <div class="ta-form">
@@ -23,8 +23,9 @@
       </div>
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
-          <el-button>保存并预览</el-button>
-          <el-button type="primary" @click="onSubmit('form')">确定添加</el-button>
+          <el-button @click="onSubmit('form', 'save')">保存并预览</el-button>
+          <el-button type="primary" @click="onSubmit('form')" v-if="title === '添加'">确定添加</el-button>
+          <el-button type="primary" @click="onSubmit('form')" v-else>保存修改</el-button>
         </el-form-item>
       </div>
       <div class="ta-header" style="margin-top: 20px;">预览和分享</div>
@@ -57,6 +58,7 @@ export default {
   components: {UploadImageOrder, ImageLarger},
   data() {
     return {
+      title: "添加",
       form: {
         nm: '',
         des: '',
@@ -72,6 +74,7 @@ export default {
   mounted() {
     const {id} = this.$route.query
     if(id) {
+      this.title = '编辑'
       this.getInfo(id)
     }
   },
@@ -95,15 +98,16 @@ export default {
         }
       })
     },
-    onSubmit(formName) {
+    onSubmit(formName, type) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.addOrEidtRequest()
+          this.addOrEidtRequest(() => {
+            if(type === 'save') {}
+          })
         }
       })
     },
-    addOrEidtRequest() {
-      
+    addOrEidtRequest(callback) {
       const {id} = this.$route.query
       let params = this.form, messageText = '添加成功'
       if(id) {
@@ -118,6 +122,7 @@ export default {
         if(res.code === 1) {
           this.$message.success(messageText)
           this.$router.back(-1)
+          callback && callback()
         }
       })
     },

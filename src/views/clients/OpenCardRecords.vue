@@ -12,7 +12,7 @@
             </el-select>
           </el-col> -->
           <el-col :span="6">
-            <el-input v-model="ruleForm.um"></el-input>
+            <el-input v-model="ruleForm.um" placeholder="微信昵称"></el-input>
           </el-col>
         </el-form-item>
         <el-row>
@@ -35,13 +35,14 @@
         <el-form-item label="开卡时间：">
           <el-col :span="6">
             <el-form-item prop="s_time">
-              <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.s_time" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="datetime" default-time="00:00:00" placeholder="选择时间" v-model="ruleForm.s_time" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col class="line" :span="1">至</el-col>
           <el-col :span="6">
             <el-form-item prop="e_time">
-              <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.e_time" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="datetime"
+                default-time="23:59:59" placeholder="选择时间" v-model="ruleForm.e_time" style="width: 100%;"></el-date-picker>
             </el-form-item> 
           </el-col>
         </el-form-item>
@@ -105,7 +106,7 @@
           width="100">
           <template slot-scope="{row}">
             <div>
-              {{Number((row.total_fee/100).toFixed(2))}}
+              {{Number((row.total_fee/100).toFixed(2))}}元
             </div>
           </template>
         </el-table-column>
@@ -150,7 +151,7 @@ import { UserVipFeeLst, BaseChannelLst } from '@/api/api'
 import tableMixins from '@/mixins/tableMixins'
 import Pagination from '@/components/Pagination'
 import moment from 'moment'
-import { getList } from '@/utils/data'
+import { getStoreList } from '@/utils/data'
 export default {
   name: 'OpenCardRecords',
   components: { Tabs, Pagination },
@@ -182,7 +183,7 @@ export default {
     },
 
     async getSearchListInit () {
-      this.channelList = await getList(BaseChannelLst)
+      this.channelList = await getStoreList(BaseChannelLst)
     }
   }
 }

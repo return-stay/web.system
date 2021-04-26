@@ -17,7 +17,6 @@
 
 <script>
 import Tabs from '@/components/Tabs'
-// import BasicInformation from './BasicInformation'
 import BasicInfo from '../Release/BasicInfo'
 import Inventory from '../Release/Inventory'
 import Pricing from '../Release/Pricing'
@@ -72,6 +71,13 @@ export default {
     tabsChange(item) {
       console.log(item)
       this.tabAction = item.key
+      // let type = 'detail'
+      // switch(item.key) {
+
+      // }
+      // this.$router.push({
+      //   query: {type: 'price'}
+      // })
     },
     getGameInfo(id) {
       postAjax({

@@ -1,7 +1,7 @@
 <template>
   <div class="oqt-game-li">
     <div class="oqt-game-li-title">
-      <span class="oqt-game-li-title-t">游戏1</span>
+      <span class="oqt-game-li-title-t">游戏{{index}}</span>
       <span class="oqt-game-li-title-n" v-if="gameInfo.status < 60">运单号：{{expressNo || '-'}}</span>
       <span class="oqt-game-li-title-n" v-else>（租借中：第{{gameInfo.lease}}天，其中免租{{gameInfo.free_lease}}天）</span>
     </div>
@@ -9,9 +9,8 @@
       <div style="flex:1;">
         <GameView :games="gameInfo" :isBtn="false">
           <template v-if="!isqualitySelect">
-          <!-- <template v-if="gameInfo.status> 69 && gameInfo.status<110"> -->
-            <span @click="qualityTesting" v-if="gameInfo.status === 100">重新质检</span>
-            <span @click="qualityTesting" v-else>质检</span>
+            <span @click="qualityTesting" v-if="setQualitySelect === 1">重新质检</span>
+            <span @click="qualityTesting(gameInfo)" v-else>质检</span>
             <span @click="settlement(gameInfo)">结算</span>
           </template>
         </GameView>
@@ -25,7 +24,7 @@
                 <el-step title="租借完成" description="" icon="el-icon-success"></el-step>
               </el-steps>
             </div>
-            <div class="oqt-game-li-cont-b-l-s" v-if="gameInfo.status>90">
+            <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation">
               <div class="oqt-game-li-cont-b-l-s-lease">
                 <h4>租期</h4>
                 <div class="oqt-game-li-cont-b-l-s-lease-li">
@@ -59,17 +58,17 @@
                   <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.depreciation/100).toFixed(2))}}元</span>
                 </div>
                 <div class="oqt-game-li-cont-b-l-s-all">
-                  <span>共消费</span><span style="color: #FE6247;">{{Number((gameInfo.total_rent/100).toFixed(2))}}元</span>
+                  <span>共消费</span><span style="color: #FE6247;">{{Number(((gameInfo.depreciation + gameInfo.total_rent)/100).toFixed(2))}}元</span>
                 </div>
               </div>
             </div> 
           </div>
-          <div class="oqt-game-li-cont-b-r" v-if="isqualitySelect">
+          <div class="oqt-game-li-cont-b-r" v-if="isQualitySelect">
             <div class="oqt-game-li-cont-b-r-top">
               <h5>上传该游戏发货照片（盒、盘面的正反各1张）</h5>
               <div class="oqt-game-li-cont-b-r-top-imgs">
                 <div class="oqt-game-li-cont-b-r-top-imgs-img" v-for="p in photoList" :key="p.id" >
-                  <ImageLarger :src="p.path" alt=""></ImageLarger>
+                  <ImageLarger :src="p.path" alt="" imgstyle="height: 100%;width: 100%;"></ImageLarger>
                 </div>
               </div>
             </div>
@@ -87,6 +86,7 @@
             <div class="oqt-game-li-cont-b-r-select">
               <span class="oqt-game-li-cont-b-r-select-t">介质读取：</span>
               <el-select v-model="rs" placeholder="请选择" size="small">
+                <el-option label="正常" :value="0"></el-option>
                 <el-option
                   v-for="ci in readList"
                   :key="ci.id"
@@ -98,6 +98,7 @@
             <div class="oqt-game-li-cont-b-r-select">
               <span class="oqt-game-li-cont-b-r-select-t">介质外观：</span>
               <el-select v-model="ms" placeholder="请选择" size="small">
+                <el-option label="正常" :value="0"></el-option>
                 <el-option
                   v-for="ci in mediaList"
                   :key="ci.id"
@@ -109,6 +110,7 @@
             <div class="oqt-game-li-cont-b-r-select">
               <span class="oqt-game-li-cont-b-r-select-t">包装盒外观：</span>
               <el-select v-model="cs" placeholder="请选择" size="small">
+                <el-option label="正常" :value="0"></el-option>
                 <el-option
                   v-for="ci in coverList"
                   :key="ci.id"
@@ -153,8 +155,20 @@ export default {
       type: Object,
       default: () => {},
     },
+    index: {
+      type: Number,
+      default: 0,
+    },
   },
   computed: {
+    // 是否显示结算信息
+    isSettlementInformation() {
+      let siBool = false
+      if(this.gameInfo.status>90) {
+        siBool = true
+      }
+      return siBool
+    },
     arrivedTime() {
       let atime = this.gameInfo.arrived_time
       return atime? moment(atime).format('YYYY-MM-DD') : null
@@ -163,9 +177,24 @@ export default {
       let gtime = this.gameInfo.giveback_time
       return gtime ? moment(gtime).format('YYYY-MM-DD') : null
     },
-    // 是否质检完成
+    // 是否显示质检选项
+    isQualitySelect() {
+      return this.isqualitySelect
+    },
+    // 是否质检  0.未质检  1. 质检未结算  2.质检并结算 
     setQualitySelect() {
-      return this.gameInfo.status < 100 ? true: this.isqualitySelect
+      let num = 0, status = this.gameInfo.status
+      if(status < 100 || this.isqualitySelect) {
+        num = 1
+      }
+      if(status === 100) {
+        num = 1
+      }
+      if(status >100) {
+        num = 2
+      }
+      console.log(num)
+      return num;
     },
     setpAction() {
       let num = 0;
@@ -205,18 +234,26 @@ export default {
   },
   created() {
     this.setMediumLists()
-    this.initGame()
     this.getCheckInfo()
     this.getDiscOrderPhotoLst()
   },
   methods: {
     // 质检
-    qualityTesting() {
+    qualityTesting(gameinfo) {
       this.isqualitySelect = true
+      let id = gameinfo.id
+      // this.$router.push({
+      //   path: '/order/settlement/' + id,
+      //   query: {
+      //     type: 'check'
+      //   }
+      // })
     },
     // 结算
     settlement(row) {
-      this.settlementReuqest(row.id)
+      this.settlementReuqest(row.id, () => {
+        this.$emit('callback', {type: 1, isSettlement: false}) //false 获取详情的时候会重新调用订单游戏列表
+      })
     },
     settlementReuqest(id, callback) {
       postAjax({
@@ -227,12 +264,10 @@ export default {
       }).then(res=> {
         console.log(res)
         if(res.code === 1) {
+          this.$message.success("结算成功")
           callback && callback()
         }
       })
-    },
-    initGame() {
-      console.log(this.gameInfo)
     },
     setMediumLists() {
       const res = this.mediumLists
@@ -255,20 +290,18 @@ export default {
         url: DiscOrderCheckSet,
         data: obj,
       }).then(res=> {
-        console.log(res)
-        that.isqualitySelect = false
-        if(isSettlement) {
-          this.settlementReuqest(id,() => {
-            this.$emit('callback', {type: 1})
-          })
-        }else {
-          this.$emit('callback', {type: 1})
+        if(res.code === 1) {
+          that.isqualitySelect = false
+          if(isSettlement) {
+            this.settlementReuqest(id,() => {
+              // this.$emit('callback', {type: 1, isSettlement: true})
+              this.$router.go(-1)
+            })
+          }else {
+            // this.$emit('callback', {type: 1, isSettlement: false})
+            this.$router.go(-1)
+          }
         }
-
-        that.tp = null
-        that.rs = null
-        that.ms = null
-        that.cs = null
       })
     },
     saveAndReturn(id) {
@@ -284,27 +317,10 @@ export default {
           oid: id,
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.photoList = res.data
         }
       })
-    },
-    setPhotoList(photoList = []) {
-      let arr = [
-        { field: 'disca', path: '' },
-        { field: 'discb', path: '' },
-        { field: 'boxa', path: '' },
-        { field: 'boxb', path: '' },
-      ]
-      for(let i = 0;i<arr.length;i++) {
-        for(let j=0;j<photoList.length;j++) {
-          if(arr[i].field === photoList[j].field) {
-            arr[i].path = photoList[j].path
-          }
-        }
-      }
-      return arr
     },
     // 获取订单还盘信息
     getCheckInfo() {
@@ -320,9 +336,9 @@ export default {
           console.log(res.data)
           let resdata = res.data
           that.tp = resdata.type || null
-          that.rs = resdata.read_status || null
-          that.ms = resdata.media_status || null
-          that.cs = resdata.cover_status || null
+          that.rs = resdata.read_status
+          that.ms = resdata.media_status
+          that.cs = resdata.cover_status
         }
       })
     },

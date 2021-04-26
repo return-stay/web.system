@@ -3,112 +3,118 @@
 
     <div class="ta-game-list" v-if="gameList.length>0">
       <div class="ta-header" style="margin-bottom: 10px;">关联游戏</div>
-      <GameTable :border="false" :columns="columns" @detail="detail" :isPagination="false">
-        <el-table
-          :data="gameList"
-          style="width: 100%">
-          <el-table-column
-            prop="disc_no"
-            label="奖杯编号"
-            align="center"
-            width="100">
-            <span>{{disc_no}}</span>
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            align="center"
-            label="关联游戏">
-            <template slot-scope="{row}">
-              <div class="table-games">
-                <div class="table-games-l">
-                  <!-- <img src="" alt=""> -->
-                  <ImageLarger :src="row.cover" />
-                </div>
-                <div class="table-games-r">
-                  <p>{{row.platform_name}}  {{row.name}}</p>
-                  <p>{{row.area_name}}  {{row.language_name}}</p>
-                </div>
+      <el-table
+        :data="gameList"
+        style="width: 100%">
+        <el-table-column
+          prop="disc_no"
+          label="奖杯编号"
+          align="center"
+          width="100">
+          <span>{{disc_no}}</span>
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          align="center"
+          label="关联游戏">
+          <template slot-scope="{row}">
+            <div class="table-games">
+              <div class="table-games-l">
+                <ImageLarger :src="row.cover" />
               </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="level_name"
-            align="center"
-            label="奖杯完成度"
-            width="100">
-          </el-table-column>
-          <el-table-column
-            prop="platinum"
-            align="center"
-            label="类型/系列"
-            width="100">
-            <template slot-scope="{row}">
-              <span>{{row.t}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="area_name"
-            align="center"
-            label="开发公司">
-            <template slot-scope="{row}">
-              <span>{{row.l}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop=""
-            align="center"
-            label="押金"
-            width="100">
-            <template slot-scope="{row}">
-              <span>{{row.deposit}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            align="center"
-            label="日租金"
-            width="100">
-            <template slot-scope="{row}">
-              <span>{{row.day_rent}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            align="center"
-            label="库存"
-            width="100">
-            <template slot-scope="{row}">
-              <span>{{row.c}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="create_time"
-            align="center"
-            label="创建时间"
-            width="170">
-            <template slot-scope="{row}">
-              <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="address"
-            align="center"
-            label="操作"
-            width="120">
-            <template slot-scope="{row}">
-              <span class="text-cursor" @click="edit(row)">编辑</span>
-              <el-divider direction="vertical"></el-divider>
-              <span class="text-cursor" @click="operation(row)">停用</span>
-            </template>
-          </el-table-column>
-        </el-table>
-      </GameTable>
+              <div class="table-games-r">
+                <p>{{row.platform_name}}  {{row.name}}</p>
+                <p>{{row.area_name}}  {{row.language_name}}</p>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="level_name"
+          align="center"
+          label="奖杯完成度"
+          width="100">
+          <template slot-scope="{row}">
+            <span v-if="row.level === 1">神作</span>
+            <span v-else-if="row.level === 2">极易</span>
+            <span v-else-if="row.level === 3">容易</span>
+            <span v-else-if="row.level === 4">普通</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="platinum"
+          align="center"
+          label="类型/系列"
+          width="100">
+          <template  slot-scope="{row}">
+            <div>
+              <p>{{row.sort_name}}</p>
+              <p>{{row.group_name}}</p>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="company_name"
+          align="center"
+          label="开发公司">
+          <template slot-scope="{row}">
+            <span>{{row.l}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop=""
+          align="center"
+          label="押金"
+          width="100">
+          <template slot-scope="{row}">
+            <span>{{Number(((row.deposit/100).toFixed(2)))}}元</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop=""
+          align="center"
+          label="日租金"
+          width="100">
+          <template slot-scope="{row}">
+            <span>{{Number(((row.day_rent/100).toFixed(2)))}}元</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="disc_count"
+          align="center"
+          label="库存"
+          width="100">
+          <template slot-scope="{row}">
+            <span>{{row.c}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="create_time"
+          align="center"
+          label="创建时间"
+          width="170">
+          <template slot-scope="{row}">
+            <span v-if="row.create_time">{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          align="center"
+          label="操作"
+          width="120">
+          <template slot-scope="{row}">
+            <span class="text-cursor" @click="edit(row)">编辑</span>
+            <el-divider direction="vertical"></el-divider>
+            <span class="text-cursor" @click="stock(row)">加库</span>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
     <el-form :model="form" :rules="rules" ref="form" label-width="120px">
       <div class="ta-header">奖杯信息</div>
       <div class="ta-form">
         <el-form-item label="奖杯编号" prop="dn">
-          <el-input size="small" v-model="form.dn" placeholder="请输入奖杯编号" />
+          <el-input size="small" v-model="form.dn" placeholder="请输入奖杯编号" @blur="checkRepeat" />
         </el-form-item>
 
         <el-form-item label="奖杯名称" prop="nm" v-if="isRequired">
@@ -148,9 +154,9 @@
 
 <script>
 import GameTable from '@/components/TablePage/GameTable'
-import { getList } from '@/utils/data'
+import { getStoreList } from '@/utils/data'
 import {postAjax} from '@/utils/ajax'
-import {BaseTrophyLevelLst, GameTrophyNewSet, GameTrophySet, GameTrophyInf} from '@/api/api'
+import {BaseTrophyLevelLst, GameTrophyNewSet, GameTrophySet, GameTrophyInf, GameTrophyCheck } from '@/api/api'
 import moment from 'moment'
 import ImageLarger from '@/components/ImageLarger'
 export default {
@@ -161,79 +167,13 @@ export default {
       disc_no: '',
       moment,
       trophyLevelLst: [],
-      columns: [
-        {
-          title: '奖杯编号',
-          key: 'name',
-          label: 'name',
-          width: 100,
-        },
-        {
-          title: '关联游戏',
-          key: 'game',
-          label: 'game',
-          width: 240,
-        },
-         {
-          title: '奖杯完成度',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '奖杯数量',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '平台',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '版本',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '语言',
-          key: 'age',
-          label: 'age',
-          width: 100,
-        },
-        {
-          title: '创建时间',
-          key: 'age',
-          label: 'age',
-          width: 200,
-          sort: true,
-        },
-        {
-          title: '操作',
-          key: 'lll',
-          fixed: 'right',
-          width: 120,
-          render: [
-            {
-              fnName: 'edit',
-              title: '编辑'
-            },
-            {
-              fnName: 'operation',
-              title: '停用'
-            },
-          ]
-        }
-      ],
       gameList: [],
+      isCheckRepeatBool: true, //校验编码是否重复， 默认不重复
       form: {
         dn: '',
         nm: '',
         l: null,
-        p: 0,
+        p: 1,
         g: 0,
         s: 0,
         c: 0,
@@ -248,7 +188,7 @@ export default {
   props: {
     isNavition: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     isRequired: {
       type: Boolean,
@@ -278,14 +218,39 @@ export default {
         }
       });
     },
+    // 校验编码是否重复
+    checkRepeat() {
+      this.isCheckRepeat()
+    },
+    isCheckRepeat(callback) {
+      let dn = this.form.dn
+      postAjax({
+        url: GameTrophyCheck,
+        data: {
+          dn: dn
+        },
+      }).then(res=> {
+        if(res.code === 1) {
+          if(res.data.is_exist) {
+            this.isCheckRepeatBool = false
+            this.$message.warning('奖杯编码重复，请修改')
+          }else {
+            this.isCheckRepeatBool = true
+            callback && callback()
+          }
+        }else {
+          this.isCheckRepeatBool = false
+        }
+      })
+    },
     // 编辑或者添加
     editOrAddRequest() {
       let url = GameTrophyNewSet, messageSuccess = '添加成功';
-
       if(this.disc_no) {
         url = GameTrophySet
         messageSuccess = '编辑成功'
       }
+      if(!this.isCheckRepeatBool) return false
       postAjax({
         url: url,
         data: {
@@ -299,12 +264,20 @@ export default {
           }else {
             this.$emit('callback', this.form.dn)
           }
-          
         }
       })
     },
-    detail() {
-      console.log("detail")
+    edit(row) {
+      this.$router.push({
+        path: '/game/detail/' + row.id,
+        query: {type: 'detail'}
+      })
+    },
+    stock(row) {
+      this.$router.push({
+        path: '/game/detail/' + row.id,
+        query: {type: 'stock'}
+      })
     },
     getInfo(id) {
       postAjax({
@@ -319,7 +292,7 @@ export default {
             dn: info.disc_no,
             nm: info.name,
             l: info.level || null,
-            p: info.platinum,
+            p: info.platinum || 1,
             g: info.gold,
             s: info.sliver,
             c: info.copper,
@@ -329,7 +302,7 @@ export default {
       })
     },
     async getSearchListInit() {
-      this.trophyLevelLst = await getList(BaseTrophyLevelLst)
+      this.trophyLevelLst = await getStoreList(BaseTrophyLevelLst)
     },
   }
 }

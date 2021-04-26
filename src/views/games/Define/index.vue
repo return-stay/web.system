@@ -46,7 +46,7 @@
           prop="create_time"
           label="创建时间">
           <template slot-scope="scope">
-            <div>
+            <div v-if="scope.row.create_time">
               {{moment(scope.row.create_time).format('YYYY-MM-DD HH:mm:ss')}}
             </div>
           </template>

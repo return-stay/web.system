@@ -42,6 +42,10 @@ export default {
       }
       if(urls.typeJson === 'json') {
         if(params) {
+          if(params.st) {
+            obj.st = params.st
+            delete params.st
+          }
           obj.data = JSON.stringify(params)
         }else {
           obj.data = JSON.stringify({})
@@ -146,20 +150,29 @@ export default {
       })
       this.getList()
     },
+    // 取消选择
+    cancelChoice() {
+      this.$refs.multipleTable.clearSelection();
+    },
     // 本页全选
     pageAll() {
       let tables = this.tableData
       if (tables) {
         tables.forEach(item => {
-          this.$refs.multipleTable.toggleRowSelection(item);
+          this.$refs.multipleTable.toggleRowSelection(item, true);
         });
       } else {
         this.$refs.multipleTable.clearSelection();
       }
     },
     handleSelectionChange(val) {
-      console.log(val)
       this.selectList = val
+    },
+    handleRowClick(row) {
+      this.$router.push({
+        path: '/game/detail/' + row.id,
+        query: {type: 'detail'}
+      })
     },
     // 下架 
     stopRequest(ids) {

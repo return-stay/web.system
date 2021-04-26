@@ -55,6 +55,13 @@ const orderRouter = [
         meta: { title: '订单详情', noCache: true, icon: 'circle' },
       },
       {
+        path: 'settlement/:id',
+        component: () => import('@/views/order/OrderSettlement'),
+        name: 'OrderSettlement',
+        hidden: true,
+        meta: { title: '质检结算', noCache: true, icon: 'circle' },
+      },
+      {
         path: 'afterSaleDetail/:id',
         component: () => import('@/views/order/AfterSaleDetail'),
         name: 'AfterSaleDetail',

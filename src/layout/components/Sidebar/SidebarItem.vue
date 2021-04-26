@@ -1,12 +1,12 @@
 <template>
   <div v-if="!item.hidden">
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
-      <div v-if="item.disabled" class="disabled-class">
+      <div v-if="item.disabled" class="disabled-class" @click="strongBrush">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}" :disabled="true">
           <span><item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title" /></span>
         </el-menu-item>
       </div>
-      <div v-else>
+      <div v-else @click="strongBrush">
         <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
           <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}" :disabled="false">
             <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title" />
@@ -39,6 +39,7 @@ import AppLink from './Link'
 import FixiOSBug from './FixiOSBug'
 
 export default {
+  inject: ['reload'],
   name: 'SidebarItem',
   components: { Item, AppLink },
   mixins: [FixiOSBug],
@@ -64,6 +65,9 @@ export default {
     return {}
   },
   methods: {
+    strongBrush() {
+      this.reload()
+    },
     hasOneShowingChild(children = [], parent) {
       const showingChildren = children.filter(item => {
         if (item.hidden) {

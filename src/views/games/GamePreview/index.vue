@@ -34,7 +34,7 @@
                 <span class="info-left-text-cont info-left-text-date">开发公司： {{gameInfo.company_name}}</span>
               </div>
               <div class="info-left-text">
-                <span class="info-left-text-cont info-left-text-date">发行日期： {{createTime}}</span>
+                <span class="info-left-text-cont info-left-text-date">发行日期： {{publishTime}}</span>
               </div>
               <div class="info-left-text">
                 <span class="info-left-text-cont info-left-text-date">官方奖杯编号：
@@ -125,7 +125,7 @@ export default {
       trophyInfo: {},
       screenshotList: [],
       discNos: [],
-      createTime: '',
+      publishTime: '',
     }
   },
   computed: {
@@ -155,7 +155,7 @@ export default {
             this.discNos = resdata.disc_no.split('-')
             this.getThophy(resdata.disc_no)
 
-            this.createTime = moment(resdata.create_time).format('YYYY-MM-DD HH:mm:ss')
+            this.publishTime = moment(resdata.publish_time).format('YYYY-MM-DD')
           }
         })
       }

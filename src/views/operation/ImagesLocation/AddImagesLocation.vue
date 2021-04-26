@@ -1,13 +1,13 @@
 <template>
   <div class="view-box ta-box">
-    <div class="view-box-title">添加图片位</div>
+    <div class="view-box-title">{{title}}图片位</div>
     <el-form ref="form" :model="form" :rules="rules" label-width="120px">
       <div class="ta-header">录入信息</div>
       <div class="ta-form">
         <el-row>
           <el-col :span="20">
             <el-form-item label="显示位置：" prop="l">
-              <el-select size="small" v-model="form.l" placeholder="请选择">
+              <el-select size="small" v-model="form.l" :disabled="imgType==='edit'" placeholder="请选择">
                 <el-option v-for="item in locationList" :key="item.value" :label="item.name" :value="item.value"></el-option>
               </el-select>
             </el-form-item>
@@ -27,7 +27,7 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="跳转内容：" prop="rid">
-              <el-select size="small" v-model="form.rid" placeholder="请选择">
+              <el-select size="small" v-model="form.rid" filterable placeholder="请选择">
                 <el-option v-for="item in contentList" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
@@ -37,7 +37,7 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="图片：" prop="img">
-              <UploadImage :imageUrl="fdimg" @change="uploadChange" />
+              <UploadImage :imageUrl="fdimg" @change="uploadChange" :defaultText='imageDefaultText' />
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
@@ -53,8 +53,8 @@
       </div>
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
-          <el-button>保存</el-button>
-          <el-button type="primary" @click="submitForm('form')">发布图片位</el-button>
+          <el-button @click="submitForm('form', false)">保存</el-button>
+          <el-button type="primary" @click="submitForm('form', true)">发布图片位</el-button>
         </el-form-item>
       </div>
     </el-form>
@@ -72,10 +72,11 @@ import {
   BaseSortLst,
   BaseDefinesortLst,
   BaseGroupLst,
-  BaseGameCompanyLst } from '@/api/api'
-import {getList, postList} from '@/utils/data'
+  BaseGameCompanyLst,
+  ContentOnSet, } from '@/api/api'
+import {getList, postList, getStoreList} from '@/utils/data'
 import ImageLarger from '@/components/ImageLarger'
-import { postAjax } from '@/utils/ajax'
+import { postAjax, stopOrEnableRequest } from '@/utils/ajax'
 import ajax from '@/utils/request'
 import UploadImage from '@/components/Upload'
 export default {
@@ -83,6 +84,8 @@ export default {
   components: { ImageLarger, UploadImage},
   data() {
     return {
+      title: '添加',
+      imgType: 'add',
       typeList: [],
       locationList: [],
       contentList: [],
@@ -103,34 +106,83 @@ export default {
       }
     }
   },
+  computed: {
+    imageDefaultText() {
+      let text = ''
+      let l = this.form.l
+      switch(l) {
+        case 1:
+          text = '453 * 246'
+          break;
+        case 2:
+          text = '453 * 246'
+          break;
+        case 3:
+          text = '700 * 120'
+          break;
+        case 4:
+          text = '700 * 120'
+          break;
+        case 5:
+          text = '700 * 120'
+          break;
+        case 6:
+          text = '453 * 246'
+          break;
+        case 7:
+          text = '218 * 246'
+          break;
+        default:
+
+      }
+      return text
+    }
+  },
   mounted() {
     this.getSearchListInit()
-    this.getInfo()
+    
   },
   methods: {
     async getSearchListInit() {
-      this.typeList = await getList(BaseContentTypeList)
-      this.locationList =  await getList(BaseContentLocationList)
-      await this.typeChange(1, (i) => {
-        this.form = {
-          tp: 1,
-          l: 1,
-          rid: i,
-          tt: '',
-          img: '',
-        }
-      })
+      this.locationList =  await getStoreList(BaseContentLocationList)
+      this.typeList = await getStoreList(BaseContentTypeList)
+      const {id} = this.$route.query
+      if(id) {
+        this.imgType = 'edit'
+        this.getInfo((resdata) => {
+          this.typeChange(resdata.type, () => {
+            this.form = {
+              tp: resdata.type,
+              l: resdata.location,
+              rid: resdata.relation_id,
+              tt: resdata.title,
+              img: resdata.img
+            }
+            this.fdimg = resdata.img
+          })
+        })
+      }else {
+        this.typeChange(1, () => {
+          this.form = {
+            tp: 1,
+            l: 1,
+            rid: 634,
+            tt: '',
+            img: '',
+          }
+        })
+      }
     },
     async typeChange(e, callback) {
-      let list = [], gid = 0
+      let list = [], cid = 0
       switch(e) {
         case 1: //游戏
-          list = await postList(GameMiniLst)
+          list = await getStoreList(GameMiniLst)
           for(let i = 0 ; i< list.length;i++) {
             list[i].name = `${list[i].id} | ${list[i].platform_name} | ${list[i].view_name} | ${list[i].area_name} ${list[i].language_name}`
             list[i].lable = list[i].id
             if(i === 0) {
-              gid = list[i].id
+              cid = list[i].id
             }
           }
           break;
@@ -142,16 +194,16 @@ export default {
           }
           break;
         case 3: //游戏公司
-          list = await getList(BaseGameCompanyLst)
+          list = await getStoreList(BaseGameCompanyLst)
           break;
         case 4: //游戏分类
-          list = await getList(BaseSortLst)
+          list = await getStoreList(BaseSortLst)
           break;
         case 5: //系列
-          list = await getList(BaseGroupLst)
+          list = await getStoreList(BaseGroupLst)
           break;
         case 6: //内容分类
-          list = await getList(BaseDefinesortLst)
+          list = await getStoreList(BaseDefinesortLst)
           break;
         case 9: //小程序页面
           list = []
@@ -161,39 +213,36 @@ export default {
       }
       this.form.rid = null
       this.contentList = list
-      callback && callback(gid)
+      callback && callback(cid)
     },
     uploadChange(file) {
+      console.log(file)
       this.form.img = file.raw
       this.fdimg = file.raw
     },
-    getInfo() {
+    getInfo(callback) {
       const {id} = this.$route.query
       if(id) {
+        this.title = '编辑'
         postAjax({
           url: ContentInfoDat,
           data: {id},
         }).then(res=> {
           const resdata = res.data
-          this.form = {
-            tp: resdata.type,
-            l: resdata.location,
-            rid: resdata.relation_id,
-            tt: resdata.title,
-            img: resdata.img
-          }
-          this.fdimg = resdata.img
+          callback && callback(resdata)
         })
       }
     },
-    submitForm(formName) {
+    // bool 是否启用， true启用， false 不启用
+    submitForm(formName, bool) {
+      console.log(bool)
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.onSubmit()
+          this.onSubmit(bool)
         }
       })
     },
-    onSubmit() {
+    onSubmit(bool) {
       const {id} = this.$route.query
       let fd = new FormData(), thisform = this.form, messageText = '添加成功'
       if(id) {
@@ -208,7 +257,7 @@ export default {
         this.$message.warning('请先上传图片')
         return 
       }
-      if(!thisform.img) {
+      if(thisform.img && typeof thisform.img === 'object') {
         fd.append('img', this.fdimg);
       }
       ajax({
@@ -220,11 +269,29 @@ export default {
           'Content-Type': 'multipart/form-data', // 关键
         },
       }).then(res=> {
+        console.log(bool)
         if(res.code === 1) {
-          this.$message.success(messageText)
-          this.$router.back(-1)
+          if(bool) {
+            this.enable(res.id)
+          }else {
+            this.$message.success(messageText)
+            this.$router.back(-1)
+          }
         }
       })
+    },
+    // 发布图片位
+    enable(id) {
+      const that  = this
+      if(id) {
+        stopOrEnableRequest({
+          url: ContentOnSet,
+          data: {id: id},
+          successText: '发布成功',
+        }, () => {
+          that.$router.back(-1)
+        })
+      }
     },
   }
 }

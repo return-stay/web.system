@@ -45,28 +45,23 @@
         </el-table-column>
         <el-table-column
           prop="location_name"
-          label="位置"
-          width="120">
+          label="位置">
         </el-table-column>
         <el-table-column
           prop="type_name"
-          label="类型"
-          width="120">
+          label="类型">
         </el-table-column>
         <el-table-column
           prop="relation_name"
-          label="内容"
-          width="180">
+          label="内容">
         </el-table-column>
         <el-table-column
           prop="title"
-          label="标题/描述"
-          width="180">
+          label="标题/描述">
         </el-table-column>
         <el-table-column
           prop="area_name"
-          label="状态"
-          width="120">
+          label="状态">
           <template slot-scope="{row}">
             <span v-if="row.active">启用</span>
             <span v-else>停用</span>
@@ -77,7 +72,7 @@
           label="更新时间"
           width="180">
           <template slot-scope="{row}">
-            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+            <span v-if="row.create_time">{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -111,7 +106,7 @@
 
 <script>
 import { IMG_URL, BaseContentTypeList, BaseContentLocationList, ContentInfoLst, ContentOffSet, ContentOnSet} from '@/api/api'
-import {getList} from '@/utils/data'
+import {getStoreList} from '@/utils/data'
 import GameTable from '@/components/TablePage/GameTable'
 import Tabs from '@/components/Tabs'
 import tableMixins from '@/mixins/tableMixins'
@@ -148,8 +143,8 @@ export default {
   },
   methods: {
     async getSearchListInit() {
-      this.typeList = await getList(BaseContentTypeList)
-      this.locationList =  await getList(BaseContentLocationList)
+      this.typeList = await getStoreList(BaseContentTypeList)
+      this.locationList =  await getStoreList(BaseContentLocationList)
     },
     tabsChange(e) {
       this.tabSearch({
@@ -163,7 +158,7 @@ export default {
     },
     edit(row) {
       this.$router.push({
-        path: '/operation/location/add',
+        path: '/operation/location/edit',
         query: {id: row.id}
       })
     },

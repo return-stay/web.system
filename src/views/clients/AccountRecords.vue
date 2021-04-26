@@ -24,7 +24,7 @@
         label="发生时间"
         align="center">
         <template slot-scope="{row}">
-          <span>{{moment(row.fee_time).format("YYYY-MM-DD")}}</span>
+          <span>{{moment(row.fee_time).format("YYYY-MM-DD HH:mm:ss")}}</span>
         </template>
       </el-table-column>
       <el-table-column

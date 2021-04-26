@@ -14,7 +14,7 @@
         </el-form-item>
 
         <el-form-item label="封面图：">
-          <UploadImage :imageUrl="cover" :isNeedId="true" :params="{id: id}" name="cover"  @change="coverChange" />
+          <UploadImage :imageUrl="cover" :isNeedId="true" :params="{id: id}" name="cover" defaultText='1000 * 1000' @change="coverChange" />
         </el-form-item>
       </div>
 
@@ -84,13 +84,13 @@
           <el-col :span='12'>
             <el-form-item label="奖杯编码：" prop="disn_nos">
               <el-cascader
-                  :value="disn_nos"
-                  @change="cascaderChange"
-                  style="width: 100%;"
-                  placeholder="搜索"
-                  :options="trophyLst"
-                  :props="{ multiple: true, value: 'disc_no', label: 'disc_no' }"
-                  filterable></el-cascader>
+                :value="disn_nos"
+                @change="cascaderChange"
+                style="width: 100%;"
+                placeholder="搜索"
+                :options="trophyLst"
+                :props="{ multiple: true, value: 'disc_no', label: 'disc_no' }"
+                filterable></el-cascader>
             </el-form-item>
           </el-col>
           <el-col :span="10">
@@ -131,13 +131,12 @@
         </el-form-item>
       </div>
       <el-form-item label="游戏截图：">
-        <!-- <Upload :params="{id: id}" url="/game/screenshot.set" name="screenshot" /> -->
         <div class="screenshot-box">
           <ul>
             <li v-for="item in screenshotList" :key="item.id">
               <PopImage :src="item.preview_url" :deleteUrl="GameScreenshotDel" :deleteData="{ssid: item.id,id: id}" :l_src="item.original_url" @callback="deleteImageCallback" />
             </li>
-            <Uploads :params="{id: id}" url="/game/screenshot.set" name="screenshot" @change="successUpload" />
+            <Uploads :params="{id: id}" url="/game/screenshot.set" name="screenshot" defaultText='宽高比 16:9' @change="successUpload" />
           </ul>
         </div>
       </el-form-item>
@@ -166,7 +165,6 @@ import AddTrophy from './AddTrophy'
 import AddGameSeries from './AddSeries'
 import {
   GameInfoSet,
-  GameInfoDat, 
   GameScreenshotDel,
   GameScreenshotSet,
   BaseSortLst,
@@ -180,12 +178,12 @@ import {
   BaseTrophyLst,
   GameCoverSet,
   IMG_URL
-   } from '@/api/api'
+  } from '@/api/api'
 import ajax from '@/utils/request'
 import { postAjax, fdAjax } from "@/utils/ajax"
-import { getList } from '@/utils/data'
+import { getList, getStoreList } from '@/utils/data'
 import moment from 'moment'
-import { dateToMs } from '@/utils'
+import { dateToMs, throttle } from '@/utils'
 import GamePreview from '../GamePreview'
 
 export default {
@@ -236,6 +234,7 @@ export default {
       gameCompanyLst: [],
       discList: [],
       trophyLst: [],
+      screenshotFileList: [], //需要上传的游戏截图列表
     }
   },
   props: {
@@ -259,7 +258,6 @@ export default {
   methods: {
     getGameInfo() {
       const resdata = this.gameInfo
-      console.log(resdata)
       this.screenshotList = resdata.screenshot || []
       resdata.publish_time = new Date(moment(resdata.publish_time).format('YYYY-MM-DD'))
       this.cover = resdata.cover + '?t=' + new Date().getTime()
@@ -302,11 +300,8 @@ export default {
       }
     },
 
-    successUpload(file) {
-      console.log(file)
-      // this.getGameInfo()
-      if(this.isId()) {
-        const id = this.id
+    screenshotRequest(id, file) {
+      return new Promise((resolve) => {
         let fd = new FormData()
         fd.append('id', id)
         fd.append('screenshot', file.raw)
@@ -317,37 +312,48 @@ export default {
             screenshot: file.raw
           }
         }).then(res=> {
-          console.log(res)
+          if(res.code === 1) {
+            resolve(res)
+          }
         })
-      }
-      
+      })
+    },
+
+    successUpload(fileList) {
+      this.screenshotFileList = fileList
     },
     coverChange(file) {
       this.coverFile = file.raw
     },
     coverRequest(id) {
-      let fd = new FormData()
-      fd.append('id', id)
-      fd.append('cover', this.coverFile)
-      ajax({
-        method: 'post',
-        formdata: true,
-        url: GameCoverSet,
-        data: fd,
-        headers: {
-          'Content-Type': 'multipart/form-data', // 关键
-        },
-      }).then(res=> {
-        console.log('封面上传成功')
-        console.log(res)
+      return new Promise((resolve) => {
+        let fd = new FormData()
+        fd.append('id', id)
+        fd.append('cover', this.coverFile)
+        ajax({
+          method: 'post',
+          formdata: true,
+          url: GameCoverSet,
+          data: fd,
+          headers: {
+            'Content-Type': 'multipart/form-data', // 关键
+          },
+        }).then(res=> {
+          resolve(res)
+        })
       })
     },
     // 添加或者编辑请求
     addOrEidtRequest (callback, toast = true) {
       const params = this.form
       params.publish_time = dateToMs(params.publish_time)
-      if(this.disn_nos) {
-        params.disn_no = this.disn_nos.join('-')
+      let disnNos = this.disn_nos
+      if(disnNos) {
+        if(typeof disnNos === 'string') {
+          params.disn_no = disnNos
+        }else {
+          params.disn_no = disnNos.join('-')
+        }
       }
       const id = this.$route.params.id || this.id
       let successText = '添加成功'
@@ -355,7 +361,6 @@ export default {
         params.id = id
         successText = '编辑成功'
       }
-      console.log(params)
       postAjax({
         url: GameInfoSet,
         data: {
@@ -369,6 +374,13 @@ export default {
           if(this.coverFile) {
             await this.coverRequest(gid)
           }
+          let screenshotFileList = this.screenshotFileList
+          if(screenshotFileList && screenshotFileList.length>0) {
+            for(let s= 0;s<screenshotFileList.length;s++) {
+              await this.screenshotRequest(gid, screenshotFileList[s])
+            }
+          }
+          this.screenshotFileList = []
           if(toast) {
             this.$message.success(successText)
           }
@@ -386,27 +398,31 @@ export default {
       })
     },
     next(formName) {
-      this.formNameValidate(formName, () => {
-        this.addOrEidtRequest((res) => {
-          this.$emit('next', '1', res.id)
+      throttle(() => {
+        this.formNameValidate(formName, () => {
+          this.addOrEidtRequest((res) => {
+            this.$emit('next', '1', res.id)
+          })
         })
       })
     },
     onSubmit(formName) {
-      this.formNameValidate(formName, () => {
-        this.addOrEidtRequest(() => {
-          console.log('看效果')
-          this.preview()
-        }, false)
+      throttle(() => {
+        this.formNameValidate(formName, () => {
+          this.addOrEidtRequest(() => {
+            this.preview()
+          }, false)
+        })
       })
     },
     save(formName) {
-      this.formNameValidate(formName, () => {
-        this.addOrEidtRequest()
+      throttle(() => {
+        this.formNameValidate(formName, () => {
+          this.addOrEidtRequest()
+        })
       })
     },
     cascaderChange(e) {
-      console.log(e)
       this.disn_nos = e
     },
     previewHide() {
@@ -419,15 +435,21 @@ export default {
         this.$refs.gamePreview.show()
       }, 0);
     },
-    deleteImageCallback() {
-      this.getGameInfo()
+    deleteImageCallback(res) {
+      let screenshotList = this.screenshotList
+      for(let i = 0;i<screenshotList.length;i++) {
+        if(screenshotList[i].id === res.ssid) {
+          screenshotList.splice(i, 1)
+        }
+      }
+      this.screenshotList = screenshotList
     },
     async getSearchListInit() {
-      this.sortList = await getList(BaseSortLst)
-      this.areaList =  await getList(BaseAreaLst)
-      this.languageList = await getList(BaseLanguageLst)
-      this.platformList = await getList(BasePlatformLst)
-      this.definesortList = await getList(BaseDefinesortLst)
+      this.sortList = await getStoreList(BaseSortLst)
+      this.areaList =  await getStoreList(BaseAreaLst)
+      this.languageList = await getStoreList(BaseLanguageLst)
+      this.platformList = await getStoreList(BasePlatformLst)
+      this.definesortList = await getStoreList(BaseDefinesortLst)
       this.getGroupList()
       this.getCompanylist()
       this.getTrophyLst()
@@ -443,28 +465,27 @@ export default {
     async getTrophyLst() {
       this.trophyLst = await getList(BaseTrophyLst)
     },
-    // 设置改游戏的分类内容
+    // 设置改游戏的内容分类
     setDefineSort() {
-      const defineSortArray = this.defineSortArray
-      if(defineSortArray.length>0) {
-        this.setDefineSortRequest(defineSortArray)
-      }
-    },
-    // 设置改游戏的分类内容 发送请求
-    setDefineSortRequest(dids = []) {
-      const id = this.$route.params.id || this.id
-      if(id) {
-        postAjax({
-          url: GameDefinesortsSet,
-          data: {
-            id: id,
-            dss: dids.join(','),
+      return new Promise((resolve) => {
+        const defineSortArray = this.defineSortArray
+        if(defineSortArray.length>0) {
+          const id = this.$route.params.id || this.id
+          if(id) {
+            postAjax({
+              url: GameDefinesortsSet,
+              data: {
+                id: id,
+                dss: defineSortArray.join(','),
+              }
+            }).then(res=> {
+              resolve(res)
+            })
           }
-        }).then(res=> {
-          console.log('分类修改成功')
-          console.log(res)
-        })
-      }
+        }else {
+          resolve()
+        }
+      })
     },
     // 快速添加公司
     addCompany() {
@@ -479,7 +500,6 @@ export default {
       this.$refs.addSeries.show()
     },
     addCallback(row) {
-      console.log(row)
       switch(row.type) {
         case "trophy": //奖杯码
           this.getTrophyLst()

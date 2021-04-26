@@ -1,5 +1,5 @@
 <template>
-  <div class="oqt-box">
+  <div class="os-box">
     <div class="title">
       <span>订单号：{{orderInfo.transaction_id}}</span>
       <span>/ 下单时间：{{createTime}}</span>
@@ -56,24 +56,16 @@
 
 <script>
 import { postAjax, getAjax } from '@/utils/ajax'
-import { DiscOrderListDat, DiscFreeLst, BaseCheckStatusLst, DeliveryTraceInf } from '@/api/api'
+import { DiscOrderListDat, DiscFreeLst, BaseCheckStatusLst, DeliveryTraceInf,TradeInfoDat } from '@/api/api'
 import OrderQualityGameList from './OrderQualityGamelist'
 import moment from 'moment'
 export default {
-  name: 'OrderQualityTesting',
+  name: 'OrderSettlement',
   components: { OrderQualityGameList },
-  props: {
-    orderInfo: {
-      type: Object,
-      default: () => {}
-    },
-    expressNo: {
-      type: String,
-      default: '',
-    },
-  },
   data() {
     return {
+      expressNo: "",
+      orderInfo: {},
       orderList: [],
       mediumLists: {},
       dialogVisible: false,
@@ -89,8 +81,26 @@ export default {
   mounted() {
     this.getDiscOrderListDat()
     this.getCheckStatusLst()
+
+    this.getOrderDetail()
   },
   methods: {
+    // 获取订单详情
+    getOrderDetail() {
+      const { id } = this.$route.params
+      postAjax({
+        url: TradeInfoDat,
+        data: {
+          id: id
+        }
+      }).then(res=> {
+        if(res.code === 1) {
+          const resdata = res.data
+          this.orderInfo = resdata
+          this.expressNo = resdata.express_no
+        }
+      })
+    },
     // 获取结算列表
     getCheckStatusLst() {
       getAjax({
@@ -123,12 +133,21 @@ export default {
       }).then(async res=> {
         if(res.code === 1) {
           const resdata = res.data
-          for(let i = 0;i<resdata.length;i++) {
-            const oid = resdata[i].id, gid = resdata[i].game_info.id
-            const freeList = await that.getDiscFreeLst(gid)
-            resdata[i].freeList = freeList.data? freeList.data: []
+          const { cid } = this.$route.query
+          if(cid) {
+            let newlist = []
+            for(let i = 0;i<resdata.length;i++) {
+              const oid = resdata[i].id, gid = resdata[i].game_info.id
+              if(Number(cid) === oid) {
+                const freeList = await that.getDiscFreeLst(gid)
+                resdata[i].freeList = freeList.data? freeList.data: []
+                newlist.push(resdata[i])
+              }
+            }
+            that.orderList = newlist
+          }else {
+            that.orderList = resdata
           }
-          that.orderList = resdata
         }
       })
     },
@@ -162,7 +181,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.oqt-box {
+.os-box {
+  background-color: #fff;
+  min-height: 100%;
+  padding: 16px;
   .title {
     height: 40px;
     color: #000;

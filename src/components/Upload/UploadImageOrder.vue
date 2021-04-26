@@ -1,5 +1,5 @@
 <template>
-  <div :class="'ui-box '+ uploadClass">
+  <div :class="'uo-box ui-box '+ uploadClass">
     <el-upload
       class="avatar-uploader"
       :action="uploadUrl"
@@ -14,24 +14,6 @@
         <span class="icon-box-span">{{uploadText}}</span>
       </div>
     </el-upload>
-    <!-- <el-upload
-      :action="uploadUrl"
-      list-type="picture-card"
-      :on-preview="handlePictureCardPreview"
-      :on-success="handleAvatarSuccess"
-      :name='name'
-      :data="params"
-      :on-remove="handleRemove">
-
-      <img v-if="dialogImageUrl" :src="dialogImageUrl" class="avatar">
-      <div class="icon-box" v-else>
-        <i class="el-icon-plus"></i>
-        <span class="icon-box-span" v-if="uploadText">{{uploadText}}</span>
-      </div>
-    </el-upload> -->
-    <!-- <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="dialogImageUrl" alt="">
-    </el-dialog> -->
   </div>
 </template>
 
@@ -72,9 +54,6 @@ export default {
       dialogVisible: false
     }
   },
-  mounted() {
-    // console.log(baseApi)
-  },
   methods: {
     handleAvatarSuccess(res, file) {
       console.log(res)
@@ -108,8 +87,6 @@ export default {
 </script>
 
 <style>
-
-
 .ui-box {
   height: 100%;
   width: 100px;
@@ -141,7 +118,7 @@ export default {
 .avatar-uploader .el-upload:hover {
   border-color: #409EFF;
 }
-.avatar-uploader-icon {
+.uo-box .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
   width: 100px;

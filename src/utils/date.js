@@ -10,7 +10,7 @@ const DateUtil = {
   getDay() {
     // console.log(nowMonth)
     let sday = new Date(now.getFullYear(), nowMonth, nowDay,0,0,0)
-    let eday = new Date()
+    let eday = new Date(now.getFullYear(), nowMonth, nowDay,23,59,59)
     return {
       start: sday,
       end: eday,
@@ -19,7 +19,7 @@ const DateUtil = {
   // 获取昨天
   getToday() {
     let sday = new Date(now.getFullYear(), nowMonth, nowDay-1, 0, 0, 0)
-    let eday = new Date(now.getFullYear(), nowMonth, nowDay, 0, 0, 0)
+    let eday = new Date(now.getFullYear(), nowMonth, nowDay-1, 23,59,59)
     return {
       stoday: sday, 
       etoday: eday
@@ -28,7 +28,7 @@ const DateUtil = {
   // 获取最近7天
   get7day() {
     let sday = new Date(now.getFullYear(), nowMonth, nowDay-7, 0, 0, 0)
-    let eday = new Date(now.getFullYear(), nowMonth, nowDay)
+    let eday = new Date(now.getFullYear(), nowMonth, nowDay, 23,59,59)
     return {
       s7day: sday, 
       e7day: eday
@@ -36,7 +36,7 @@ const DateUtil = {
   },
   get30Day() {
     let sday = new Date(now.getFullYear(), nowMonth, nowDay-30, 0, 0, 0)
-    let eday = new Date(now.getFullYear(), nowMonth, nowDay)
+    let eday = new Date(now.getFullYear(), nowMonth, nowDay, 23,59,59)
     return {
       s30day: sday, 
       e30day: eday,

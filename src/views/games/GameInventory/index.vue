@@ -108,11 +108,11 @@
           label="成本价"
           width="100">
           <template slot-scope="{row}">
-            <span>{{Number(((row.cost || 0)/100).toFixed(2))}}</span>
+            <span>{{Number(((row.cost || 0)/100).toFixed(2))}}元</span>
           </template>
         </el-table-column>
         <el-table-column
-          prop="order_memo"
+          prop="memo"
           label="备注">
         </el-table-column>
         <el-table-column
@@ -125,7 +125,7 @@
           label="添加时间"
           width="180">
           <template slot-scope="{row}">
-            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+            <span v-if="row.create_time">{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -157,7 +157,8 @@
       </el-table>
 
       <BatchOperation 
-        @pageAll="pageAll" 
+        @pageAll="pageAll"
+        @cancelChoice="cancelChoice"
         @batchOffShelves="batchOffShelves"
         offText="停用"
       >
@@ -173,19 +174,16 @@
 import Pagination from '@/components/Pagination'
 import Tabs from '@/components/Tabs'
 import tableMixins from '@/mixins/tableMixins'
-import {DiscListDat, 
-  BaseSortLst, 
+import {
+  DiscListDat,
   BaseAreaLst,
   BaseLanguageLst,
   BasePlatformLst,
-  BaseDefinesortLst,
-  BaseGroupLst,
-  BaseGameCompanyLst,
   DiscOnSet,
   DiscOffSet,
   BaseDiscStateLst,
   } from '@/api/api'
-import {getList} from '@/utils/data'
+import { getStoreList } from '@/utils/data'
 import moment from 'moment'
 import ImageLarger from '@/components/ImageLarger'
 import BatchOperation from '@/components/BatchOperation'
@@ -197,13 +195,9 @@ export default {
   data() {
     return {
       moment: moment,
-      sortList: [],
       areaList: [],
       languageList: [],
       platformList: [],
-      definesortList: [],
-      groupList: [],
-      gameCompanyLst: [],
       discStateLst: [],
       urls: {
         list: DiscListDat,
@@ -235,14 +229,10 @@ export default {
       this.search(this.ruleForm)
     },
     async getSearchListInit() {
-      this.sortList = await getList(BaseSortLst)
-      this.areaList =  await getList(BaseAreaLst)
-      this.languageList = await getList(BaseLanguageLst)
-      this.platformList = await getList(BasePlatformLst)
-      this.definesortList = await getList(BaseDefinesortLst)
-      this.groupList = await getList(BaseGroupLst)
-      this.gameCompanyLst = await getList(BaseGameCompanyLst)
-      let stateList = await getList(BaseDiscStateLst)
+      this.areaList =  await getStoreList(BaseAreaLst)
+      this.languageList = await getStoreList(BaseLanguageLst)
+      this.platformList = await getStoreList(BasePlatformLst)
+      let stateList = await getStoreList(BaseDiscStateLst)
       this.discStateLst = stateList
       let arr = [{ key: -1, label: '全部', value: '全部' },]
       for(let i = 0;i<stateList.length;i++) {

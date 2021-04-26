@@ -6,21 +6,40 @@
     </div>
     <div v-if="searchConditionShow" class="search-box">
       <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-width="100px">
-        <el-form-item label="订单搜索：" prop="tid">
-          <el-col :span="7">
-            <el-input v-model="ruleForm.tid" placeholder="请输入订单号搜索"></el-input>
+        <el-row>
+          <el-col :span="6">
+            <el-form-item label="订单搜索：" prop="transaction_id">
+              <el-input v-model="ruleForm.transaction_id" placeholder="请输入订单号搜索"></el-input>
+            </el-form-item>
           </el-col>
-        </el-form-item>
+          <el-col :span="6">
+            <el-form-item label="游戏名称：" prop="game_name">
+              <el-input v-model="ruleForm.game_name" placeholder="请输入游戏名称搜索"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="收货人：" prop="username">
+              <el-input v-model="ruleForm.username" placeholder="请输入收货人搜索"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item label="下单时间：">
           <el-col :span="5">
-            <el-form-item prop="cstime">
-              <el-date-picker type="date" placeholder="开始日期" v-model="ruleForm.cstime" style="width: 100%;"></el-date-picker>
+            <el-form-item prop="create_start_time">
+              <el-date-picker type="datetime" placeholder="开始日期" v-model="ruleForm.create_start_time" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col class="line" :span="1">至</el-col>
           <el-col :span="5">
-            <el-form-item prop="cetime">
-              <el-date-picker type="date" placeholder="结束时间" v-model="ruleForm.cetime" style="width: 100%;"></el-date-picker>
+            <el-form-item prop="create_end_time">
+              <!-- <el-date-picker type="date" placeholder="结束时间" v-model="ruleForm.create_end_time" style="width: 100%;"></el-date-picker> -->
+              <el-date-picker
+                style="width: 100%;"
+                v-model="ruleForm.create_end_time"
+                type="datetime"
+                default-time="23:59:59"
+                placeholder="结束时间">
+              </el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span="10">
@@ -32,14 +51,16 @@
         </el-form-item>
         <el-form-item label="支付时间：">
           <el-col :span="5">
-            <el-form-item prop="pstime">
-              <el-date-picker type="date" placeholder="开始日期" v-model="ruleForm.pstime" style="width: 100%;"></el-date-picker>
+            <el-form-item prop="paid_start_time">
+              <el-date-picker type="datetime" placeholder="开始日期" v-model="ruleForm.paid_start_time" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col class="line" :span="1">至</el-col>
           <el-col :span="5">
-            <el-form-item prop="petime">
-              <el-date-picker type="date" placeholder="结束时间" v-model="ruleForm.petime" style="width: 100%;"></el-date-picker>
+            <el-form-item prop="paid_end_time">
+              <el-date-picker
+                type="datetime"
+                default-time="23:59:59" placeholder="结束时间" v-model="ruleForm.paid_end_time" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span="10">
@@ -58,15 +79,15 @@
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="配送方式：" prop="dcid">
-              <el-select style="width: 100%;" v-model="ruleForm.dcid" placeholder="请选择配送方式">
+            <el-form-item label="配送方式：" prop="delivery_company_id">
+              <el-select style="width: 100%;" v-model="ruleForm.delivery_company_id" placeholder="请选择配送方式">
                 <el-option v-for="item in companyLst" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="渠道：" prop="ch">
-              <el-select style="width: 100%;" v-model="ruleForm.ch" placeholder="请选择渠道">
+            <el-form-item label="渠道：" prop="channel_id">
+              <el-select style="width: 100%;" v-model="ruleForm.channel_id" placeholder="请选择渠道">
                 <el-option v-for="item in channelList" :key="item.id" :label="item.name" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
@@ -93,38 +114,54 @@
           width="120">
         </el-table-column>
         <el-table-column
-          prop="game_info"
           label="商品">
+          <template slot-scope="{row}">
+            <div v-if="row.game_list && row.game_list.length>0 ">
+              <p v-for="gl in row.game_list" :key="gl.id">{{gl.name}}</p>
+            </div>
+            <div v-else><span>{{row.game_info}}</span></div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="username"
           label="收货人"
           width="180">
+          <template slot-scope="{row}">
+            <div>
+              <span>{{row.username}}</span> <span>{{row.mobile}}</span>
+            </div>
+            <div>
+              <span>{{row.province}}</span><span>{{row.city}}</span><span>{{row.county}}</span><span>{{row.address}}</span>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
-          prop="game_num"
-          label="游戏数量"
-          width="100">
+          prop="create_time"
+          label="更新时间"
+          width="170">
+          <template slot-scope="{row}">
+            <div v-if="row.update_time">
+              {{moment(row.update_time).format("YYYY-MM-DD HH:mm:ss")}}
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="create_time"
           label="创建时间"
-          sortable
           width="170">
-          <template slot-scope="scope">
-            <div>
-              {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
+          <template slot-scope="{row}">
+            <div v-if="row.create_time">
+              {{moment(row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
             </div>
           </template>
         </el-table-column>
         <el-table-column
           prop="fee"
-          label="余额"
-          sortable
+          label="金额"
           width="100">
           <template slot-scope="{row}">
             <div>
-              {{Number((row.fee/100).toFixed(2))}}
+              {{Number((row.fee/100).toFixed(2))}}元
             </div>
           </template>
         </el-table-column>
@@ -139,41 +176,43 @@
           width="170">
           <template slot-scope="{row}">
             <div>
-              <template v-if="tabAction === 30">
+              <template v-if="row.status === 30">
                 <span class="text-cursor" @click="navigateTo(row, 'deliver')">发货</span>
                 <el-divider direction="vertical"></el-divider>
               </template>
-              <template v-if="tabAction === 90">
+              <template v-if="row.status === 90 || row.status === 100">
                 <span class="text-cursor" @click="navigateTo(row, 'quality')">质检</span>
                 <el-divider direction="vertical"></el-divider>
               </template>
               <span class="text-cursor" @click="navigateTo(row, 'check')">查看</span>
-              <el-divider direction="vertical"></el-divider>
-              <el-popconfirm
-                title="确定关闭该订单吗？"
-                @onConfirm="close(row)"
-              >
-                <span slot="reference" class="text-cursor">关闭</span>
-              </el-popconfirm>
+              <template v-if="row.status < 40 && row.status !== 0">
+                <el-divider direction="vertical"></el-divider>
+                <el-popconfirm
+                  title="确定关闭该订单吗？"
+                  @onConfirm="close(row)"
+                >
+                  <span slot="reference" class="text-cursor">关闭</span>
+                </el-popconfirm>
+              </template>
+              
             </div>
           </template>
         </el-table-column>
       </el-table>
-
       <Pagination :limit="limit" :total="totalNumber" @pagination="pagination" />
-      
     </div>
   </div>
 </template>
 
 <script>
-import { postAjax, getAjax} from '@/utils/ajax'
+import { postAjax } from '@/utils/ajax'
 import { TradeListDat, BaseChannelLst, BaseDeliveryCompanyLst, BaseTradeStatusLst, TradeCloseSet } from '@/api/api'
 import Pagination from '@/components/Pagination'
 import Tabs from '@/components/Tabs'
 import TableMixins from '@/mixins/tableMixins'
 import moment from 'moment'
 import DateUtil from '@/utils/date'
+import { getStoreList } from '@/utils/data'
 export default {
   name: 'OrderTable',
   components: { Tabs, Pagination },
@@ -206,16 +245,19 @@ export default {
       moment: moment,
       urls: {
         list: TradeListDat,
+        typeJson: 'json'
       },
       ruleForm: {
         tid: '',
-        cstime: '',
-        cetime: '',
-        pstime: '',
-        petime: '',
+        game_name: '',
+        username: '',
+        create_start_time: '',
+        create_end_time: '',
+        paid_start_time: '',
+        paid_end_time: '',
         st: '',
-        dcid: '',
-        ch: '',
+        delivery_company_id: '',
+        channel_id: '',
       },
       dataAction: 0,
       rules: {
@@ -244,131 +286,112 @@ export default {
     }
   },
   mounted() {
-    this.getChannelList()
-    this.getDeliveryCompanyLst()
-    this.getTradeStatusLst()
+    // this.getChannelList()
+    // this.getDeliveryCompanyLst()
+    // this.getTradeStatusLst()
+    this.getSearchList()
     if(this.tabAction > 0) {
       this.tabSearch({st: this.tabAction})
     }
   },
   methods: {
     setPayTime(type) {
-      let pstime ='' , petime = '';
+      let paid_start_time ='' , paid_end_time = '';
       switch(type) {
         case 'day':
           const {start, end} = DateUtil.getDay()
-          pstime = start
-          petime = end
+          paid_start_time = start
+          paid_end_time = end
           break;
         case 'today':
           const {stoday, etoday} = DateUtil.getToday()
-          pstime = stoday
-          petime = etoday
+          paid_start_time = stoday
+          paid_end_time = etoday
           break;
         case '7days':
           const {s7day, e7day } = DateUtil.get7day()
-          pstime = s7day
-          petime = e7day
+          paid_start_time = s7day
+          paid_end_time = e7day
           break;
         case '30days':
           const {s30day, e30day} = DateUtil.get30Day()
-          pstime = s30day
-          petime = e30day
+          paid_start_time = s30day
+          paid_end_time = e30day
           break;
         default:
-
       }
-      this.ruleForm.pstime = pstime
-      this.ruleForm.petime = petime
+      this.ruleForm.paid_start_time = paid_start_time
+      this.ruleForm.paid_end_time = paid_end_time
     },
     setPlaceOrder(type) {
-      let cstime ='' , cetime = '';
+      let create_start_time ='' , create_end_time = '';
       switch(type) {
         case 'day':
           const {start, end} = DateUtil.getDay()
-          cstime = start
-          cetime = end
+          create_start_time = start
+          create_end_time = end
           break;
         case 'today':
           const {stoday, etoday} = DateUtil.getToday()
-          cstime = stoday
-          cetime = etoday
+          create_start_time = stoday
+          create_end_time = etoday
           break;
         case '7days':
           const {s7day, e7day } = DateUtil.get7day()
-          cstime = s7day
-          cetime = e7day
+          create_start_time = s7day
+          create_end_time = e7day
           break;
         case '30days':
           const {s30day, e30day} = DateUtil.get30Day()
-          cstime = s30day
-          cetime = e30day
+          create_start_time = s30day
+          create_end_time = e30day
           break;
         default:
 
       }
-      this.ruleForm.cstime = cstime
-      this.ruleForm.cetime = cetime
+      this.ruleForm.create_start_time = create_start_time
+      this.ruleForm.create_end_time = create_end_time
     },
-    // 获取订单状态
-    getTradeStatusLst () {
-      getAjax({
-        url: BaseTradeStatusLst,
-      }).then(res=> {
-        if(res.code === 1) {
-          const resdata = res.data
-          let arr = [{ key: -999, label: '全部', value: '全部' },]
-          for(let i = 0;i<resdata.length; i++ ) {
-            arr.push({
-              key: resdata[i].value,
-              label: resdata[i].name,
-              value: resdata[i].name
-            })
-          }
-          this.tabslist = arr
-        }
-      })
-    },
-    // 获取渠道列表
-    getChannelList() {
-      getAjax({
-        url: BaseChannelLst,
-      }).then(res=> {
-        if(res.code === 1) {
-          this.channelList = res.data
-        }else {
-          this.channelList = []
-        }
-      })
-    },
-    // 获取状态
-    getDeliveryCompanyLst () {
-      getAjax({
-        url: BaseDeliveryCompanyLst,
-      }).then(res=> {
-        if(res.code === 1) {
-          this.companyLst = res.data
-        }else {
-          this.companyLst = []
-        }
-      })
+
+    async getSearchList() {
+      // 获取订单状态
+      let statuslist = await getStoreList(BaseTradeStatusLst)
+      let arr = [{ key: -999, label: '全部', value: '全部' },]
+      for(let i = 0;i<statuslist.length; i++ ) {
+        arr.push({
+          key: statuslist[i].value,
+          label: statuslist[i].name,
+          value: statuslist[i].name
+        })
+      }
+      this.tabslist = arr
+      // 获取渠道列表
+      this.channelList = await getStoreList(BaseChannelLst)
+      // 获取状态
+      this.companyLst = await getStoreList(BaseDeliveryCompanyLst)
     },
     navigateTo(row, type) {
-      this.$router.push({
-        path: '/order/detail/' + row.id,
-        query: {
-          type: type
+      if(type === 'quality') {
+        if(row.disc_num === 1) {
+          this.$router.push({
+            path: '/order/settlement/' + row.id,
+          })
+        }else {
+          this.$router.push({
+            path: '/order/detail/' + row.id,
+          })
         }
-      })
+      }else {
+        this.$router.push({
+          path: '/order/detail/' + row.id,
+          query: {
+            type: type
+          }
+        })
+      }
     },
     close(row) {
-      this.$confirm('确定关闭该订单吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.confimRequest(row.id)
-      })
+      this.confimRequest(row.id)
     },
     confimRequest (id) {
       postAjax({
@@ -389,8 +412,9 @@ export default {
     tabsChange(item) {
       this.dataAction = item.key
       if(this.searchConditionShow) {
-        this.resetSearchForm('ruleForm')
+        this.$refs['ruleForm'].resetFields();
       }
+      // this.ruleForm.st = item.key
       this.tabSearch({st: item.key});
     },
     showSearch() {

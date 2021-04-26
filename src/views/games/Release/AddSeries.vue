@@ -4,7 +4,7 @@
       :visible.sync="dialogVisible"
       title="添加系列"
       width="60%">
-      <AddGameSeries @callback="callback" :isNavition="false" />
+      <AddGameSeries @callback="callback" :isNavition="false" :isGameAdd="false" />
     </el-dialog>
   </div>
 </template>

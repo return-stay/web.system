@@ -2,6 +2,7 @@
   <div class="batch-box">
     <div class="batch-left">
       <span @click="pageAll">本页全选</span>
+      <span style="margin-left: 20px;" @click="cancelChoice">取消选择</span>
     </div>
     <div class="batch-right">
       <slot></slot>
@@ -24,6 +25,9 @@ export default {
   methods: {
     pageAll() {
       this.$emit('pageAll')
+    },
+    cancelChoice() {
+      this.$emit('cancelChoice')
     },
     batchOffShelves() {
       this.$emit('batchOffShelves')

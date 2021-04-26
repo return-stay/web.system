@@ -25,6 +25,13 @@ const operationRouter = [
         hidden: true,
         meta: { title: '添加渠道', noCache: true, icon: 'channel' },
       },
+      {
+        path: 'eidt',
+        component: () => import('@/views/operation/Channel/AddChannel'),
+        name: 'EditChannel',
+        hidden: true,
+        meta: { title: '编辑渠道', noCache: true, icon: 'channel' },
+      },
     ]
   },
   {
@@ -46,6 +53,13 @@ const operationRouter = [
         hidden: true,
         meta: { title: '添加图片位', noCache: true, icon: 'imagesLocation' },
       },
+      {
+        path: 'edit',
+        component: () => import('@/views/operation/ImagesLocation/AddImagesLocation'),
+        name: 'EditImagesLocation',
+        hidden: true,
+        meta: { title: '编辑图片位', noCache: true, icon: 'imagesLocation' },
+      },
     ]
   },
   {
@@ -66,6 +80,13 @@ const operationRouter = [
         name: 'AddGameSubject',
         hidden: true,
         meta: { title: '添加专题', noCache: true, icon: 'subject' },
+      },
+      {
+        path: 'edit',
+        component: () => import('@/views/operation/GameSubject/AddGameSubject'),
+        name: 'EditGameSubject',
+        hidden: true,
+        meta: { title: '编辑专题', noCache: true, icon: 'subject' },
       },
     ]
   },

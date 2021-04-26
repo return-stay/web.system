@@ -2,7 +2,7 @@
   <div class="pi-box" @mouseover.stop='pimouseover'>
     <div class="pi-img-box">
       <div class="pi-img-box-img">
-        <img class="img-larger" :src="IMG_URL + src" :alt="alt" @click.stop="largerImg">
+        <img class="img-larger" :src="showSrc" :alt="alt" @click.stop="largerImg">
       </div>
       <div class="pi-img-pop" v-if="isPopShow" @mouseout.stop='pimoseout'>
         <i class="el-icon-zoom-in" @click.stop="largerImg"></i>
@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="img-larger-box" v-if="largerShow" @click.stop="largerHide" @mouseover.stop='()=> {}'>
-      <img class="img-larger-image" :src="IMG_URL + l_src" alt="">
+      <img class="img-larger-image" :src="showLsrc" alt="">
     </div>
   </div>
 </template>
@@ -46,6 +46,28 @@ export default {
       default: () => {},
     },
   },
+  computed: {
+    showLsrc() {
+      let l = this.l_src
+      let str = ''
+      if(l && l.indexOf('http')>-1) {
+        str = l + '?t=' + (new Date().getTime())
+      }else {
+        str = IMG_URL + l + '?t=' + (new Date().getTime())
+      }
+      return str
+    },
+    showSrc() {
+      let dSrc= this.src
+      let str = ''
+      if(dSrc && dSrc.indexOf('http')>-1) {
+        str = dSrc + '?t=' + (new Date().getTime())
+      }else {
+        str = IMG_URL + dSrc + '?t=' + (new Date().getTime())
+      }
+      return str
+    },
+  },
   data() {
     return {
       IMG_URL: IMG_URL,
@@ -68,9 +90,8 @@ export default {
         console.log()
         if(res.code === 1) {
           this.$message.success('删除成功')
-          this.$emit('callback')
+          this.$emit('callback', {type: 'delete', status: 'success', ...this.deleteData})
         }
-        
       })
     },
     largerHide() {

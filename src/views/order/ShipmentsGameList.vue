@@ -43,8 +43,8 @@
           </div>
           <div class="od-game-item-cont-right" v-if="isShipments !== 0">
               <div class="od-game-item-cont-right-price">
-                <span>租金：5元/天</span>
-                <span>押金：200.00元</span>
+                <span>租金：{{Number(item.day_rent/100).toFixed(2)}}元/天</span>
+                <span>押金：{{Number(item.deposit/100).toFixed(2)}}元</span>
               </div>
           </div>
         </div>

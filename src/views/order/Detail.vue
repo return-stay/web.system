@@ -4,10 +4,10 @@
       <OrderInfo @callback="callback" :orderInfo="orderInfo" :orderType="orderType" />
     </div>
     <div v-else-if="shipmentsType === 2">
-      <OrderShipments :orderInfo="orderInfo" :expressNo="expressNo"  />
+      <OrderShipments @update="shipmentsSuccess" :orderInfo="orderInfo" :expressNo="expressNo"  />
     </div>
     <div v-else-if="shipmentsType === 3">
-      <OrderQualityTesting :orderInfo="orderInfo" />
+      <OrderQualityTesting :orderInfo="orderInfo" @callback="oqtCallback" />
     </div>
   </div>
 </template>
@@ -26,30 +26,14 @@ export default {
   props: {},
   data() {
     return {
-      transactionId: '',
       orderType: 0, //订单状态
       shipmentsType: 0, //发货的状态  1, 发货
       expressNo: '', //快递单号
       orderInfo: {},
-      options: [{
-        value: 'shunfeng',
-        label: '顺丰'
-      }, {
-        value: 'zhongtong',
-        label: '中通'
-      }, {
-        value: 'yuantong',
-        label: '圆通'
-      }, {
-        value: 'youzheng',
-        label: '邮政速运'
-      }],
     }
   },
-  mounted() {
-    this.getDetail()
-  },
-  created() {
+  async mounted() {
+    await this.getDetail()
     this.getInit()
   },
   methods: {
@@ -72,6 +56,18 @@ export default {
       }
       this.shipmentsType = num
     },
+    // 发货成功回调
+    shipmentsSuccess() {
+      const { id } = this.$route.params
+      this.$router.replace({
+        path: '/order/detail/' + id,
+        query: {
+          type: 'check'
+        }
+      })
+      this.getInit()
+      this.getDetail()
+    },
     callback(e) {
       console.log(e)
       let num = 0
@@ -79,12 +75,16 @@ export default {
         num = 2
       }else if(e.type === 'qualityTesting') {
         num = 3
-      }else if(e.type === 'close') {
+      }else if(e.type === 'close' || e.type ==='settlement') {
         this.getDetail()
       }else if(e.type ==='qualityTesting') {
         this.shipmentsType = 3
       }
       this.shipmentsType = num
+    },
+    // 结算成功回调
+    oqtCallback() {
+      this.shipmentsSuccess()
     },
     // 全部发货
     allShipments() {
@@ -109,7 +109,6 @@ export default {
         if(res.code === 1) {
           const resdata = res.data
           this.orderInfo = resdata
-          this.transactionId = resdata.transaction_id
           this.expressNo = resdata.express_no
           this.judgmentOrderType(resdata.status)
         }

@@ -1,7 +1,7 @@
 <template>
   <div class="dgl-game-li">
     <div class="dgl-game-li-title">
-      <span class="dgl-game-li-title-t">游戏1</span>
+      <span class="dgl-game-li-title-t">游戏{{index}}</span>
       <span class="dgl-game-li-title-n">运单号：{{expressNo || '-'}}</span>
     </div>
     <div class="dgl-game-li-cont">
@@ -11,23 +11,27 @@
             <span @click="shipmetns">选择游戏盘</span>
             <span @click="shipmetns">发货照片</span>
           </template>
-          <template v-if="gameInfo.status === 90">
-            <span @click="qualityTesting">质检</span>
-            <span @click="qualityTesting">结算</span>
+          <template v-if="gameInfo.status === 90 || gameInfo.status === 60">
+            <span @click="qualityTesting('qualityTesting')">质检</span>
+            <span @click="qualityTesting('settlement', gameInfo.status)">结算</span>
+          </template>
+          <template v-if="gameInfo.status === 100">
+            <span @click="qualityTesting('qualityTesting')">重新质检</span>
+            <span @click="qualityTesting('settlement', gameInfo.status)">结算</span>
           </template>
         </GameView>
 
-        <div class="oqt-game-li-cont-b" v-if="gameInfo.status>100">
+        <div class="oqt-game-li-cont-b">
           <div class="oqt-game-li-cont-b-l">
-            <div class="oqt-game-li-cont-b-l-step">
+            <div class="oqt-game-li-cont-b-l-step"  v-if="gameInfo.status>50">
               <el-steps :active="setpAction" align-center finish-status="finish">
                 <el-step title="租借开始" :description="arrivedTime" icon="el-icon-success"></el-step>
                 <el-step title="客户已归还" :description="givebackTime" icon="el-icon-success"></el-step>
-                <el-step title="质检" description="" icon="el-icon-success"></el-step>
-                <el-step title="租借完成" description="" icon="el-icon-success"></el-step>
+                <el-step :title="setpAction<3?'质检': '质检完成'" :description="finishTime" icon="el-icon-success"></el-step>
+                <el-step title="租借完成" :description="checkTime" icon="el-icon-success"></el-step>
               </el-steps>
             </div>
-            <div class="oqt-game-li-cont-b-l-s" v-if="gameInfo.status>90">
+            <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation && gameInfo.status>90">
               <div class="oqt-game-li-cont-b-l-s-lease">
                 <h4>租期</h4>
                 <div class="oqt-game-li-cont-b-l-s-lease-li">
@@ -43,7 +47,7 @@
                   <span class="oqt-game-li-cont-b-l-s-lease-li-text">{{gameInfo.free_lease}}天</span>
                 </div>
                 <div class="oqt-game-li-cont-b-l-s-all">
-                  <span>计费天数</span><span style="color: #FE6247;">{{gameInfo.lease}}天</span>
+                  <span>计费天数</span><span style="color: #FE6247;">{{gameInfo.fee_lease}}天</span>
                 </div>
               </div>
               <div class="oqt-game-li-cont-b-l-s-settl">
@@ -61,12 +65,12 @@
                   <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.depreciation/100).toFixed(2))}}元</span>
                 </div>
                 <div class="oqt-game-li-cont-b-l-s-all">
-                  <span>共消费</span><span style="color: #FE6247;">{{Number((gameInfo.total_rent/100).toFixed(2))}}元</span>
+                  <span>共消费</span><span style="color: #FE6247;">{{Number(((gameInfo.depreciation + gameInfo.total_rent)/100).toFixed(2))}}元</span>
                 </div>
               </div>
             </div> 
           </div>
-          <div class="oqt-game-li-cont-b-r" v-if="setQualitySelect && photoList.length>0">
+          <div class="oqt-game-li-cont-b-r" v-if="setQualitySelect && photoList.length>0 && gameInfo.status>90">
             <div class="oqt-game-li-cont-b-r-top">
               <h5>该游戏发货照片（盒、盘面的正反各1张）</h5>
               <div class="oqt-game-li-cont-b-r-top-imgs">
@@ -86,7 +90,7 @@
 <script>
 import moment from 'moment'
 import GameView from './GameView'
-import {DiscOrderPhotoLst} from '@/api/api'
+import { DiscOrderPhotoLst, DiscOrderSettlementSet } from '@/api/api'
 import {postAjax} from '@/utils/ajax'
 import ImageLarger from '@/components/ImageLarger'
 export default {
@@ -100,6 +104,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    index: {
+      type: Number,
+      default: 0,
+    },
   },
   components: { GameView, ImageLarger },
   data() {
@@ -109,6 +117,10 @@ export default {
     }
   },
   computed: {
+    // 是否显示结算信息
+    isSettlementInformation() {
+      return this.gameInfo.status>90
+    },
     arrivedTime() {
       let atime = this.gameInfo.arrived_time
       return atime? moment(atime).format('YYYY-MM-DD') : null
@@ -117,9 +129,19 @@ export default {
       let gtime = this.gameInfo.giveback_time
       return gtime ? moment(gtime).format('YYYY-MM-DD') : null
     },
+    // 完成时间
+    finishTime() {
+      let ftime = this.gameInfo.finish_time
+      return ftime ? moment(ftime).format('YYYY-MM-DD') : null
+    },
+    // 质检时间
+    checkTime() {
+      let checktime = this.gameInfo.check_time
+      return checktime ? moment(checktime).format('YYYY-MM-DD') : null
+    },
     // 是否质检完成
     setQualitySelect() {
-      return this.gameInfo.status < 120
+      return this.gameInfo.status < 100
     },
     setpAction() {
       let num = 0;
@@ -143,14 +165,47 @@ export default {
     }
   },
   mounted() {
-    console.log(this.gameInfo)
-    if(this.gameInfo.status>90) {
+    let gameStatus = this.gameInfo.status
+    if(gameStatus>80 && gameStatus<110) {
       this.getDiscOrderPhotoLst()
     }
   },
   methods: {
-    qualityTesting() {
-      this.$emit('callback', {type: 'qualityTesting'})
+    qualityTesting(type, status) {
+      if(type === 'settlement') {
+        if(status > 90) {
+          this.settlementReuqest(this.gameInfo.id, () => {
+            this.$emit('callback', {type: 'settlement', status: 'success'})
+          })
+        }else {
+          this.$emit('callback', {type: 'qualityTesting'})
+        }
+      }else {
+        // let id = this.gameInfo.id
+        let id = this.$route.params.id
+        // this.$emit('callback', {type: 'qualityTesting'})
+        this.$router.push({
+          path: '/order/settlement/' + id,
+          query: {
+            cid: this.gameInfo.id
+          }
+        })
+      }
+    },
+    // 结算
+    settlementReuqest(id, callback) {
+      postAjax({
+        url: DiscOrderSettlementSet,
+        data: {
+          id:id
+        }
+      }).then(res=> {
+        console.log(res)
+        if(res.code === 1) {
+          this.$message.success("结算成功")
+          callback && callback()
+        }
+      })
     },
     shipmetns() {
       this.$emit('callback', {type: 'shipmetns'})
@@ -164,7 +219,6 @@ export default {
           oid: id,
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.photoList = res.data
         }

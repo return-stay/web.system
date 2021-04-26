@@ -6,12 +6,7 @@
         <template>
           <div>订单待支付</div>
           <div style="height: 36px;"></div>
-          <el-popconfirm
-            title="确定关闭该订单吗？"
-            @onConfirm="closeOrder"
-          >
-            <span slot="reference" class="od-btn" style="margin-left: 100px;">关闭</span>
-          </el-popconfirm>
+          <span slot="reference" class="od-btn" @click="closeOrder">关闭</span>
         </template>
       </div>
     </template>
@@ -21,12 +16,7 @@
         <template>
           <el-button type="primary" v-if="ostatus === 30" @click="allShipments">去发货</el-button>
           <div v-else style="height: 36px;"></div>
-          <el-popconfirm
-            title="确定关闭并退款吗？"
-            @onConfirm="closeOrder"
-          >
-            <span slot="reference" class="od-btn">关闭并退款</span>
-          </el-popconfirm>
+          <span slot="reference" class="od-btn" @click="closeOrder">关闭并退款</span>
         </template>
       </div>
     </template>
@@ -35,11 +25,11 @@
         <div>仓库已发货，等待客户确认收货</div>
         <template>
           <el-button style="margin-top: 20px;" type="primary" @click="viewLogistics">查看物流信息</el-button>
-          <span class="od-btn" @click="backstageReceiving">后台确认收货</span>
+          <!-- <span class="od-btn" @click="backstageReceiving">后台确认收货</span> -->
         </template>
       </div>
     </template>
-    <template v-else-if="ostatus ===60">
+    <template v-else-if="ostatus === 60">
       <div class="od-status-btns">
         <div>客户已确认收货，租借计时开始</div>
         <template>
@@ -47,7 +37,7 @@
         </template>
       </div>
     </template>
-    <template v-else-if="ostatus ===90">
+    <template v-else-if="ostatus === 90">
       <div class="od-status-btns">
         <div>客户已归还，收到后准备质检并结算</div>
         <template>
@@ -55,7 +45,7 @@
         </template>
       </div>
     </template>
-    <template v-else-if="ostatus ===100">
+    <template v-else-if="ostatus === 100">
       <div class="od-status-btns">
         <div>结算完成前可重新质检</div>
         <template>
@@ -113,16 +103,7 @@ export default {
     return {
       dialogVisible: false,
       reverse: true,
-      activities: [{
-        content: '一揽件',
-        timestamp: '2018-04-15'
-      }, {
-        content: '已到北京',
-        timestamp: '2018-04-13'
-      }, {
-        content: '派送中',
-        timestamp: '2018-04-11'
-      }]
+      activities: []
     }
   },
   methods: {
@@ -149,10 +130,12 @@ export default {
         url: DeliveryTraceInf,
         data: {
           oid: this.expressNo,
-        }
+        },
       }).then(res=> {
         if(res.code === 1) {
-          this.activities = res.data.list
+          if(res.data) {
+            this.activities = res.data.list || []
+          }
         }
       })
     },

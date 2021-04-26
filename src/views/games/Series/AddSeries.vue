@@ -20,47 +20,17 @@
           <el-col :span="2"></el-col>
         </el-row>
       </div>
-      <div class="ta-header">系列游戏</div>
-      <div class="ta-form">
-        <el-row>
-          <el-col :span="20">
-            <el-form-item label="选择游戏：">
-              <!-- <el-select size="small" style="width: 100%;" v-model="form.region" placeholder="优先使用奖杯编号和游戏名称检索">
-                <el-option label="区域一" value="shanghai"></el-option>
-                <el-option label="区域二" value="beijing"></el-option>
-              </el-select> -->
-              <div class="block">
-                <el-cascader
-                  :value="selectKeys"
-                  @change="cascaderChange"
-                  style="width: 100%;"
-                  placeholder="搜索"
-                  :options="gameMiniList"
-                  :props="{ multiple: true, value: 'id', label: 'detailinfo' }"
-                  filterable></el-cascader>
-              </div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="2">
-            <el-button size="small" style="margin-left: 10px;" @click="addSeriesList">添加到系列</el-button>
-          </el-col>
-        </el-row>
-        <el-row>
-
-          <el-col :span="20">
-            <el-form-item label="已选择：" prop="desc">
-              <div class="select-game-list">
-                <ul>
-                  <li v-for="item in selectList" :key="item.id">#{{item.id}} | {{item.platform_name}} | {{item.view_name}} | {{item.area_name}}  {{item.language_name}}</li>
-                </ul>
-              </div>
-            </el-form-item>
-          </el-col>
-          <el-col :span="2" style="height: 100%;">
-            <!-- <el-button size="small" style="margin-left: 10px;">从系列去掉</el-button> -->
-          </el-col>
-        </el-row>
-      </div>
+      <template v-if="isGameAdd">
+        <div class="ta-header">系列游戏</div>
+        <div class="ta-form">
+          <SelectGames
+            :propsList="gameIds" 
+            addText="添加到系列" 
+            delteText="从系列去掉" 
+            @addCallback="addCallback"
+            ></SelectGames>
+        </div>
+      </template>
       
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
@@ -75,15 +45,16 @@
 
 <script>
 import UploadImageOrder from '@/components/Upload/UploadImageOrder'
-import { GameGroupinf, GameGroupSet, GameMiniLst } from '@/api/api'
+import { GameGroupinf, GameGroupSet } from '@/api/api'
 import {postAjax} from '@/utils/ajax'
+import SelectGames from '@/components/SelectGames'
 export default {
   name: 'AddSeries',
-  components: {UploadImageOrder},
+  components: {UploadImageOrder, SelectGames},
   data() {
     return {
       type: 'add',
-      gameMiniList: [],
+      gameIds: [],
       selectList: [],
       selectKeys: [],
       form: {
@@ -101,6 +72,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    isGameAdd: { // 发布游戏添加的时候，不需要添加游戏
+      type: Boolean,
+      default: true,
+    },
     isRequired: { //参数是否必填
       type: Boolean,
       default: true,
@@ -112,7 +87,6 @@ export default {
       this.type = 'edit'
       this.getDetail()
     }
-    this.getGameList()
   },
   methods: {
     onSubmit(formName) {
@@ -122,23 +96,16 @@ export default {
         }
       })
     },
-    // 获取游戏公司列表
-    getGameList() {
-      postAjax({
-        url: '',
-      }).then(res=> {
-        if(res.code === 1) {
-          this.gameList = res.data
-        }
-      })
-    },
     paramsSet() {
-      const {id} = this.$route.query, ids = this.ids
+      const {id} = this.$route.query, gameIds = this.gameIds
       let obj = this.form
       if(id) {
         obj.id = id
       }
-      obj.gms = ids.join(',')
+      if(gameIds && gameIds.length>0) {
+        obj.gms = gameIds.join(',')
+      }
+      obj.isow = true
       return obj
     },
     addSeries() {
@@ -170,41 +137,21 @@ export default {
             nm: resdata.name,
             i: resdata.intro,
           }
-          this.selectList = resdata.game_list
+          let gamelist = resdata.game_list
+          this.setGameIds(gamelist)
         }
       })
     },
-    cascaderChange(e) {
-      this.selectKeys = e
-    },
-    addSeriesList() {
-      let list = this.selectList, 
-      ids=[], 
-      selectKeys = this.selectKeys,
-      gameMiniList = this.gameMiniList
-      for(let i = 0;i<selectKeys.length;i++) {
-        for(let j = 0;j<gameMiniList.length;j++) {
-          if(selectKeys[i][0] === gameMiniList[j].id) {
-            list.push(gameMiniList[j])
-            ids.push(gameMiniList[j].id)
-          }
-        }
+    setGameIds(list = []) {
+      let gameids = []
+      for(let i = 0;i<list.length;i++) {
+        gameids.push(list[i].id)
       }
-
-      this.selectList = list
-      this.ids = ids
-      this.selectKeys = []
+      this.gameIds = gameids
     },
-    getGameList() {
-      postAjax({
-        url: GameMiniLst,
-      }).then(res=> {
-        const r = res.data || []
-        for(let i = 0 ; i< r.length;i++) {
-          r[i].detailinfo = `${r[i].id} | ${r[i].platform_name} | ${r[i].view_name} | ${r[i].area_name} ${r[i].language_name}`
-        }
-        this.gameMiniList = r
-      })
+    // 添加系列
+    addCallback(e) {
+      this.gameIds = e
     },
   }
 }

@@ -11,8 +11,8 @@
         </el-form-item>
         <el-row>
           <el-col :span='24'>
-            <el-form-item label="成本均价：" prop="cost">
-              <el-input-number v-model="form.cost" :min="0" :disabled="true" controls-position="right" :precision="2" :step="1" size="small">
+            <el-form-item label="成本均价：" prop="avg_cost">
+              <el-input-number v-model="form.avg_cost" :min="0" :disabled="isAvgcostDisabled" controls-position="right" :precision="2" :step="1" size="small">
               </el-input-number>
               <span style="color: #000;border:none;padding: 10px;">元</span>
             </el-form-item>
@@ -70,6 +70,7 @@
         </el-row>
       </div>
       <div class="gd-btns">
+        <el-button @click="calculatePrice">计算价格</el-button>
         <el-button @click="onSubmit('form')">保存并预览</el-button>
         <!-- <el-button @click="onSubmit('form')">保存</el-button> -->
         <el-button type="primary" @click="puback('form')">确认发布</el-button>
@@ -83,9 +84,9 @@
 </template>
 
 <script>
-import {postList} from "@/utils/data"
-import {GameMiniLst, GamePriceSet, GamePriceInf} from '@/api/api'
-import {postAjax} from '@/utils/ajax'
+import { getStoreList } from "@/utils/data"
+import { GameMiniLst, GamePriceSet, GamePriceInf, GameOnset } from '@/api/api'
+import { postAjax, stopOrEnableRequest } from '@/utils/ajax'
 import GamePreview from '../GamePreview'
 import moment from 'moment'
 export default {
@@ -102,6 +103,7 @@ export default {
       gameid: '',
       isGameDisabled: false,
       isTimeDisabled: false,
+      isAvgcostDisabled: true,
       isGamePreview: false,
       form: {
         gid: '',
@@ -122,6 +124,7 @@ export default {
         ptime: [{required: true, message: '请选择上架时间', trigger: 'blur'}],
       },
       gamelist: [],
+      autoPrice: {},
     }
   },
   mounted() {
@@ -133,7 +136,8 @@ export default {
   },
   methods: {
     init() {
-      if(this.$route.path.indexOf('pricing/adjustment')>-1) {
+      let routePath = this.$route.path
+      if(routePath.indexOf('pricing/adjustment')>-1 || routePath.indexOf('game/detail')> -1) {
         this.isTimeDisabled = true
         this.isGameDisabled = true
       }
@@ -145,17 +149,18 @@ export default {
         this.isTimeDisabled = false
         this.isGameDisabled = true
       }
+      if(routePath.indexOf('game/pricing/add')>-1) {
+        this.isAvgcostDisabled = false
+      }
     },
     pGetInfo() {
-      console.log('inventory=======')
-      console.log(this.pid)
       if(this.pid) {
         this.gameid = this.pid
         this.form.gid = this.pid
       }
     },
     async getGameList () {
-      let r = await postList(GameMiniLst)
+      let r = await getStoreList(GameMiniLst)
       for(let i = 0;i<r.length;i++) {
         r[i].detailinfo = `${r[i].platform_name} | ${r[i].view_name} | ${r[i].area_name} ${r[i].language_name}`
       }
@@ -164,7 +169,7 @@ export default {
     onSubmit(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.confirmRequest(() => {
+          this.confirmRequest('submit',() => {
             this.preview()
           })
         } else {
@@ -185,8 +190,11 @@ export default {
     puback(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.confirmRequest(() => {
-            this.$emit('puback')
+          this.confirmRequest('puback',() => {
+            const id = this.$route.params.id || this.pid
+            this.putShelves(id, () => {
+              this.$emit('puback')
+            })
           })
         } else {
           return false;
@@ -207,22 +215,23 @@ export default {
             const resdata = res.data
             this.form = {
               gid: resdata.id,
-              cost: Number((resdata.cost/100).toFixed(2)),
+              avg_cost: Number((resdata.avg_cost/100).toFixed(2)),
               odr: Number((resdata.original_rent/100).toFixed(2)),
               dr: Number((resdata.day_rent/100).toFixed(2)),
               d: Number((resdata.deposit/100).toFixed(2)),
               df:Number((resdata.delivery_fee/100).toFixed(2)),
               ptime: moment(resdata.update_time)
             }
+            this.autoPrice = resdata.auto_price
           }
         })
       }
     },
-    confirmRequest (callback) {
-      // const taht = this
-      let messageText = '上架成功'
+    confirmRequest (type, callback) {
+      let messageText = '发布成功'
+      if(type === 'submit') { messageText = null }
       const thisForm = JSON.parse(JSON.stringify(this.form))
-      thisForm.cost = thisForm.cost*100
+      // thisForm.avg_cost = thisForm.avg_cost*100
       thisForm.odr = thisForm.odr*100
       thisForm.dr = thisForm.dr*100
       thisForm.d = thisForm.d*100
@@ -234,11 +243,26 @@ export default {
           ...thisForm
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
-          this.$message.success(messageText)
+          messageText && this.$message.success(messageText)
           callback && callback()
         }
+      })
+    },
+    // 自动计算价格
+    calculatePrice() {
+      let autoPrice = this.autoPrice
+      this.form.odr = Number((autoPrice.original_rent/100).toFixed(2))
+      this.form.dr = Number((autoPrice.day_rent/100).toFixed(2))
+      this.form.d = Number((autoPrice.deposit/100).toFixed(2))
+    },
+    // 上架请求
+    putShelves(id, callback) {
+      stopOrEnableRequest({
+        url: GameOnset,
+        data: {ids: id},
+      }, () => {
+        callback && callback()
       })
     },
   }

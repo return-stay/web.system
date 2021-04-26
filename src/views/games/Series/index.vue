@@ -50,7 +50,7 @@
           prop="create_time"
           label="创建时间">
           <template slot-scope="scope">
-            <div>
+            <div v-if="scope.row.create_time">
               {{moment(scope.row.create_time).format('YYYY-MM-DD HH:mm:ss')}}
             </div>
           </template>
@@ -66,14 +66,14 @@
               <el-divider direction="vertical"></el-divider>
               <el-popconfirm
                 v-if="row.active"
-                title="确定停用该图片位吗？"
+                title="确定停用该系列吗？"
                 @onConfirm="stopUsing(row)"
               >
                 <span slot="reference" class="text-cursor">停用</span>
               </el-popconfirm>
               <el-popconfirm
                 v-else
-                title="确定启用该图片位吗？"
+                title="确定启用该系列吗？"
                 @onConfirm="enable(row)"
               >
                 <span slot="reference" class="text-cursor">启用</span>

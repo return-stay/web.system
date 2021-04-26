@@ -37,7 +37,7 @@
         label="创建时间"
         align="center">
         <template slot-scope="{row}">
-          <span>{{moment(row.create_time).format("YYYY-MM-DD")}}</span>
+          <span>{{moment(row.create_time).format("YYYY-MM-DD HH:mm:ss")}}</span>
         </template>
       </el-table-column>
       <el-table-column

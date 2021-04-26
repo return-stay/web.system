@@ -1,8 +1,3 @@
-/**
- * Created by PanJiaChen on 16/11/18.
- */
-
-import moment from "moment"
 
 /**
  * Parse the time to string
@@ -281,7 +276,6 @@ export function debounce(func, wait, immediate) {
       result = func.apply(context, args)
       context = args = null
     }
-
     return result
   }
 }
@@ -418,8 +412,7 @@ export function removeEmptyField(obj) {
           if(JSON.stringify(obj[attr]) === '{}' || JSON.stringify(obj[attr]) === '[]') {
             continue
           }
-          if(['s_time', 'e_time','st', 'et', 'pstime', 'petime', 'stime', 'etime', 'cstime', 'cetime', 'publish_start_time', 'publish_end_time'].indexOf(attr) !== -1) {
-            console.log(obj[attr])
+          if(['s_time', 'e_time','st', 'et', 'pstime', 'petime', 'stime', 'etime', 'cstime', 'cetime','paid_start_time', 'paid_end_time', 'create_start_time', 'create_end_time', 'publish_start_time', 'publish_end_time'].indexOf(attr) !== -1) {
             newObj[attr] = new Date(obj[attr]).getTime()
           }else {
             newObj[attr] = obj[attr]
@@ -449,16 +442,16 @@ export function removeEmptyField(obj) {
 
 
 export function convertToBinary (filed, callback, size) {
-  var reader = new FileReader();
-  var AllowImgFileSize = size || 2100000; //上传图片最大值(单位字节)（ 2 M = 2097152 B ）超过2M上传失败
-  var file = filed
-  var imgUrlBase64;
+  let reader = new FileReader();
+  let AllowImgFileSize = size || 2100000; //上传图片最大值(单位字节)（ 2 M = 2097152 B ）超过2M上传失败
+  let file = filed
+  // let imgUrlBase64;
   if (file) {
     //将文件以Data URL形式读入页面  
-    imgUrlBase64 = reader.readAsDataURL(file);
+    // imgUrlBase64 = reader.readAsDataURL(file);
 
     reader.onload = function (e) {
-      //var ImgFileSize = reader.result.substring(reader.result.indexOf(",") + 1).length;//截取base64码部分（可选可不选，需要与后台沟通）
+      //let ImgFileSize = reader.result.substring(reader.result.indexOf(",") + 1).length;//截取base64码部分（可选可不选，需要与后台沟通）
       if (AllowImgFileSize != 0 && AllowImgFileSize < reader.result.length) {
         alert( '上传失败，请上传不大于2M的图片！');
         return;
@@ -468,4 +461,25 @@ export function convertToBinary (filed, callback, size) {
       }
     }
   }   
+}
+
+//防止多次重复点击 （函数节流）
+let _lastTime = null
+export function throttle(fn, gapTime) {
+  if (gapTime == null || gapTime == undefined) {
+    gapTime = 1500
+  }
+  let _nowTime = + new Date()
+  if (_nowTime - _lastTime > gapTime || !_lastTime) {
+    fn()
+    _lastTime = _nowTime
+  }
+}
+
+export function stopPropagation(e) {
+  try{
+    e.stopPropagation();//非IE浏览器
+  }catch(e){
+      window.event.cancelBubble = true;//IE浏览器
+  } 
 }

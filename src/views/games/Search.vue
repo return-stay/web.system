@@ -68,7 +68,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="开发公司：" prop="company_id">
-            <el-select size="small" v-model="ruleForm.company_id" placeholder="请选择开发公司">
+            <el-select size="small" v-model="ruleForm.company_id" filterable placeholder="请选择开发公司">
               <el-option label="全部" :value="0"></el-option>
               <el-option v-for="item in gameCompanyLst" :key="item.id" :label="item.name" :value="item.id"></el-option>
             </el-select>
@@ -77,11 +77,13 @@
         <el-form-item label="发行时间：">
           <div class="search-form-line">
             <el-form-item prop="publish_start_time">
-              <el-date-picker size="small" type="date" placeholder="选择时间" v-model="ruleForm.publish_start_time" style="width: 194px;" />
+              <el-date-picker size="small" type="datetime"
+                default-time="00:00:00" placeholder="选择时间" v-model="ruleForm.publish_start_time" style="width: 200px;" />
             </el-form-item>
             <span style="margin: 0 8px;">至</span>
             <el-form-item prop="publish_end_time">
-              <el-date-picker size="small" type="date" placeholder="选择时间" v-model="ruleForm.publish_end_time" style="width: 194px;" />
+              <el-date-picker size="small" type="datetime"
+                default-time="23:59:59" placeholder="选择时间" v-model="ruleForm.publish_end_time" style="width: 200px;" />
             </el-form-item>
           </div>
         </el-form-item>
@@ -101,6 +103,7 @@
         :data="tableData"
         ref="multipleTable"
         @selection-change="handleSelectionChange"
+        @row-click="handleRowClick"
         style="width: 100%">
          <el-table-column
           type="selection"
@@ -143,11 +146,11 @@
           prop="sort_name"
           align="center"
           label="类型/系列"
-          width="320">
+          width="200">
           <template  slot-scope="{row}">
             <div>
-              <span>{{row.sort_name}}</span> / 
-              <span style="cursor: pointer;" @click="goGruopInfo(row)">{{row.group_name}}</span>
+              <p>{{row.sort_name}}</p>
+              <p style="cursor: pointer;" @click="goGruopInfo(row)">{{row.group_name}}</p>
             </div>
           </template>
         </el-table-column>
@@ -163,7 +166,7 @@
           label="押金"
           width="100">
           <template slot-scope="{row}">
-            <span>{{Number(((row.deposit/100).toFixed(2)))}}</span>
+            <span>{{Number(((row.deposit/100).toFixed(2)))}}元</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -172,7 +175,7 @@
           label="日租金"
           width="80">
           <template slot-scope="{row}">
-            <span>{{Number(((row.day_rent/100).toFixed(2)))}}</span>
+            <span>{{Number(((row.day_rent/100).toFixed(2)))}}元</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -187,7 +190,7 @@
           label="创建时间"
           width="170">
           <template slot-scope="{row}">
-            <span>{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+            <span v-if="row.create_time">{{moment(row.create_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -195,7 +198,7 @@
           align="center"
           label="操作"
           width="220">
-          <template slot-scope="{row}">
+          <div slot-scope="{row}" @click.stop="stopRow">
             <span class="text-cursor" @click="modifyPrice(row)">调价</span>
             <el-divider direction="vertical"></el-divider>
             <span class="text-cursor" @click="stock(row)">库存</span>
@@ -216,11 +219,12 @@
               >
                 <span slot="reference" class="text-cursor">上架</span>
               </el-popconfirm>
-          </template>
+          </div>
         </el-table-column>
       </el-table>
       <BatchOperation 
         @pageAll="pageAll" 
+        @cancelChoice="cancelChoice"
         @batchOffShelves="batchOffShelves"
         @batchShelves="batchShelves"
        >
@@ -252,15 +256,17 @@ import {
   BaseGroupLst,
   BaseTrophyLevelLst,
   BaseGameCompanyLst,
-  TopicInfoSet,
-  GameGroupSet, } from '@/api/api'
+  GameGroupSet,
+  TopicInfoGamesSet,
+  } from '@/api/api'
 import tableMixins from '@/mixins/tableMixins'
-import {getList} from '@/utils/data'
+import { getStoreList } from '@/utils/data'
 import moment from 'moment'
 import { stopOrEnableRequest, postAjax } from '@/utils/ajax'
 import ImageLarger from '@/components/ImageLarger'
 import SelectGameType from './SelectGameType'
 import ajax from '@/utils/request'
+import {stopPropagation} from '@/utils'
 export default {
   name: 'GameSearch',
   components: { Tabs, Pagination, ImageLarger, BatchOperation, SelectGameType },
@@ -268,7 +274,7 @@ export default {
   data() {
     return {
       moment,
-      urls: { list: GameListDat,typeJson: 'json' },
+      urls: { list: GameListDat, typeJson: 'json' },
       ruleForm: {
         name: '',
         disc_no: null,
@@ -305,17 +311,21 @@ export default {
     this.getSearchListInit()
   },
   methods: {
-    async getSearchListInit() {
-      this.sortList = await getList(BaseSortLst)
-      this.areaList =  await getList(BaseAreaLst)
-      this.languageList = await getList(BaseLanguageLst)
-      this.platformList = await getList(BasePlatformLst)
-      this.definesortList = await getList(BaseDefinesortLst)
-      this.groupList = await getList(BaseGroupLst)
-      this.gameCompanyLst = await getList(BaseGameCompanyLst)
-      this.trophyLevelLst = await getList(BaseTrophyLevelLst)
+    stopRow(e) {
+      stopPropagation(e)
     },
-    
+    async getSearchListInit() {
+      this.sortList = await getStoreList(BaseSortLst)
+      this.areaList =  await getStoreList(BaseAreaLst)
+      this.languageList = await getStoreList(BaseLanguageLst)
+      this.platformList = await getStoreList(BasePlatformLst)
+      this.definesortList = await getStoreList(BaseDefinesortLst)
+      this.groupList = await getStoreList(BaseGroupLst)
+      this.gameCompanyLst = await getStoreList(BaseGameCompanyLst)
+      this.trophyLevelLst = await getStoreList(BaseTrophyLevelLst)
+
+    },
+
     tabsChange(e) {
       this.tabSearch({
         ivt: e.key
@@ -342,7 +352,7 @@ export default {
     offTheShelf(row) {
       stopOrEnableRequest({
         url: GameOffset,
-        data: {id: row.id},
+        data: {ids: row.id},
         successText: '下架成功',
       }, () => {
         this.getList()
@@ -351,7 +361,7 @@ export default {
     putShelves(row) {
       stopOrEnableRequest({
         url: GameOnset,
-        data: {id: row.id},
+        data: {ids: row.id},
         successText: '上架成功',
       }, () => {
         this.getList()
@@ -390,7 +400,8 @@ export default {
       ajax({
         method: 'post',
         formdata: true,
-        url: TopicInfoSet,
+        // url: TopicInfoSet,
+        url: TopicInfoGamesSet,
         data: fd,
         headers: {
           'Content-Type': 'multipart/form-data', // 关键

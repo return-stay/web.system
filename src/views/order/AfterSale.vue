@@ -15,7 +15,7 @@
           <el-col :span="6">
             <el-form-item label="分类：" prop="tp">
               <el-select style="width: 100%;" v-model="ruleForm.tp" placeholder="请选择分类">
-                <el-option v-for="item in companyLst" :key="item.id" :label="item.name" :value="item.id"></el-option>
+                <!-- <el-option v-for="item in companyLst" :key="item.id" :label="item.name" :value="item.id"></el-option> -->
               </el-select>
             </el-form-item>
           </el-col>
@@ -120,10 +120,9 @@
 <script>
 import Pagination from '@/components/Pagination'
 import TableMixins from '@/mixins/tableMixins'
-import { BaseDeliveryCompanyLst, RefundListDat } from '@/api/api'
+import { RefundListDat } from '@/api/api'
 import moment from 'moment'
 import Tabs from '@/components/Tabs'
-import { getList } from '@/utils/data'
 export default {
   name: 'AfterSale',
   components: { Pagination, Tabs },
@@ -159,7 +158,7 @@ export default {
   },
   methods: {
     async getSearchListInit() {
-      this.companyLst = await getList(BaseDeliveryCompanyLst)
+      // this.companyLst = await getList(BaseDeliveryCompanyLst)
     },
     shipments(row) {
       this.$router.push({

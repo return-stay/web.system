@@ -28,7 +28,7 @@
               <image-larger :src="userInfo.avatar_url" />
             </div>
           </el-form-item>
-          <el-form-item label="收件人名称：">
+          <el-form-item label="最近收货人名称：">
             <el-input size="small" v-model="userInfo.username" :disabled="true">
               <i
                 style="color: #838383;"
@@ -37,7 +37,7 @@
               </i>
             </el-input>
           </el-form-item>
-          <el-form-item label="收件人电话：">
+          <el-form-item label="最近收货人电话：">
             <el-input size="small" v-model="userInfo.mobile" :disabled="true">
               <i
                 style="color: #838383;"
@@ -47,7 +47,7 @@
             </el-input>
           </el-form-item>
           <el-form-item label="注册时间：">
-            <el-input size="small" v-model="userInfo.create_time" :disabled="true">
+            <el-input size="small" v-model="createTime" :disabled="true">
               <i
                 style="color: #838383;"
                 class="el-icon-lock el-input__icon"
@@ -155,6 +155,7 @@ export default {
       userInfo: {},
       startTime: null,
       endTime: null,
+      createTime: null,
       cardTypeName: '',
       form: {
         name: '',
@@ -178,8 +179,9 @@ export default {
           let resdata = res.data
           this.userInfo = resdata
 
-          this.endTime = moment(resdata.end_time).format('YYYY-MM-DD')
-          this.startTime = moment(resdata.start_time).format('YYYY-MM-DD')
+          this.endTime = resdata.end_time ? moment(resdata.end_time).format('YYYY-MM-DD') : null
+          this.startTime = resdata.start_time ? moment(resdata.start_time).format('YYYY-MM-DD') : null
+          this.createTime = resdata.create_time ? moment(resdata.create_time).format('YYYY-MM-DD') : null
           this.cardTypeName = resdata.card_type === 2? '畅玩季卡' : '畅玩年卡'
         }
       })

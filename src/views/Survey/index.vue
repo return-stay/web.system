@@ -21,32 +21,31 @@
 
 
     <div class="s-top">
-      <div class="s-top-item">
-        <p class="s-top-item-h">{{info.paid}}</p>
+      <div class="s-top-item" @click="order('shipments')">
+        <p class="s-top-item-h">{{info.paid || 0}}</p>
         <p class="s-top-item-t">待发货订单</p>
       </div>
 
-      <div class="s-top-item">
-        <p class="s-top-item-h">{{info.arrived}}</p>
+      <div class="s-top-item" @click="order('qualityTesting')">
+        <p class="s-top-item-h">{{info.received || 0}}</p>
         <p class="s-top-item-t">待质检归还</p>
       </div>
 
-      <div class="s-top-item">
-        <p class="s-top-item-h">{{info.wait_process}}</p>
+      <div class="s-top-item" @click="order('afterSale')">
+        <p class="s-top-item-h">{{info.wait_process || 0}}</p>
         <p class="s-top-item-t">售后待处理</p>
       </div>
 
-
-      <div class="s-top-item">
+      <div class="s-top-item" @click="navigation('user')">
         <p class="s-top-item-h s-top-item-h-color">{{info.yesterday_visit_user}}</p>
         <p class="s-top-item-t">昨日访问用户</p>
       </div>
 
-      <div class="s-top-item">
+      <div class="s-top-item" @click="navigation('order')">
         <p class="s-top-item-h s-top-item-h-color">{{info.yesterday_trade}}</p>
         <p class="s-top-item-t">昨日订单数</p>
       </div>
-      <div class="s-top-item">
+      <div class="s-top-item" @click="navigation('wholeData')">
         <p class="s-top-item-h s-top-item-h-color">¥ {{info.yesterday_trade_fee}}</p>
         <p class="s-top-item-t">昨日交易额</p>
       </div>
@@ -58,7 +57,7 @@
 
     <div class="s-cont">
       <div class="s-cont-item" v-for="item in contArr" :key="item.id" @click="navitionGo(item)">
-        <img class="s-cont-item-img" :src="item.img" alt="">
+        <img class="s-cont-item-img" src="@/assets/circle.png" alt="">
         <div class="s-cont-item-div">{{item.text}}</div>
       </div>
     </div>
@@ -66,8 +65,8 @@
 </template>
 
 <script>
-import {postAjax} from '@/utils/ajax'
-import {SummaryInfoDat} from '@/api/api'
+import { postAjax } from '@/utils/ajax'
+import { SummaryInfoDat } from '@/api/api'
 export default {
   name: 'Survey',
   data() {
@@ -115,13 +114,7 @@ export default {
           id: 7,
           img: '',
           text: '定价调整',
-          path: '/game/pricing/add',
-        },
-        {
-          id: 8,
-          img: '',
-          text: '内容给分类',
-          path: '/game/define/add',
+          path: '/game/pricing/manage',
         },
         {
           id: 9,
@@ -133,7 +126,7 @@ export default {
           id: 10,
           img: '',
           text: '奖杯调整',
-          path: '/game/trophy/add',
+          path: '/game/trophy/manage',
         },
       ],
     }
@@ -142,6 +135,40 @@ export default {
     this.getInfo()
   },
   methods: {
+    navigation(type) {
+      let path = ''
+      switch(type) {
+        case 'user':
+          path = 'http://stats.platinumstar.store/#/userSummary/index'
+          break;
+        case 'order':
+          path = 'http://stats.platinumstar.store/#/order/index'
+          break;
+        case 'wholeData':
+          path = 'http://stats.platinumstar.store/#/wholeData/month'
+          break;
+        default:
+      }
+      window.open(path)
+    },
+    order(type) {
+      let path = ''
+      switch(type) {
+        case 'shipments':
+          path = '/order/shipments'
+          break;
+        case 'qualityTesting':
+          path = '/order/qualityTesting'
+          break;
+        case 'afterSale':
+          path = '/order/afterSale'
+          break;
+        default:
+      }
+      this.$router.push({
+        path: path
+      })
+    },
     navitionGo(row) {
       this.$router.push({
         path: row.path
@@ -189,6 +216,7 @@ export default {
       flex: 1;
       text-align: center;
       padding: 50px 0;
+      cursor: pointer;
       &-h {
         height: 36px;
         line-height: 36px;

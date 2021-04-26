@@ -7,16 +7,19 @@
     <div class="search-box">
       <el-form ref="ruleForm" :model="ruleForm" label-width="100px">
         <div class="search-form-line">
-          <el-form-item label="检索：" prop="region">
+          <el-form-item label="显示名称：" prop="region">
             <div class="search-form-line">
               <!-- <el-select size="small" v-model="ruleForm.region" placeholder="请选择">
                 <el-option label="全部" value="0"></el-option>
               </el-select> -->
               <el-form-item prop="key" style="margin-bottom: 0;">
-                <el-input size="small" style="width: 194px;" placeholder="请搜索原始名称" v-model="ruleForm.key"></el-input>
+                <el-input size="small" style="width: 194px;" placeholder="请搜索显示名称" v-model="ruleForm.key"></el-input>
               </el-form-item>
             </div>
           </el-form-item>
+          <!-- <el-form-item label="公司名称：" prop="n" style="margin-bottom: 0;">
+            <el-input size="small" style="width: 194px;" placeholder="请搜索原始名称" v-model="ruleForm.n"></el-input>
+          </el-form-item> -->
         </div>
         <el-form-item label="">
           <el-button type="primary" @click="onSearchSubmit('ruleForm')">筛选</el-button>
@@ -62,7 +65,7 @@
           sortable
           width="170">
           <template slot-scope="scope">
-            <div>
+            <div v-if="scope.row.create_time">
               {{moment(scope.row.create_time).format("YYYY-MM-DD HH:mm:ss")}}
             </div>
           </template>
@@ -77,14 +80,14 @@
               <el-divider direction="vertical"></el-divider>
               <el-popconfirm
                 v-if="row.active"
-                title="确定停用该图片位吗？"
+                title="确定停用该公司吗？"
                 @onConfirm="stopUsing(row)"
               >
                 <span slot="reference" class="text-cursor">停用</span>
               </el-popconfirm>
               <el-popconfirm
                 v-else
-                title="确定启用该图片位吗？"
+                title="确定启用该公司吗？"
                 @onConfirm="enable(row)"
               >
                 <span slot="reference" class="text-cursor">启用</span>
@@ -121,8 +124,8 @@ export default {
       tabAction: -1,
       tabslist: [
         { key: -1, label: '全部', value: '全部' },
-        { key: 0, label: '未使用', value: '未使用' },
-        { key: 1, label: '已停用', value: '已停用' },
+        { key: 1, label: '未使用', value: '未使用' },
+        { key: 0, label: '已停用', value: '已停用' },
       ],
     }
   },

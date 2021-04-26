@@ -47,9 +47,9 @@
             </div>
           </div>
           <div class="os-game-li-cont-r">
-            <div class="os-game-li-cont-r-t" v-if="item.freeList && item.freeList.length>0">
+            <div class="os-game-li-cont-r-t">
               <span>选择游戏盘：</span>
-              <el-select v-model="item.freeValue" placeholder="请选择" @change="(e)=> freeChange(e, item.id)">
+              <el-select v-model="item.freeValue" placeholder="请选择可用游戏盘" no-data-text="无可用游戏盘" @change="(e)=> freeChange(e, item.id)">
                 <el-option
                   v-for="fl in item.freeList"
                   :key="fl.id"
@@ -66,7 +66,7 @@
         <div class="od-shipments">
           <div style="margin-right: 20px;">
             <span>快递公司：</span>
-            <el-select v-model="companyValue" size="small" placeholder="请选择">
+            <el-select v-model="companyValue" size="small" placeholder="请选择快递公司">
               <el-option
                 v-for="ci in companyLst"
                 :key="ci.id"
@@ -95,8 +95,9 @@
 import UploadImageOrder from '@/components/Upload/UploadImageOrder'
 import ImageLarger from '@/components/ImageLarger'
 import UserInfo from './UserInfo'
-import { postAjax, getAjax } from '@/utils/ajax'
+import { postAjax } from '@/utils/ajax'
 import { DiscOrderPhotoLst, DiscOrderListDat, DiscFreeLst, DiscOrderDiscSet, BaseDeliveryCompanyLst,TradeDeliverySet } from '@/api/api'
+import { getStoreList } from '@/utils/data'
 export default {
   name: 'OrderShipments',
   components: { UserInfo, UploadImageOrder, ImageLarger },
@@ -110,30 +111,27 @@ export default {
       default: '',
     },
   },
+  computed: {
+    companyValue() {
+      return this.orderInfo.delivery_company_id || null
+    }
+  },
   data() {
     return {
       epsno: '',
-      companyValue: '',
       companyLst: [],
       orderList: [{id: 0, freeList: [], photoList: [], game_info: {},disc_info: {} }], //用户租借游戏盘列表
     }
   },
-  mounted() {
+  async mounted() {
+    await this.initBaselist()
     this.getDiscOrderListDat()
-    this.getDeliveryCompanyLst()
   },
   methods: {
-    // 获取物流公司
-    getDeliveryCompanyLst () {
-      getAjax({
-        url: BaseDeliveryCompanyLst,
-      }).then(res=> {
-        if(res.code === 1) {
-          this.companyLst = res.data
-        }else {
-          this.companyLst = []
-        }
-      })
+    async initBaselist() {
+      let list = await getStoreList(BaseDeliveryCompanyLst)
+      console.log(list)
+      this.companyLst = list
     },
     getDiscOrderPhotoLst (id) {
       return postAjax({
@@ -152,6 +150,7 @@ export default {
         }
       })
     },
+    // 设置截图
     setPhotoList(photoList = []) {
       let arr = [
         { field: 'disca', path: '' },
@@ -189,7 +188,6 @@ export default {
             const photoShowList = that.setPhotoList(photoList.data)
             resdata[i].photoList = photoShowList
           }
-          console.log(resdata)
           that.orderList = resdata
         }
       })
@@ -197,22 +195,25 @@ export default {
     // 选择盘
     setDiscOrderDiscSet (e, id) {
       console.log(e, id)
-      postAjax({
-        url: DiscOrderDiscSet,
-        data: {
-          id: id,
-          did: e,
-        }
-      }).then(res=> {
-        console.log(res)
+      return new Promise((resolve) => {
+        postAjax({
+          url: DiscOrderDiscSet,
+          data: {
+            id: id,
+            did: e,
+          }
+        }).then(res=> {
+          console.log(res)
+          resolve(res)
+        })
       })
+      
     },
     // 选择游戏的游戏盘
     freeChange(e, id) {
-      console.log(e,id)
       const orderList = this.orderList
       this.orderList = this.reasonIdUpdateItem(id, orderList, 'freeValue', e)
-      this.setDiscOrderDiscSet(e, id)
+      // this.setDiscOrderDiscSet(e, id)
     },
     // 根据ID 修改某一项的值  id 修改项的ID  arr 当前数组  key， 
     reasonIdUpdateItem (id, arr, key, value) {
@@ -227,11 +228,21 @@ export default {
       this.$emit('saveAndReturn', )
       this.updateParent()
     },
-    confirmShipments() {
+    async confirmShipments() {
       this.isShipments = 1
       const { id } = this.$route.params,
           companyValue = this.companyValue, 
           epsno = this.epsno
+      let orderGameList = this.orderList
+      if(!epsno) return this.$message.warning('请输入运单号')
+      for(let i = 0;i<orderGameList.length;i++) {
+        if(orderGameList[i].freeValue) {
+          await this.setDiscOrderDiscSet(orderGameList[i].freeValue, orderGameList[i].id)
+        }else {
+          return this.$message.warning('请先选择游戏盘')
+        }
+      }
+      
       postAjax({
         url: TradeDeliverySet,
         data: {

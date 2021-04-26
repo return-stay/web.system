@@ -1,6 +1,6 @@
 <template>
   <div class="view-box ta-box">
-    <div class="view-box-title">添加专题</div>
+    <div class="view-box-title">{{title}}</div>
     <el-form ref="form" :model="form" :rules="rules" label-width="120px">
       <div class="ta-header">专题信息</div>
       <div class="ta-form">
@@ -23,7 +23,7 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="专题图：">
-              <UploadImage :imageUrl="img" uploadClass='upload-demo' uploadText="添加图片"  @change="uploadChange" />
+              <UploadImage :imageUrl="img" uploadClass='upload-demo' defaultText='750 * 360'  @change="uploadChange" />
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
@@ -32,13 +32,18 @@
       
       <div class="ta-header">专题游戏</div>
       <div class="ta-form">
-        <SelectGames :propsList="gameIds" addText="添加到专题" @addCallback="addCallback"></SelectGames>
+        <SelectGames 
+          :propsList="gameIds" 
+          addText="添加到专题" 
+          delteText="从专题去掉" 
+          @addCallback="addCallback"
+          ></SelectGames>
       </div>
       
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
-          <el-button>保存并预览</el-button>
-          <el-button type="primary" @click="onSubmit('form')">发布专题</el-button>
+          <el-button @click="onSubmit('form', false)">保存专题</el-button>
+          <el-button type="primary" @click="onSubmit('form', true)">发布专题</el-button>
           <!-- <el-button>取消</el-button> -->
         </el-form-item>
       </div>
@@ -49,14 +54,15 @@
 <script>
 import UploadImage from '@/components/Upload'
 import SelectGames from '@/components/SelectGames'
-import {TopicInfoDat, TopicInfoSet} from '@/api/api'
-import { postAjax } from '@/utils/ajax'
+import { TopicInfoDat, TopicInfoSet, TopicOnSet } from '@/api/api'
+import { postAjax, stopOrEnableRequest } from '@/utils/ajax'
 import ajax from '@/utils/request'
 export default {
   name: 'AddGameSubject',
   components: { UploadImage, SelectGames },
   data() {
     return {
+      title: '添加专题',
       gameIds: [],
       form: {
         tt: '',
@@ -74,6 +80,7 @@ export default {
   mounted() {
     const { id } = this.$route.query
     if(id) {
+      this.title = '编辑专题'
       this.getInfo(id)
     }
   },
@@ -87,7 +94,6 @@ export default {
       }).then(res=> {
         if(res.code === 1) {
           const resdata = res.data
-
           this.form = {
             tt: resdata.title,
             des: resdata.description,
@@ -104,21 +110,23 @@ export default {
     addCallback(e) {
       this.gameIds = e
     },
-    addSubjectRequest() {
+    addSubjectRequest(bool) {
       let params = this.form
       const { id } = this.$route.query
-      let fd = new FormData(), messageText = '添加成功'
+      let fd = new FormData(), messageText = '保存成功'
       if(id) {
         fd.append('id', id)
         messageText = '编辑成功'
       }
       fd.append('tt', params.tt)
       fd.append('des', params.des)
+      console.log(this.fdimg)
       if(!this.img) {
         fd.append('img', this.fdimg)
       }
-      
-      fd.append('gms', this.gameIds.join('-'))
+      if(this.gameIds && this.gameIds.length>0) {
+        fd.append('gms', this.gameIds.join('-'))
+      }
 
       ajax({
         method: 'post',
@@ -130,17 +138,35 @@ export default {
         },
       }).then(res=> {
         if(res.code === 1) {
-          this.$message.success(messageText)
-          this.$router.back(-1)
+          if(bool) {
+            this.enableRequest(res.id)
+          }else {
+            this.$message.success(messageText)
+            this.$router.back(-1)
+          }
+          callback&&callback(res)
         }
       })
     },
-    onSubmit(formName) {
+    // bool是否发布， true发布， false 不发布
+    onSubmit(formName, bool) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.addSubjectRequest()
+          this.addSubjectRequest(bool)
         }
       })
+    },
+    enableRequest(id) {
+      const that = this
+      if(id) {
+        stopOrEnableRequest({
+          url: TopicOnSet,
+          data: {id: id},
+          successText: '发布成功',
+        }, () => {
+          that.$router.back(-1)
+        })
+      }
     },
   }
 }

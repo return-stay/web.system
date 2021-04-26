@@ -9,8 +9,12 @@
       :show-file-list="false"
       :on-change="handleChange"
       :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrlShow && imgShow" :src="imageUrlShow" @error='defImg' class="avatar">
-      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+      <img v-if="imageUrlShow" :src="imageUrlShow" @error='defImg' class="avatar">
+      <div v-else class="upload-default">
+        <i class="el-icon-plus avatar-uploader-icon"></i>
+        <span class="upload-default-text" v-if="defaultText">{{defaultText}}</span>
+      </div>
+      
     </el-upload>
   </div>
 </template>
@@ -43,15 +47,18 @@ export default {
       type: String,
       default: '',
     },
+    defaultText: {
+      type: String,
+      default: '',
+    }
   },
   computed: {
     imageUrlShow() {
       if(this.imgUrl) {
         return this.imgUrl
       }
-      let imageUrl = this.imageUrl
-      if(imageUrl && typeof imageUrl === 'string') {
-        console.log(imageUrl.indexOf('http'))
+      let imageUrl = this.imageUrl + '?t=' + new Date().getTime()
+      if(this.imageUrl && imageUrl && typeof imageUrl === 'string') {
         if(imageUrl.indexOf('http')>-1) {
           return  imageUrl
         }else {
@@ -64,12 +71,8 @@ export default {
   },
   data() {
     return {
-      imgShow: true,
       imgUrl: '',
       uploadUrl: IMG_URL + this.api,
-      dialogImageUrl: '',
-      dialogVisible: false,
-      disabled: false,
       defaultImg: defaultImg,
     };
   },
@@ -78,7 +81,6 @@ export default {
   },
   methods: {
     defImg(event) {
-      console.log(event)
       let img = event.srcElement;
       img.src = this.defaultImg;
       img.onerror = null; //防止闪图
@@ -95,28 +97,6 @@ export default {
   }
 }
 </script>
-
 <style>
-  .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-  .avatar-uploader .el-upload:hover {
-    border-color: #409EFF;
-  }
-  .avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    text-align: center;
-  }
-  .avatar {
-    width: 100px;
-    display: block;
-  }
+@import './upload.css';
 </style>

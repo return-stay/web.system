@@ -7,7 +7,7 @@
         <navbar />
         <!-- <tags-view v-if="needTagsView" /> -->
       </div>
-      <app-main />
+      <app-main v-if="isRouterAlive" />
       <!-- <right-panel v-if="showSettings">
         <settings />
       </right-panel> -->
@@ -31,6 +31,16 @@ export default {
     Sidebar,
     TagsView,
   },
+  provide() {
+    return {
+      reload: this.reload
+    }
+  },
+  data() {
+    return {
+      isRouterAlive: true,
+    }
+  },
   mixins: [ResizeMixin],
   computed: {
     ...mapState({
@@ -50,6 +60,12 @@ export default {
     }
   },
   methods: {
+    reload() {
+      this.isRouterAlive = false
+      this.$nextTick(() => {
+        this.isRouterAlive = true
+      })
+    },
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
     }

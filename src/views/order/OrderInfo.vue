@@ -1,14 +1,14 @@
 <template>
   <div class="oi-box">
     <div class="title">
-      <span>订单号：{{orderInfo.transaction_id}}</span>
+      <span>订单号：{{getOrderInfo.transaction_id}}</span>
       <span> / </span>
       <span>下单时间：{{createTime}}</span>
     </div>
 
     <div class="od-status">
       <div class="od-status-left">
-        <OrderStatus @callback="statusCallback" @close="closeOrder" :expressNo="orderInfo.delivery_order_id" :statusName="orderInfo.status_name" :ostatus="orderInfo.status" :orderid="orderInfo.id" />
+        <OrderStatus @callback="statusCallback" @close="closeOrder" :expressNo="getOrderInfo.delivery_order_id" :statusName="getOrderInfo.status_name" :ostatus="getOrderInfo.status" :orderid="getOrderInfo.id" />
       </div>
       <div class="od-status-steps">
         <div style="width: 100%;">
@@ -22,20 +22,20 @@
       </div>
     </div>
     <div class="od-user-info">
-      <UserInfo :orderInfo="orderInfo" />
+      <UserInfo :orderInfo="getOrderInfo" />
     </div>
 
     <div class="oi-game-info">
       <div class="dgl-game-list">
-        <div v-for="item in orderList" :key="item.id">
+        <div v-for="(item, index) in orderList" :key="item.id">
         <DetailGameList 
           :gameInfo="item"
-          :expressNo="orderInfo.transaction_id" 
+          :index="index+1"
+          :expressNo="getOrderInfo.express_no" 
           @callback="oCallback" />
       </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -65,44 +65,63 @@ export default {
     }
   },
   computed: {
+    getOrderInfo() {
+      return this.orderInfo
+    },
     expressNo() {
       return this.orderInfo.express_no
     },
     createTime() {
-      return moment(this.orderInfo.create_time).format('YYYY-MM-DD HH:mm:ss')
+      let create_time = this.orderInfo.create_time
+      let timeStr = create_time ? moment(create_time).format('YYYY-MM-DD HH:mm:ss') : null
+      return moment(timeStr).format('YYYY-MM-DD HH:mm:ss')
     },
     payTime() {
-      return moment(this.orderInfo.pay_time).format('YYYY-MM-DD HH:mm:ss')
+      let pay_time = this.orderInfo.pay_time
+      let timeStr = pay_time ? moment(pay_time).format('YYYY-MM-DD HH:mm:ss') : null
+      return timeStr
     },
     sendTime() {
-      return moment(this.orderInfo.send_time).format('YYYY-MM-DD HH:mm:ss')
+      let send_time = this.orderInfo.send_time
+      let timeStr = send_time ? moment(send_time).format('YYYY-MM-DD HH:mm:ss') : null
+      return timeStr
     },
     arrivedTime() {
-      return moment(this.orderInfo.arrived_time).format('YYYY-MM-DD HH:mm:ss')
+      let arrivedTime = this.orderInfo.arrived_time
+      let timeStr = arrivedTime ? moment(arrivedTime).format('YYYY-MM-DD HH:mm:ss'): null
+      return timeStr
     },
   },
   mounted() {
-    console.log(this.orderInfo)
     this.getDiscOrderListDat()
   },
   methods: {
     // 点击，质检，发货，结算的回调
     statusCallback(e) {
-      console.log(e)
       switch(e.type) {
-        case "shipmetns":
+        case "shipmetns": //发货
           this.$emit('callback', {type: 'shipmetns'})
+          break;
+        case 'backgroundConfirmation': //后台确认收货
+          break;
+        case 'qualityTesting': //质检
+          this.$emit('callback', {type: 'shipmetns'})
+          break;
+        case 'settlement': //结算
           break;
         default:
 
       }
-      console.log('lll')
     },
     // 关闭订单回调
     closeOrder() {
       this.$emit('callback', {type: 'close'})
     },
     oCallback(row) {
+      console.log(row)
+      if(row.status === 'success') {
+        this.getDiscOrderListDat()
+      }
       this.$emit('callback', row)
     },
     // 获取用户租借游戏盘列表

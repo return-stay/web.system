@@ -84,6 +84,10 @@
           </template>
         </el-table-column> -->
         <el-table-column
+          prop="name"
+          label="奖杯名称">
+        </el-table-column>
+        <el-table-column
           prop="level_name"
           label="奖杯完成度">
         </el-table-column>
@@ -97,9 +101,9 @@
         </el-table-column>
         <el-table-column
           prop="update_time"
-          label="创建时间">
+          label="更新时间">
           <template slot-scope="{row}">
-            <span>{{moment(row.update_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+            <span v-if="row.update_time">{{moment(row.update_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -111,14 +115,14 @@
             <el-divider direction="vertical"></el-divider>
             <el-popconfirm
               v-if="row.active"
-              title="确定停用该图片位吗？"
+              title="确定停用该奖杯吗？"
               @onConfirm="stopUsing(row)"
             >
               <span slot="reference" class="text-cursor">停用</span>
             </el-popconfirm>
             <el-popconfirm
               v-else
-              title="确定启用该图片位吗？"
+              title="确定启用该奖杯吗？"
               @onConfirm="enable(row)"
             >
               <span slot="reference" class="text-cursor">启用</span>
@@ -146,7 +150,7 @@ import {
 import tableMixins from '@/mixins/tableMixins'
 import Tabs from '@/components/Tabs'
 import moment from 'moment'
-import { getList } from '@/utils/data'
+import { getStoreList } from '@/utils/data'
 import Pagination from '@/components/Pagination'
 import {stopOrEnableRequest} from '@/utils/ajax'
 export default {
@@ -197,12 +201,12 @@ export default {
       });
     },
     async getSearchListInit() {
-      this.sortList = await getList(BaseSortLst)
-      this.areaList =  await getList(BaseAreaLst)
-      this.languageList = await getList(BaseLanguageLst)
-      this.platformList = await getList(BasePlatformLst)
-      this.gameCompanyLst = await getList(BaseGameCompanyLst)
-      this.trophyLevelLst = await getList(BaseTrophyLevelLst)
+      this.sortList = await getStoreList(BaseSortLst)
+      this.areaList =  await getStoreList(BaseAreaLst)
+      this.languageList = await getStoreList(BaseLanguageLst)
+      this.platformList = await getStoreList(BasePlatformLst)
+      this.gameCompanyLst = await getStoreList(BaseGameCompanyLst)
+      this.trophyLevelLst = await getStoreList(BaseTrophyLevelLst)
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();

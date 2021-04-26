@@ -29,6 +29,7 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     
     GameTrophyInf = '/game/trophy.inf',//奖杯详情
     GameTrophyNewSet = '/game/trophy/new.set', //新建奖杯
+    GameTrophyCheck = '/game/trophy.check', //  校验奖杯编码
     GamePriceSet = '/game/price.set', //定价
     GamePriceInf = '/game/price.inf', //定价详情
     GamePriceLst = '/game/price.lst', //定价列表
@@ -60,7 +61,7 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     ContentInfoDat= '/content/info.dat',//图片位详情
     ContentOffSet = '/content/off.set', //图片位关
     ContentOnSet = '/content/on.set', //图片位开
-    ContentInfoSet = '/content/info.set',//添加图片位
+    ContentInfoSet = '/content/info.set',//添加图片位  id=&tp=类型&l=位置ID&rid=选中的内容ID&tt=标题
 
     DiscFreeLst = '/disc/free.lst', //可租借游戏盘列表
     DiscOrderListDat = '/disc/order/list.dat', //游戏盘订单列表
@@ -74,6 +75,7 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     DiscOrderCheckInf = '/disc/order/check.inf', //订单详情 oid=orderID
     DiscOrderCheckSet = '/disc/order/check.set', //订单   oid=orderID&tp=type&rs=readStatus&ms=mediaStatus&cs=coverStatus
     DiscOrderSettlementSet = '/disc/order/settlement.set', //结算接口  id=orderID
+    DiscInfoCheck = '/disc/info.check', //校验奖杯编号是否重复
 
     BaseDeliveryCompanyLst = '/base/delivery/company.lst', //快递公司
     BaseChannelLst = '/base/channel.lst', // 下拉渠道列表
@@ -98,6 +100,7 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     TopicInfoSet = '/topic/info.set', //添加游戏专题
     TopicOnSet = '/topic/on.set', //专题开关
     TopicOffSet = '/topic/off.set', //专题开关
+    TopicInfoGamesSet = '/topic/info/games.set', //批量添加游戏专题
 
     UserVipFeeLst = '/user/vip/fee.lst', //用户
     UserListDat = '/user/list.dat', //用户列表 
@@ -143,6 +146,7 @@ export {
   GameTrophyOffSet,
   GameTrophyInf,
   GameTrophyNewSet,
+  GameTrophyCheck,
   GamePriceSet,
   GamePriceInf,
   GamePriceLst,
@@ -181,6 +185,7 @@ export {
   DiscOrderCheckInf,
   DiscOrderCheckSet,
   DiscOrderSettlementSet,
+  DiscInfoCheck,
 
   BaseDeliveryCompanyLst,
   BaseChannelLst,
@@ -210,6 +215,7 @@ export {
   TopicInfoSet,
   TopicOnSet,
   TopicOffSet,
+  TopicInfoGamesSet,
 
   UserVipFeeLst,
   UserListDat,

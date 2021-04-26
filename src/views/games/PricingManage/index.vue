@@ -134,6 +134,12 @@
         <el-table-column
           prop="group"
           label="类型/系列">
+          <template  slot-scope="{row}">
+            <div>
+              <p>{{row.sort_name}}</p>
+              <p style="cursor: pointer;" @click="goGruopInfo(row)">{{row.group_name}}</p>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
           prop="company_name"
@@ -145,7 +151,7 @@
           label="押金"
           width="120">
           <template slot-scope="{row}">
-            <span>{{Number(((row.deposit/100).toFixed(2)))}}</span>
+            <span>{{Number(((row.deposit/100).toFixed(2)))}}元</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -153,7 +159,7 @@
           label="日租金"
           width="120">
           <template slot-scope="{row}">
-            <span>{{Number(((row.day_rent/100).toFixed(2)))}}</span>
+            <span>{{Number(((row.day_rent/100).toFixed(2)))}}元</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -166,7 +172,7 @@
           label="更新时间"
           width="180">
           <template slot-scope="{row}">
-            <span>{{moment(row.update_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
+            <span v-if="row.update_time">{{moment(row.update_time).format('YYYY-MM-DD HH:mm:ss')}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -174,13 +180,9 @@
           label="操作"
           width="120">
           <template slot-scope="{row}">
-            <!-- <span class="text-cursor" @click="modifyPrice(row)">调价</span>
-            <el-divider direction="vertical"></el-divider> -->
             <span class="text-cursor" @click="stock(row)">库存</span>
             <el-divider direction="vertical"></el-divider>
             <span class="text-cursor" @click="modifyPrice(row)">调价</span>
-            <!-- <el-divider direction="vertical"></el-divider>
-            <span class="text-cursor">下架</span> -->
           </template>
         </el-table-column>
       </el-table>
@@ -196,7 +198,7 @@ import moment from 'moment'
 import tableMixins from '@/mixins/tableMixins'
 import Pagination from '@/components/Pagination'
 import ImageLarger from '@/components/ImageLarger'
-import {getList} from '@/utils/data'
+import { getStoreList } from '@/utils/data'
 export default {
   name: 'PricingManage',
   components: { Tabs, Pagination, ImageLarger },
@@ -234,9 +236,9 @@ export default {
   },
   methods: {
     async getSearchListInit() {
-      this.trophyLevelLst = await getList(BaseTrophyLevelLst)
-      this.platformList = await getList(BasePlatformLst)
-      this.definesortList = await getList(BaseDefinesortLst)
+      this.trophyLevelLst = await getStoreList(BaseTrophyLevelLst)
+      this.platformList = await getStoreList(BasePlatformLst)
+      this.definesortList = await getStoreList(BaseDefinesortLst)
     },
     tabsChange(e) {
       this.tabSearch({
@@ -246,12 +248,6 @@ export default {
     add() {
       this.$router.push({
         path: '/game/pricing/add'
-      })
-    },
-    edit(row) {
-      this.$router.push({
-        path: '/game/pricing/add',
-        query: {id: row.id}
       })
     },
     modifyPrice(row) {
@@ -264,6 +260,13 @@ export default {
       this.$router.push({
         path: '/game/inventory/edit/' + row.id,
         query: {serial: row.disc_no, source: 'price'}
+      })
+    },
+    // 去系列详情
+    goGruopInfo(row) {
+      this.$router.push({
+        path: '/game/series/add',
+        query: {id: row.group_id}
       })
     },
   }

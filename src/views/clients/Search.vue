@@ -32,13 +32,14 @@
         <el-form-item label="付费时间：">
           <el-col :span="7">
             <el-form-item prop="pstime">
-              <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.pstime" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="datetime" default-time="00:00:00" placeholder="选择时间" v-model="ruleForm.pstime" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col class="line" :span="1">至</el-col>
           <el-col :span="7">
             <el-form-item prop="petime">
-              <el-date-picker type="date" placeholder="选择时间" v-model="ruleForm.petime" style="width: 100%;"></el-date-picker>
+              <el-date-picker type="datetime"
+                default-time="23:59:59" placeholder="选择时间" v-model="ruleForm.petime" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
         </el-form-item>
@@ -72,8 +73,9 @@
             <div>
               <div></div>
               <div style="text-align: left;">
-                <div><span>微信昵称：</span><span>{{row.nickname}}</span></div>
+                <div><span>收货人名称：</span><span>{{row.username}}</span></div>
                 <div><span>收货手机号：</span><span>{{row.mobile}}</span></div>
+                <div><span>微信昵称：</span><span>{{row.nickname}}</span></div>
               </div>
             </div>
           </template>
@@ -98,7 +100,7 @@
               <div v-if="newTime>row.start_time && newTime<row.end_time">可用</div>
               <div v-else>不可用</div>
               <div>
-                {{moment(row.paid_time).format("YYYY-MM-DD")}} 前可用
+                {{moment(row.end_time).format("YYYY-MM-DD")}} 前可用
               </div>
             </div>
           </template>
@@ -107,6 +109,9 @@
           prop="total_fee"
           align="center"
           label="累计消费金额">
+          <template slot-scope="{row}">
+            <span>{{Number(((row.total_fee/100).toFixed(2)))}}元</span>
+          </template>
         </el-table-column>
         <el-table-column
           prop="fee_times"
@@ -155,7 +160,7 @@
 <script>
 import Tabs from '@/components/Tabs'
 import {UserListDat, BaseChannelLst} from '@/api/api'
-import {getAjax} from '@/utils/ajax'
+import {getStoreList} from '@/utils/data'
 import Pagination from '@/components/Pagination'
 import tableMixins from '@/mixins/tableMixins'
 import moment from 'moment'
@@ -203,16 +208,8 @@ export default {
       })
     },
     // 获取渠道列表
-    getChannelList() {
-      getAjax({
-        url: BaseChannelLst,
-      }).then(res=> {
-        if(res.code === 1) {
-          this.channelList = res.data
-        }else {
-          this.channelList = []
-        }
-      })
+    async getChannelList() {
+      this.channelList = await getStoreList(BaseChannelLst)
     },
   }
 }

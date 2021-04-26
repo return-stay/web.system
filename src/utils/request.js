@@ -29,7 +29,7 @@ const ajax = (options) => {
           resolve(resdata)
         }else if(resdataCode !== 1) {
           Message({
-            message: resdata.message || 'Error',
+            message: resdata.message || 'Error ' + resdataCode,
             type: 'error',
             duration: 5 * 1000
           })
@@ -52,7 +52,6 @@ const ajax = (options) => {
       }else {
         reject(res)
       }
-      
     }).catch(error=> {
       console.log('err' + error) // for debug
       Message({
@@ -64,8 +63,6 @@ const ajax = (options) => {
     })
   })
 }
-
-
 
 // create an axios instance
 const service = axios.create({
