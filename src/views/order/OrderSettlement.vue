@@ -78,10 +78,9 @@ export default {
       return moment(this.orderInfo.create_time).format('YYYY-MM-DD HH:mm:ss')
     },
   },
-  mounted() {
+  async mounted() {
+    await this.getCheckStatusLst()
     this.getDiscOrderListDat()
-    this.getCheckStatusLst()
-
     this.getOrderDetail()
   },
   methods: {
@@ -103,13 +102,17 @@ export default {
     },
     // 获取结算列表
     getCheckStatusLst() {
-      getAjax({
-        url: BaseCheckStatusLst,
-      }).then(res=> {
-        if(res.code === 1) {
-          this.mediumLists = res
-        }
+      return new Promise(resolve => {
+        getAjax({
+          url: BaseCheckStatusLst,
+        }).then(res=> {
+          if(res.code === 1) {
+            this.mediumLists = res
+            resolve(resolve)
+          }
+        })
       })
+      
     },
     // 根据游戏ID 获取可以发货的游戏盘
     getDiscFreeLst(id ) {

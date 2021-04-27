@@ -17,12 +17,12 @@
         <div class="oqt-game-li-cont-b">
           <div class="oqt-game-li-cont-b-l">
             <div class="oqt-game-li-cont-b-l-step">
-              <el-steps :active="setpAction" align-center finish-status="finish">
-                <el-step title="租借开始" :description="arrivedTime" icon="el-icon-success"></el-step>
-                <el-step title="客户已归还" :description="givebackTime" icon="el-icon-success"></el-step>
-                <el-step title="质检" description="" icon="el-icon-success"></el-step>
-                <el-step title="租借完成" description="" icon="el-icon-success"></el-step>
-              </el-steps>
+              <OrderSteps :active="setpAction">
+                <OrderStep title="租借开始" :description="arrivedTime"></OrderStep>
+                <OrderStep title="客户已归还" :description="givebackTime"></OrderStep>
+                <OrderStep :title="setpAction<3?'质检': '质检完成'" :description="checkTime"></OrderStep>
+                <OrderStep title="租借完成" :description="checkTime" ></OrderStep>
+              </OrderSteps>
             </div>
             <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation">
               <div class="oqt-game-li-cont-b-l-s-lease">
@@ -44,7 +44,7 @@
                 </div>
               </div>
               <div class="oqt-game-li-cont-b-l-s-settl">
-                <h4>计算</h4>
+                <h4>结算</h4>
                 <div class="oqt-game-li-cont-b-l-s-settl-li">
                   <span>租金：</span>
                   <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.day_rent/100).toFixed(2))}}元</span>
@@ -139,9 +139,11 @@ import { postAjax } from '@/utils/ajax'
 import { DiscOrderCheckSet, DiscOrderSettlementSet, DiscOrderCheckInf, DiscOrderPhotoLst } from '@/api/api'
 import moment from 'moment'
 import ImageLarger from '@/components/ImageLarger'
+import OrderSteps from '@/components/Steps/OrderSteps'
+import OrderStep from '@/components/Steps/OrderStep'
 export default {
   name: 'OrderQualityGameList',
-  components: { GameView, ImageLarger },
+  components: { GameView, ImageLarger, OrderSteps, OrderStep },
   props: {
     expressNo: {
       type: String,
@@ -176,6 +178,16 @@ export default {
     givebackTime() {
       let gtime = this.gameInfo.giveback_time
       return gtime ? moment(gtime).format('YYYY-MM-DD') : null
+    },
+    // 完成时间
+    finishTime() {
+      let ftime = this.gameInfo.finish_time
+      return ftime ? moment(ftime).format('YYYY-MM-DD') : null
+    },
+    // 质检时间
+    checkTime() {
+      let checktime = this.gameInfo.check_time
+      return checktime ? moment(checktime).format('YYYY-MM-DD') : null
     },
     // 是否显示质检选项
     isQualitySelect() {

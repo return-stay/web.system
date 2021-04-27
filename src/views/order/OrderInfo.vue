@@ -12,12 +12,12 @@
       </div>
       <div class="od-status-steps">
         <div style="width: 100%;">
-          <el-steps :active="orderType" align-center finish-status="finish">
-            <el-step title="客户下单" :description="createTime" icon="el-icon-success"></el-step>
-            <el-step title="客户支付" :description="payTime" icon="el-icon-success"></el-step>
-            <el-step title="仓库发货" :description="sendTime" icon="el-icon-success"></el-step>
-            <el-step title="客户收货" :description="arrivedTime" icon="el-icon-success"></el-step>
-          </el-steps>
+          <OrderSteps :active="orderType">
+            <OrderStep title="客户下单" :description="createTime"></OrderStep>
+            <OrderStep title="客户支付" :description="payTime"></OrderStep>
+            <OrderStep title="仓库发货" :description="sendTime"></OrderStep>
+            <OrderStep title="客户收货" :description="arrivedTime" ></OrderStep>
+          </OrderSteps>
         </div>
       </div>
     </div>
@@ -46,9 +46,11 @@ import DetailGameList from './DetailGameList'
 import UserInfo from './UserInfo'
 import {postAjax} from '@/utils/ajax'
 import {DiscOrderListDat} from '@/api/api'
+import OrderSteps from '@/components/Steps/OrderSteps'
+import OrderStep from '@/components/Steps/OrderStep'
 export default {
   name: 'OrderInfo',
-  components: {OrderStatus, DetailGameList, UserInfo},
+  components: {OrderStatus, DetailGameList, UserInfo, OrderSteps, OrderStep },
   props: {
     orderInfo: {
       type: Object,

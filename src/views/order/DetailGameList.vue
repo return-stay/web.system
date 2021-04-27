@@ -11,7 +11,11 @@
             <span @click="shipmetns">选择游戏盘</span>
             <span @click="shipmetns">发货照片</span>
           </template>
-          <template v-if="gameInfo.status === 90 || gameInfo.status === 60">
+          <template v-if="gameInfo.status === 60 && gameInfo.rt_total_rent > gameInfo.deposit">
+            <span @click="overdueSettlement">超期结算</span>
+          </template>
+
+          <template v-if="gameInfo.status === 90">
             <span @click="qualityTesting('qualityTesting')">质检</span>
             <span @click="qualityTesting('settlement', gameInfo.status)">结算</span>
           </template>
@@ -24,12 +28,12 @@
         <div class="oqt-game-li-cont-b">
           <div class="oqt-game-li-cont-b-l">
             <div class="oqt-game-li-cont-b-l-step"  v-if="gameInfo.status>50">
-              <el-steps :active="setpAction" align-center finish-status="finish">
-                <el-step title="租借开始" :description="arrivedTime" icon="el-icon-success"></el-step>
-                <el-step title="客户已归还" :description="givebackTime" icon="el-icon-success"></el-step>
-                <el-step :title="setpAction<3?'质检': '质检完成'" :description="finishTime" icon="el-icon-success"></el-step>
-                <el-step title="租借完成" :description="checkTime" icon="el-icon-success"></el-step>
-              </el-steps>
+              <OrderSteps :active="setpAction">
+                <OrderStep title="租借开始" :description="arrivedTime"></OrderStep>
+                <OrderStep title="客户已归还" :description="givebackTime"></OrderStep>
+                <OrderStep :title="setpAction<3?'质检': '质检完成'" :description="checkTime"></OrderStep>
+                <OrderStep title="租借完成" :description="checkTime" ></OrderStep>
+              </OrderSteps>
             </div>
             <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation && gameInfo.status>90">
               <div class="oqt-game-li-cont-b-l-s-lease">
@@ -51,7 +55,7 @@
                 </div>
               </div>
               <div class="oqt-game-li-cont-b-l-s-settl">
-                <h4>计算</h4>
+                <h4>结算</h4>
                 <div class="oqt-game-li-cont-b-l-s-settl-li">
                   <span>租金：</span>
                   <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.day_rent/100).toFixed(2))}}元</span>
@@ -90,9 +94,11 @@
 <script>
 import moment from 'moment'
 import GameView from './GameView'
-import { DiscOrderPhotoLst, DiscOrderSettlementSet } from '@/api/api'
+import { DiscOrderPhotoLst, DiscOrderSettlementSet, DiscOrderSettlementBuySet } from '@/api/api'
 import {postAjax} from '@/utils/ajax'
 import ImageLarger from '@/components/ImageLarger'
+import OrderSteps from '@/components/Steps/OrderSteps'
+import OrderStep from '@/components/Steps/OrderStep'
 export default {
   name: 'DetailGameList',
   props: {
@@ -109,7 +115,7 @@ export default {
       default: 0,
     },
   },
-  components: { GameView, ImageLarger },
+  components: { GameView, ImageLarger, OrderSteps, OrderStep },
   data() {
     return {
       moment,
@@ -171,6 +177,27 @@ export default {
     }
   },
   methods: {
+    // 超期结算
+    overdueSettlement() {
+      this.$confirm('该游戏盘的累计租金总额已经超过押金金额，可以进行超期结算操作，操作后押金将被扣除，且游戏盘状态将更改为【已购买】，确认操作吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          postAjax({
+            url: DiscOrderSettlementBuySet,
+            data: {
+              id: this.gameInfo.id
+            }
+          }).then(res=> {
+            if(res.code === 1) {
+              this.$message.success("超期结算成功")
+              this.$emit('callback', {type: 'settlement', status: 'success'})
+            }
+          })
+        })
+    },
+    // 直接或结算
     qualityTesting(type, status) {
       if(type === 'settlement') {
         if(status > 90) {

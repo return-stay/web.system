@@ -115,7 +115,7 @@
         <el-row>
           <el-col :span='12'>
             <el-form-item label="盘号：" prop="sn">
-              <el-input v-model="form.sn" size="small" @blur="checkCartridgeNumber"></el-input>
+              <el-input v-model="form.sn" size="small" :disabled="isGameDisabled" @blur="checkCartridgeNumber"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -142,7 +142,7 @@
           <el-input v-model="form.mm"  type="textarea" size="small" placeholder="可以为空"></el-input>
         </el-form-item>
         <el-form-item v-if="type === 'edit'" label="状态：" prop="st">
-          <el-select v-model="form.st" size="small" :disabled="form.st===2">
+          <el-select v-model="form.st" size="small" :disabled="[1,3,4].indexOf(form.st) < 0">
             <el-option v-for="item in getStatsList" :key="item.value" :value="item.value" :label="item.name"></el-option>
           </el-select>
         </el-form-item>

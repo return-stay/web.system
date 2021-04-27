@@ -116,7 +116,7 @@
           label="备注">
         </el-table-column>
         <el-table-column
-          prop="status"
+          prop="status_name"
           label="状态"
           width="130">
         </el-table-column>
@@ -134,7 +134,7 @@
           width="120">
           <template slot-scope="{row}">
             <span class="text-cursor" @click="edit(row)">编辑</span>
-            <template v-if="row.status === '正常'">
+            <template v-if="row.status_name === '正常'">
               <el-divider direction="vertical"></el-divider>
               <el-popconfirm
                 v-if="row.active"
