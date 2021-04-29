@@ -369,7 +369,6 @@ export default {
         url: DiscInfoSet,
         data: params
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.$message.success(successtext)
           callback&&callback()
@@ -381,7 +380,6 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           that.addRequest(() => {
-            console.log(type)
             if(type ==='continue' || type === 'addconfim') {
               const id = this.gameid
               that.$refs[formName].resetFields();
@@ -414,7 +412,6 @@ export default {
           gid: id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.otherList = res.data.list || []
         }

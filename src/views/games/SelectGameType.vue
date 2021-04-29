@@ -91,7 +91,6 @@ export default {
       getAjax({
         url: BaseGroupLst
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.seriesList = res.data
         }
@@ -99,8 +98,7 @@ export default {
     },
     confirm() {
       this.dialogVisible = false
-      let id= null 
-      console.log(this.seriesId)
+      let id= null
       switch(this.type) {
         case 'subject':
           id = this.subjectId

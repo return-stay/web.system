@@ -65,11 +65,9 @@ export default {
       this.tabAction = num
     },
     next(i) {
-      console.log(i)
       this.tabAction = Number(i)
     },
     tabsChange(item) {
-      console.log(item)
       this.tabAction = item.key
       // let type = 'detail'
       // switch(item.key) {

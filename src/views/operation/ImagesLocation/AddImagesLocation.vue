@@ -216,7 +216,6 @@ export default {
       callback && callback(cid)
     },
     uploadChange(file) {
-      console.log(file)
       this.form.img = file.raw
       this.fdimg = file.raw
     },
@@ -235,7 +234,6 @@ export default {
     },
     // bool 是否启用， true启用， false 不启用
     submitForm(formName, bool) {
-      console.log(bool)
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.onSubmit(bool)
@@ -269,7 +267,6 @@ export default {
           'Content-Type': 'multipart/form-data', // 关键
         },
       }).then(res=> {
-        console.log(bool)
         if(res.code === 1) {
           if(bool) {
             this.enable(res.id)

@@ -58,6 +58,11 @@
         <div>结算完成，用户押金已解冻</div>
       </div>
     </template>
+    <template v-else-if="ostatus === 200">
+      <div class="od-status-btns">
+        <div>已购买</div>
+      </div>
+    </template>
 
     <el-dialog
       title="物流信息"
@@ -151,7 +156,6 @@ export default {
         type: 'warning'
       }).then(() => {
         const { id } = this.$route.params
-        console.log(id)
         postAjax({
           url: TradeCloseSet,
           data: {

@@ -40,7 +40,6 @@ export default {
   },
   mounted() {
     const id = this.$route.params.id
-    console.log(id)
     if(id) {
       this.getGameInfo(id)
     }
@@ -50,7 +49,6 @@ export default {
       this.stepAction = e
     },
     oneNext(n, gid) {
-      console.log(gid)
       this.stepAction = n
       this.gid = gid
       this.$refs.stepchild.next(n)

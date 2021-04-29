@@ -369,7 +369,6 @@ export default {
     },
     // 添加系列 添加专题 type == subject :专题  series：系列
     typecallback(row) {
-      console.log(row)
       if(row.type ==='series') {
         this.batchAddSeries(row.id)
       }else if(row.type ==='subject') {

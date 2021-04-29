@@ -130,7 +130,6 @@ export default {
   methods: {
     async initBaselist() {
       let list = await getStoreList(BaseDeliveryCompanyLst)
-      console.log(list)
       this.companyLst = list
     },
     getDiscOrderPhotoLst (id) {
@@ -194,7 +193,6 @@ export default {
     },
     // 选择盘
     setDiscOrderDiscSet (e, id) {
-      console.log(e, id)
       return new Promise((resolve) => {
         postAjax({
           url: DiscOrderDiscSet,
@@ -203,7 +201,6 @@ export default {
             did: e,
           }
         }).then(res=> {
-          console.log(res)
           resolve(res)
         })
       })

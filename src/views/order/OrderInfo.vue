@@ -120,7 +120,6 @@ export default {
       this.$emit('callback', {type: 'close'})
     },
     oCallback(row) {
-      console.log(row)
       if(row.status === 'success') {
         this.getDiscOrderListDat()
       }

@@ -127,9 +127,7 @@ export default {
           url: GameDefineSortGamesSet,
           data: obj,
         }).then(res=> {
-          if(res.code === 1) {
-            console.log(res)
-          }
+          if(res.code === 1) {}
         })
       }
     },
@@ -138,7 +136,6 @@ export default {
         url: GameDefineSortSet,
         data: this.paramsSet(),
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.$message.success('添加成功')
           this.$router.back(-1)
@@ -146,7 +143,6 @@ export default {
       })
     },
     getDetail() {
-      console.log(this.$route)
       const {id} = this.$route.query
       postAjax({
         url: GameDefineSortInf,
@@ -154,7 +150,6 @@ export default {
           id: id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           const resdata = res.data
           this.form = {
@@ -166,7 +161,6 @@ export default {
       })
     },
     cascaderChange(e) {
-      console.log(e)
       this.selectKeys = e
     },
     addSeriesList() {

@@ -102,7 +102,6 @@ export default {
       })
     },
     goOrderInfo(row) {
-      console.log(row)
       this.$router.push({
         path: '/order/detail/' + row.id,
         query: {

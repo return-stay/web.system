@@ -205,15 +205,12 @@ export default {
     },
     // 选择盘
     setDiscOrderDiscSet (e, id) {
-      console.log(e, id)
       postAjax({
         url: DiscOrderDiscSet,
         data: {
           id: id,
           did: e,
         }
-      }).then(res=> {
-        console.log(res)
       })
     },
     // 获取用户租借游戏盘列表
@@ -226,7 +223,6 @@ export default {
           tid: id,
         }
       }).then(async res=> {
-        console.log(res)
         if(res.code === 1) {
           const resdata = res.data
           for(let i = 0;i<resdata.length;i++) {

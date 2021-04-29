@@ -43,7 +43,6 @@ export default {
   },
   methods: {
     saveCallback() {
-      console.log('jjjj')
     },
     cancel() {
       this.$router.go(-1)

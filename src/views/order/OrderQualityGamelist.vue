@@ -21,7 +21,7 @@
                 <OrderStep title="租借开始" :description="arrivedTime"></OrderStep>
                 <OrderStep title="客户已归还" :description="givebackTime"></OrderStep>
                 <OrderStep :title="setpAction<3?'质检': '质检完成'" :description="checkTime"></OrderStep>
-                <OrderStep title="租借完成" :description="checkTime" ></OrderStep>
+                <OrderStep title="租借完成" :description="finishTime" ></OrderStep>
               </OrderSteps>
             </div>
             <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation">
@@ -205,7 +205,6 @@ export default {
       if(status >100) {
         num = 2
       }
-      console.log(num)
       return num;
     },
     setpAction() {
@@ -274,7 +273,6 @@ export default {
           id:id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.$message.success("结算成功")
           callback && callback()
@@ -345,7 +343,6 @@ export default {
         }
       }).then(res=> {
         if(res.code === 1) {
-          console.log(res.data)
           let resdata = res.data
           that.tp = resdata.type || null
           that.rs = resdata.read_status

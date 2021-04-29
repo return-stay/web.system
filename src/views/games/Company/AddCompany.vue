@@ -61,7 +61,6 @@ export default {
   },
   mounted() {
     const { id } = this.$route.query
-    console.log(this.$route)
     if(id) {
       this.getInfo(id)
       this.title = '编辑'
@@ -70,7 +69,6 @@ export default {
   },
   methods: {
     uploadChange(file) {
-      console.log(file)
       this.logo = file.raw
     },
     getInfo(id) {
@@ -80,7 +78,6 @@ export default {
           id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           const resdata = res.data
           this.companyInfo = resdata
@@ -117,7 +114,6 @@ export default {
           'Content-Type': 'multipart/form-data', // 关键
         },
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.$message.success('添加成功')
           if(this.isNavition) {

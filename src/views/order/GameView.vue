@@ -18,7 +18,7 @@
     <div class="gv-game-item-cont-right">
       <div class="gv-game-item-cont-right-price">
         <span>租金：{{Number(games.day_rent/100).toFixed(2)}}元/天</span>
-        <span>租金：{{Number(games.deposit/100).toFixed(2)}}元</span>
+        <span>押金：{{Number(games.deposit/100).toFixed(2)}}元</span>
       </div>
       <div class="gv-game-item-cont-right-btns">
         <slot></slot>

@@ -38,7 +38,6 @@ export default {
   },
   methods: {
     getInit() {
-      console.log(this.$route)
       let num = 0
       const type = this.$route.query.type || ''
       switch(type) {
@@ -69,7 +68,6 @@ export default {
       this.getDetail()
     },
     callback(e) {
-      console.log(e)
       let num = 0
       if(e.type === 'shipmetns') {
         num = 2

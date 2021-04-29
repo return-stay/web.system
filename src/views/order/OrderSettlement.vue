@@ -155,7 +155,6 @@ export default {
       })
     },
     oCallback(res) {
-      console.log(res)
       this.getDiscOrderListDat()
       if(res.isSettlement) {
         this.$emit('callback', res)

@@ -199,7 +199,6 @@ export default {
       this.ruleForm.um = null
     },
     tabsChange(e) {
-      console.log(e)
       this.tabAction = e.key
     },
     detail(row) {

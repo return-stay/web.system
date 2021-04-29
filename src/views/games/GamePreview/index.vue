@@ -140,7 +140,6 @@ export default {
   },
   methods: {
     getInfo() {
-      console.log(this.cid)
       if(this.cid) {
         postAjax({
           url: GameInfoDat,

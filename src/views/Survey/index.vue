@@ -57,7 +57,7 @@
 
     <div class="s-cont">
       <div class="s-cont-item" v-for="item in contArr" :key="item.id" @click="navitionGo(item)">
-        <img class="s-cont-item-img" src="@/assets/circle.png" alt="">
+        <img class="s-cont-item-img" src="@/assets/survey_star.png" alt="">
         <div class="s-cont-item-div">{{item.text}}</div>
       </div>
     </div>
@@ -181,7 +181,6 @@ export default {
       postAjax({
         url: SummaryInfoDat,
       }).then(res=> {
-        console.log(res)
         const resdata = res.data
         this.info = resdata
       })
@@ -247,9 +246,8 @@ export default {
       padding-left: 20px;
       cursor: pointer;
       &-img {
-        width: 56px;
-        height: 56px;
-        margin-right: 10px;
+        width: 50px;
+        margin-right: 6px;
       }
       &-div {
         height: 40px;

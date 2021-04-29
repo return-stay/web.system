@@ -174,7 +174,6 @@ export default {
           id: id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           let resdata = res.data
           this.userInfo = resdata

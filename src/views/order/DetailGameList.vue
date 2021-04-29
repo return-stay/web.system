@@ -32,7 +32,7 @@
                 <OrderStep title="租借开始" :description="arrivedTime"></OrderStep>
                 <OrderStep title="客户已归还" :description="givebackTime"></OrderStep>
                 <OrderStep :title="setpAction<3?'质检': '质检完成'" :description="checkTime"></OrderStep>
-                <OrderStep title="租借完成" :description="checkTime" ></OrderStep>
+                <OrderStep title="租借完成" :description="finishTime" ></OrderStep>
               </OrderSteps>
             </div>
             <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation && gameInfo.status>90">
@@ -164,6 +164,9 @@ export default {
         case 110:
           num = 4
           break;
+        case 200:
+          num = 4
+          break;
         default: 
           num = 0
       }
@@ -227,7 +230,6 @@ export default {
           id:id
         }
       }).then(res=> {
-        console.log(res)
         if(res.code === 1) {
           this.$message.success("结算成功")
           callback && callback()

@@ -120,7 +120,6 @@ export default {
       }
       fd.append('tt', params.tt)
       fd.append('des', params.des)
-      console.log(this.fdimg)
       if(!this.img) {
         fd.append('img', this.fdimg)
       }
