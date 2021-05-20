@@ -98,8 +98,8 @@ export default {
         password: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [{ required: true, trigger: 'change', validator: validateUsername }],
+        password: [{ required: true, trigger: 'change', validator: validatePassword }]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -159,7 +159,9 @@ export default {
           }
           this.$store.dispatch('user/login', obj)
             .then((res) => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              if(res=== 1) {
+                this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              }
               this.loading = false
             })
             .catch(() => {

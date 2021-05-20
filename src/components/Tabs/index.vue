@@ -45,15 +45,15 @@ export default {
     tabclick(item) {
       this.dataAction = item.key
       // console.log(this.$route)
-      // const {path, params, query} = this.$route
-      // let p = path;
+      const {path, query} = this.$route
+      let p = path;
       // if(params.id) {
       //   p = p+ '/id' + params.id
       // }
-      // this.$router.push({
-      //   path: p,
-      //   query: {...query, st: item.key}
-      // })
+      this.$router.replace({
+        path: p,
+        query: {...query, currentPage: 1}
+      })
       this.$emit('change', {...item})
     }
   }

@@ -114,9 +114,8 @@
       <div class="ta-header">奖杯信息</div>
       <div class="ta-form">
         <el-form-item label="奖杯编号" prop="dn">
-          <el-input size="small" v-model="form.dn" placeholder="请输入奖杯编号" @blur="checkRepeat" />
+          <el-input size="small" v-model="form.dn" :disabled="dnDisabled" placeholder="请输入奖杯编号" @blur="checkRepeat" />
         </el-form-item>
-
         <el-form-item label="奖杯名称" prop="nm" v-if="isRequired">
           <el-input size="small" v-model="form.nm" placeholder="请输入奖杯名称" />
         </el-form-item>
@@ -182,7 +181,8 @@ export default {
         dn: [ { required: true, message: '请输入活动编号', trigger: 'blur' } ],
         nm: [ { required: true, message: '请输入奖杯名称', trigger: 'blur' } ],
         l: [ { required: true, message: '请输入完成度', trigger: 'blur' } ],
-      }
+      },
+      dnDisabled: false,
     }
   },
   props: {
@@ -203,6 +203,7 @@ export default {
     const {id} = this.$route.query
     this.getSearchListInit()
     if(id) {
+      this.dnDisabled = true
       this.disc_no = id
       this.getInfo(id)
     }

@@ -17,51 +17,20 @@
         <div class="oqt-game-li-cont-b">
           <div class="oqt-game-li-cont-b-l">
             <div class="oqt-game-li-cont-b-l-step">
-              <OrderSteps :active="setpAction">
-                <OrderStep title="租借开始" :description="arrivedTime"></OrderStep>
-                <OrderStep title="客户已归还" :description="givebackTime"></OrderStep>
-                <OrderStep :title="setpAction<3?'质检': '质检完成'" :description="checkTime"></OrderStep>
-                <OrderStep title="租借完成" :description="finishTime" ></OrderStep>
-              </OrderSteps>
+              <OrderStepsInfo
+                :status="gameInfo.status"
+                :arrived_time="gameInfo.arrived_time"
+                :express_no="gameInfo.express_no"
+                :delivery_order_id="gameInfo.delivery_order_id"
+                :giveback_time="gameInfo.giveback_time"
+                :finish_time="gameInfo.finish_time"
+                :check_time="gameInfo.check_time"
+              />
             </div>
-            <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation">
-              <div class="oqt-game-li-cont-b-l-s-lease">
-                <h4>租期</h4>
-                <div class="oqt-game-li-cont-b-l-s-lease-li">
-                  <span>开始时间：</span>
-                  <span class="oqt-game-li-cont-b-l-s-lease-li-text">{{arrivedTime}}</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-lease-li">
-                  <span>结束时间：</span>
-                  <span class="oqt-game-li-cont-b-l-s-lease-li-text">{{givebackTime}}</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-lease-li">
-                  <span>免租天数：</span>
-                  <span class="oqt-game-li-cont-b-l-s-lease-li-text">{{gameInfo.free_lease}}天</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-all">
-                  <span>计费天数</span><span style="color: #FE6247;">{{gameInfo.lease}}天</span>
-                </div>
-              </div>
-              <div class="oqt-game-li-cont-b-l-s-settl">
-                <h4>结算</h4>
-                <div class="oqt-game-li-cont-b-l-s-settl-li">
-                  <span>租金：</span>
-                  <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.day_rent/100).toFixed(2))}}元</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-settl-li">
-                  <span>押金：</span>
-                  <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.deposit/100).toFixed(2))}}元</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-settl-li">
-                  <span>罚金：</span>
-                  <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.depreciation/100).toFixed(2))}}元</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-all">
-                  <span>共消费</span><span style="color: #FE6247;">{{Number(((gameInfo.depreciation + gameInfo.total_rent)/100).toFixed(2))}}元</span>
-                </div>
-              </div>
-            </div> 
+            <GameListLease 
+              v-if="isSettlementInformation"
+              :gameInfo="gameInfo"
+              />
           </div>
           <div class="oqt-game-li-cont-b-r" v-if="isQualitySelect">
             <div class="oqt-game-li-cont-b-r-top">
@@ -73,7 +42,7 @@
               </div>
             </div>
             <div class="oqt-game-li-cont-b-r-select">
-              <span class="oqt-game-li-cont-b-r-select-t">介质类型：</span>
+              <span class="oqt-game-li-cont-b-r-select-t">类型：</span>
               <el-select v-model="tp" placeholder="请选择" size="small">
                 <el-option
                   v-for="ci in typeList"
@@ -119,6 +88,13 @@
                 </el-option>
               </el-select>
             </div>
+            <template v-if="tp === 3">
+              <div class="oqt-game-li-cont-b-r-select">
+                <span class="oqt-game-li-cont-b-r-select-t">扣费：</span>
+                <el-input-number v-model="d" style="width: 192px;" :min="0" controls-position="right" :precision="2" :step="1" size="small" />
+                <span style="color: #000;border:none;padding: 10px;">元</span>
+              </div>
+            </template>
           </div>
           <div class="oqt-game-li-cont-b-r" style="border: none;" v-else></div>
         </div>
@@ -136,14 +112,14 @@
 <script>
 import GameView from './GameView'
 import { postAjax } from '@/utils/ajax'
-import { DiscOrderCheckSet, DiscOrderSettlementSet, DiscOrderCheckInf, DiscOrderPhotoLst } from '@/api/api'
+import { DiscOrderCheckSet, DiscOrderSettlementSet, DiscOrderCheckInf, DiscOrderPhotoLst, DiscOrderSettlementCloseSet } from '@/api/api'
 import moment from 'moment'
 import ImageLarger from '@/components/ImageLarger'
-import OrderSteps from '@/components/Steps/OrderSteps'
-import OrderStep from '@/components/Steps/OrderStep'
+import GameListLease from './GameListLease'
+import OrderStepsInfo from './OrderStepsInfo'
 export default {
   name: 'OrderQualityGameList',
-  components: { GameView, ImageLarger, OrderSteps, OrderStep },
+  components: { GameView, ImageLarger, GameListLease, OrderStepsInfo },
   props: {
     expressNo: {
       type: String,
@@ -171,24 +147,6 @@ export default {
       }
       return siBool
     },
-    arrivedTime() {
-      let atime = this.gameInfo.arrived_time
-      return atime? moment(atime).format('YYYY-MM-DD') : null
-    },
-    givebackTime() {
-      let gtime = this.gameInfo.giveback_time
-      return gtime ? moment(gtime).format('YYYY-MM-DD') : null
-    },
-    // 完成时间
-    finishTime() {
-      let ftime = this.gameInfo.finish_time
-      return ftime ? moment(ftime).format('YYYY-MM-DD') : null
-    },
-    // 质检时间
-    checkTime() {
-      let checktime = this.gameInfo.check_time
-      return checktime ? moment(checktime).format('YYYY-MM-DD') : null
-    },
     // 是否显示质检选项
     isQualitySelect() {
       return this.isqualitySelect
@@ -207,26 +165,6 @@ export default {
       }
       return num;
     },
-    setpAction() {
-      let num = 0;
-      switch(this.gameInfo.status) {
-        case 60:
-          num = 1
-          break;
-        case 90:
-          num = 2
-          break;
-        case 100:
-          num = 3
-          break;
-        case 110:
-          num = 4
-          break;
-        default: 
-          num = 0
-      }
-      return num
-    }
   },
   data() {
     return {
@@ -241,6 +179,7 @@ export default {
       mediaList: [],
       rs: null,
       readList: [],
+      d: null, //扣费
     }
   },
   created() {
@@ -267,8 +206,12 @@ export default {
       })
     },
     settlementReuqest(id, callback) {
+      let url = DiscOrderSettlementSet
+      if(this.tp === 3) {
+        url = DiscOrderSettlementCloseSet
+      } 
       postAjax({
-        url: DiscOrderSettlementSet,
+        url: url,
         data: {
           id:id
         }
@@ -281,7 +224,11 @@ export default {
     },
     setMediumLists() {
       const res = this.mediumLists
-      this.typeList = res.type_list.dataList
+      let typeList = res.type_list.dataList
+      if(this.gameInfo.status !== 50) {
+        typeList.pop()
+      }
+      this.typeList = typeList
       this.coverList = res.cover_list.dataList
       this.mediaList = res.media_list.dataList
       this.readList = res.read_list.dataList
@@ -296,6 +243,7 @@ export default {
         ms: that.ms || 0,
         cs: that.cs || 0,
       }
+      if(that.d) { obj.d = that.d * 100 }
       postAjax({
         url: DiscOrderCheckSet,
         data: obj,
@@ -348,6 +296,9 @@ export default {
           that.rs = resdata.read_status
           that.ms = resdata.media_status
           that.cs = resdata.cover_status
+          if(resdata.type == 3) {
+            that.d = Math.floor(resdata.depreciation/100)
+          }
         }
       })
     },

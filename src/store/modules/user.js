@@ -32,33 +32,31 @@ const actions = {
   // user login
   login({ commit }, userInfo) {
     const { username, password } = userInfo
-    return new Promise((resolve) => {
-      console.log(username, password)
+    return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password, remember: true }).then(response => {
-        console.log(response)
-        // if (response.code === 1) {
-        //   // const { data } = response
-        //   // commit('SET_TOKEN', data.token)
-        //   // setToken(data.token)
-        //   commit('SET_TOKEN', 'admin-token')
-        //   setToken('admin-token')
-        //   resolve()
-        // } else {
-        //   resolve()
-        // }
-        commit('SET_TOKEN', 'admin-token')
-        setToken('admin-token')
-        resolve()
+        if (response.code === 1) {
+          // const { data } = response
+          // commit('SET_TOKEN', data.token)
+          // setToken(data.token)
+          commit('SET_TOKEN', 'admin-token')
+          setToken('admin-token')
+          resolve(1)
+        } else {
+          reject(2)
+        }
+        // commit('SET_TOKEN', 'admin-token')
+        // setToken('admin-token')
+        // resolve()
       }).catch(error => {
         console.log(error)
         commit('SET_TOKEN', 'admin-token')
         setToken('admin-token')
-        resolve()
+        reject(-1)
       })
       // setTimeout(() => {
       //   commit('SET_TOKEN', 'admin-token')
       //   setToken('admin-token')
-      //   resolve()
+      //   reject()
       // }, 100);
     }).catch((e) => {
       console.log('error' + e)

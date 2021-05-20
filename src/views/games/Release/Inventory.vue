@@ -115,7 +115,7 @@
         <el-row>
           <el-col :span='12'>
             <el-form-item label="盘号：" prop="sn">
-              <el-input v-model="form.sn" size="small" :disabled="isGameDisabled" @blur="checkCartridgeNumber"></el-input>
+              <el-input v-model="form.sn" size="small" @blur="checkCartridgeNumber"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -169,7 +169,7 @@
 </template>
 
 <script>
-import {postList, getStoreList} from "@/utils/data"
+import { postList } from "@/utils/data"
 import { GameMiniLst, DiscInfoSet, DiscInfoDat, DiscListDat,BaseDiscStateLst, DiscInfoCheck } from '@/api/api'
 import { getAjax, postAjax } from '@/utils/ajax'
 import  ImageLarger from '@/components/ImageLarger'
@@ -203,6 +203,7 @@ export default {
       moment,
       type: 'add',
       isGameDisabled: false,
+      isDiscnumberDisabled: false,
       isCheckRepeatBool: true, //盘号是否重复
       gamelist: [],
       gameInfo: {},
@@ -211,6 +212,7 @@ export default {
       paramsid: '',
       gameid: null, //游戏ID
       iid: null, //游戏盘的ID
+      serialOld: '',//用来比较是否发生改变了 盘号
       form: {
         gid: null,
         sn: '',
@@ -263,6 +265,7 @@ export default {
           this.getDiscInfo(id)
         }
         this.isGameDisabled = true
+        this.isDiscnumberDisabled = true
       }
       // 游戏详情
       if(this.$route.path.indexOf('/game/detail')>-1) {
@@ -270,6 +273,7 @@ export default {
         this.gameid = id
         this.getDiscList(id)
         this.isGameDisabled = true
+        this.isDiscnumberDisabled = false
       }
       // 发布游戏
       if(this.$route.path.indexOf('/game/release')>-1) {
@@ -278,6 +282,7 @@ export default {
           this.gameid = this.pid
         }
         this.isGameDisabled = true
+        this.isDiscnumberDisabled = false
       }
     },
     // 获取盘编号列表
@@ -292,7 +297,7 @@ export default {
       })
     },
     async getGameList () {
-      let r = await getStoreList(GameMiniLst)
+      let r = await postList(GameMiniLst)
       for(let i = 0;i<r.length;i++) {
         r[i].detailinfo = `${r[i].platform_name} | ${r[i].view_name} | ${r[i].area_name} ${r[i].language_name}`
       }
@@ -322,6 +327,7 @@ export default {
             mm: resdata.memo,
             st: resdata.status,
           }
+          this.serialOld = resdata.serial
         }
         this.gameid = resdata.game_id
         this.gameInfo = resdata.game_info
@@ -400,6 +406,7 @@ export default {
         const id = this.gameid
         this.getDiscList(id)
         this.isGameDisabled = true
+        this.isDiscnumberDisabled = false
       }
     },
     
@@ -425,8 +432,12 @@ export default {
       })
     },
     // 校验盘编号是否重复
-    checkCartridgeNumber() {
-      this.isCheckRepeat()
+    checkCartridgeNumber(e) {
+      let value = e.target.value
+      let sn = this.serialOld
+      if(value !== sn) {
+        this.isCheckRepeat()
+      }
     },
     isCheckRepeat(callback) {
       let sn = this.form.sn

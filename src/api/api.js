@@ -1,5 +1,5 @@
-const baseApi = process.env.VUE_APP_BASE_API, //
-    IMG_URL = process.env.VUE_APP_IMG_URL,
+import {imgBaseUrl} from '@/utils/baseUrl'
+const IMG_URL = imgBaseUrl,
     RentstoreStatsTest = '/rentstore/stats/test.c',
     SummaryInfoDat = '/summary/info.dat', //概况
 
@@ -75,7 +75,8 @@ const baseApi = process.env.VUE_APP_BASE_API, //
     DiscOrderCheckInf = '/disc/order/check.inf', //订单详情 oid=orderID
     DiscOrderCheckSet = '/disc/order/check.set', //订单   oid=orderID&tp=type&rs=readStatus&ms=mediaStatus&cs=coverStatus
     DiscOrderSettlementSet = '/disc/order/settlement.set', //结算接口  id=orderID
-    DiscOrderSettlementBuySet = '/disc/order/settlement/buy.set', //超期结算 id = orderId
+    DiscOrderSettlementBuySet = '/disc/order/settlement/buy.set', //超期结算（购买） id = orderId
+    DiscOrderSettlementCloseSet = '/disc/order/settlement/close.set', //拒收盘
     DiscInfoCheck = '/disc/info.check', //校验奖杯编号是否重复
 
     BaseDeliveryCompanyLst = '/base/delivery/company.lst', //快递公司
@@ -118,7 +119,6 @@ const baseApi = process.env.VUE_APP_BASE_API, //
 
 
 export {
-  baseApi,
   IMG_URL,
   RentstoreStatsTest,
   SummaryInfoDat,
@@ -187,6 +187,7 @@ export {
   DiscOrderCheckSet,
   DiscOrderSettlementSet,
   DiscOrderSettlementBuySet,
+  DiscOrderSettlementCloseSet,
   DiscInfoCheck,
 
   BaseDeliveryCompanyLst,

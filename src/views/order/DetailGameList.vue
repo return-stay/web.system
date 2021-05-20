@@ -15,7 +15,7 @@
             <span @click="overdueSettlement">超期结算</span>
           </template>
 
-          <template v-if="gameInfo.status === 90">
+          <template v-if="gameInfo.status === 90 || gameInfo.status === 50">
             <span @click="qualityTesting('qualityTesting')">质检</span>
             <span @click="qualityTesting('settlement', gameInfo.status)">结算</span>
           </template>
@@ -28,51 +28,20 @@
         <div class="oqt-game-li-cont-b">
           <div class="oqt-game-li-cont-b-l">
             <div class="oqt-game-li-cont-b-l-step"  v-if="gameInfo.status>50">
-              <OrderSteps :active="setpAction">
-                <OrderStep title="租借开始" :description="arrivedTime"></OrderStep>
-                <OrderStep title="客户已归还" :description="givebackTime"></OrderStep>
-                <OrderStep :title="setpAction<3?'质检': '质检完成'" :description="checkTime"></OrderStep>
-                <OrderStep title="租借完成" :description="finishTime" ></OrderStep>
-              </OrderSteps>
+              <OrderStepsInfo
+                :status="gameInfo.status"
+                :arrived_time="gameInfo.arrived_time"
+                :express_no="gameInfo.express_no"
+                :delivery_order_id="gameInfo.delivery_order_id"
+                :giveback_time="gameInfo.giveback_time"
+                :finish_time="gameInfo.finish_time"
+                :check_time="gameInfo.check_time"
+              />
             </div>
-            <div class="oqt-game-li-cont-b-l-s" v-if="isSettlementInformation && gameInfo.status>90">
-              <div class="oqt-game-li-cont-b-l-s-lease">
-                <h4>租期</h4>
-                <div class="oqt-game-li-cont-b-l-s-lease-li">
-                  <span>开始时间：</span>
-                  <span class="oqt-game-li-cont-b-l-s-lease-li-text">{{arrivedTime}}</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-lease-li">
-                  <span>结束时间：</span>
-                  <span class="oqt-game-li-cont-b-l-s-lease-li-text">{{givebackTime}}</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-lease-li">
-                  <span>免租天数：</span>
-                  <span class="oqt-game-li-cont-b-l-s-lease-li-text">{{gameInfo.free_lease}}天</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-all">
-                  <span>计费天数</span><span style="color: #FE6247;">{{gameInfo.fee_lease}}天</span>
-                </div>
-              </div>
-              <div class="oqt-game-li-cont-b-l-s-settl">
-                <h4>结算</h4>
-                <div class="oqt-game-li-cont-b-l-s-settl-li">
-                  <span>租金：</span>
-                  <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.day_rent/100).toFixed(2))}}元</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-settl-li">
-                  <span>押金：</span>
-                  <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.deposit/100).toFixed(2))}}元</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-settl-li">
-                  <span>罚金：</span>
-                  <span class="oqt-game-li-cont-b-l-s-settl-li-text">{{Number((gameInfo.depreciation/100).toFixed(2))}}元</span>
-                </div>
-                <div class="oqt-game-li-cont-b-l-s-all">
-                  <span>共消费</span><span style="color: #FE6247;">{{Number(((gameInfo.depreciation + gameInfo.total_rent)/100).toFixed(2))}}元</span>
-                </div>
-              </div>
-            </div> 
+            <GameListLease 
+              v-if="isSettlementInformation && gameInfo.status>90"
+              :gameInfo="gameInfo"
+              />
           </div>
           <div class="oqt-game-li-cont-b-r" v-if="setQualitySelect && photoList.length>0 && gameInfo.status>90">
             <div class="oqt-game-li-cont-b-r-top">
@@ -97,8 +66,8 @@ import GameView from './GameView'
 import { DiscOrderPhotoLst, DiscOrderSettlementSet, DiscOrderSettlementBuySet } from '@/api/api'
 import {postAjax} from '@/utils/ajax'
 import ImageLarger from '@/components/ImageLarger'
-import OrderSteps from '@/components/Steps/OrderSteps'
-import OrderStep from '@/components/Steps/OrderStep'
+import GameListLease from './GameListLease'
+import OrderStepsInfo from './OrderStepsInfo'
 export default {
   name: 'DetailGameList',
   props: {
@@ -115,7 +84,7 @@ export default {
       default: 0,
     },
   },
-  components: { GameView, ImageLarger, OrderSteps, OrderStep },
+  components: { GameView, ImageLarger, GameListLease, OrderStepsInfo },
   data() {
     return {
       moment,
@@ -127,51 +96,10 @@ export default {
     isSettlementInformation() {
       return this.gameInfo.status>90
     },
-    arrivedTime() {
-      let atime = this.gameInfo.arrived_time
-      return atime? moment(atime).format('YYYY-MM-DD') : null
-    },
-    givebackTime() {
-      let gtime = this.gameInfo.giveback_time
-      return gtime ? moment(gtime).format('YYYY-MM-DD') : null
-    },
-    // 完成时间
-    finishTime() {
-      let ftime = this.gameInfo.finish_time
-      return ftime ? moment(ftime).format('YYYY-MM-DD') : null
-    },
-    // 质检时间
-    checkTime() {
-      let checktime = this.gameInfo.check_time
-      return checktime ? moment(checktime).format('YYYY-MM-DD') : null
-    },
     // 是否质检完成
     setQualitySelect() {
       return this.gameInfo.status < 100
     },
-    setpAction() {
-      let num = 0;
-      switch(this.gameInfo.status) {
-        case 60:
-          num = 1
-          break;
-        case 90:
-          num = 2
-          break;
-        case 100:
-          num = 3
-          break;
-        case 110:
-          num = 4
-          break;
-        case 200:
-          num = 4
-          break;
-        default: 
-          num = 0
-      }
-      return num
-    }
   },
   mounted() {
     let gameStatus = this.gameInfo.status

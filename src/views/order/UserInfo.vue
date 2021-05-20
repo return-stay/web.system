@@ -14,6 +14,7 @@
         <h3>配送信息</h3>
         <p>配送方式：{{orderInfo.delivery_company_name}}</p>
         <p>配送时间：{{orderInfo.delivery_time_description}}</p>
+        <p>运费：<span v-if="orderInfo.is_receiver_fee_delivery">货到付款</span><span v-else>线上付款</span></p>
       </div>
     </el-col>
     <el-col :span="6">

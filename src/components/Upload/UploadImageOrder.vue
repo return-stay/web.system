@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import {baseApi} from '@/api/api'
+import {baseUrl} from '@/utils/baseUrl'
 export default {
   name: 'UploadImageOrder',
   props: {
@@ -49,7 +49,7 @@ export default {
   },
   data() {
     return {
-      uploadUrl: baseApi + '/disc/order/photo.set',
+      uploadUrl: baseUrl + '/disc/order/photo.set',
       dialogImageUrl: this.src,
       dialogVisible: false
     }

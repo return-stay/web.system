@@ -5,7 +5,7 @@ const defaultSettings = require('./src/settings.js')
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
-
+const webpack = require('webpack')
 const name = defaultSettings.title || '白金饭后台' // page title
 
 // If your port is set to 80,
@@ -48,7 +48,14 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
-    }
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        "process.env": {
+          API_TYPE: JSON.stringify(process.env.API_TYPE)
+        }
+      })
+    ]
   },
   chainWebpack(config) {
     config.plugins.delete('preload') // TODO: need test

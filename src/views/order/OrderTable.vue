@@ -5,7 +5,7 @@
       <span class="title-search" @click="showSearch" v-if="searchIconShow"><svg-icon icon-class='funnel'/>查询条件</span>
     </div>
     <div v-if="searchConditionShow" class="search-box">
-      <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-width="100px">
+      <el-form ref="ruleForm" :model="ruleForm" label-width="100px">
         <el-row>
           <el-col :span="6">
             <el-form-item label="订单搜索：" prop="transaction_id">
@@ -117,15 +117,14 @@
           label="商品">
           <template slot-scope="{row}">
             <div v-if="row.game_list && row.game_list.length>0 ">
-              <p v-for="gl in row.game_list" :key="gl.id">{{gl.name}}</p>
+              <p v-for="gl in row.game_list" :key="gl.id">{{gl.platform_name}} {{gl.name}} ({{gl.area_name}} {{gl.language_name}})</p>
             </div>
             <div v-else><span>{{row.game_info}}</span></div>
           </template>
         </el-table-column>
         <el-table-column
           prop="username"
-          label="收货人"
-          width="180">
+          label="收货人">
           <template slot-scope="{row}">
             <div>
               <span>{{row.username}}</span> <span>{{row.mobile}}</span>
@@ -185,7 +184,7 @@
                 <el-divider direction="vertical"></el-divider>
               </template>
               <span class="text-cursor" @click="navigateTo(row, 'check')">查看</span>
-              <template v-if="row.status < 40 && row.status !== 0">
+              <template v-if="row.status < 60 && row.status !== 0">
                 <el-divider direction="vertical"></el-divider>
                 <el-popconfirm
                   title="确定关闭该订单吗？"
@@ -194,7 +193,6 @@
                   <span slot="reference" class="text-cursor">关闭</span>
                 </el-popconfirm>
               </template>
-              
             </div>
           </template>
         </el-table-column>
@@ -248,7 +246,7 @@ export default {
         typeJson: 'json'
       },
       ruleForm: {
-        tid: '',
+        transaction_id: '',
         game_name: '',
         username: '',
         create_start_time: '',
@@ -260,11 +258,6 @@ export default {
         channel_id: '',
       },
       dataAction: 0,
-      rules: {
-        tid: [
-          { required: false, message: '请输入订单ID', trigger: 'change' }
-        ],
-      },
       tabslist: [
         { key: -999, label: '全部', value: '全部' },
         { key: 1, label: '待支付', value: '待支付' },

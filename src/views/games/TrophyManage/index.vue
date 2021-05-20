@@ -97,6 +97,8 @@
           <template slot-scope="{row}">
             <span v-if="row.platinum">白{{row.platinum}} </span>
             <span v-if="row.gold">&nbsp;金{{row.gold}}</span>
+            <span v-if="row.sliver">&nbsp;银{{row.sliver}}</span>
+            <span v-if="row.copper">&nbsp;铜{{row.copper}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -109,10 +111,10 @@
         <el-table-column
           prop="address"
           label="操作"
-          width="120">
+          width="70">
           <template slot-scope="{row}">
             <span class="text-cursor" @click="edit(row)">编辑</span>
-            <el-divider direction="vertical"></el-divider>
+            <!-- <el-divider direction="vertical"></el-divider>
             <el-popconfirm
               v-if="row.active"
               title="确定停用该奖杯吗？"
@@ -126,7 +128,7 @@
               @onConfirm="enable(row)"
             >
               <span slot="reference" class="text-cursor">启用</span>
-            </el-popconfirm> 
+            </el-popconfirm>  -->
           </template>
         </el-table-column>
       </el-table>

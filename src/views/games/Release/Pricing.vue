@@ -79,12 +79,11 @@
 
     <GamePreview v-if="isGamePreview" ref="gamePreview" :id="gameid" @hide="previewHide" />
 
-
   </div>
 </template>
 
 <script>
-import { getStoreList } from "@/utils/data"
+import { postList } from "@/utils/data"
 import { GameMiniLst, GamePriceSet, GamePriceInf, GameOnset } from '@/api/api'
 import { postAjax, stopOrEnableRequest } from '@/utils/ajax'
 import GamePreview from '../GamePreview'
@@ -160,7 +159,7 @@ export default {
       }
     },
     async getGameList () {
-      let r = await getStoreList(GameMiniLst)
+      let r = await postList(GameMiniLst)
       for(let i = 0;i<r.length;i++) {
         r[i].detailinfo = `${r[i].platform_name} | ${r[i].view_name} | ${r[i].area_name} ${r[i].language_name}`
       }

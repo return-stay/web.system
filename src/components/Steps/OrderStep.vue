@@ -9,6 +9,7 @@
     <div class="os-step_mian">
       <div class="os-step_title" :class="finish?'is-finish':''">{{title}}</div>
       <div class="os-step_description" :class="finish?'is-finish':''">{{description}}</div>
+      <div class="os-step_description os-step_value" :class="finish?'is-finish':''" v-if="valueInfo" @click="valueClick">{{valueInfo}}</div>
     </div>
   </div>
 </template>
@@ -24,6 +25,10 @@ export default {
       default: '',
     },
     description: {
+      type: String,
+      default: '',
+    },
+    valueInfo: {
       type: String,
       default: '',
     },
@@ -67,6 +72,9 @@ export default {
       }else {
         this.finish = false
       }
+    },
+    valueClick() {
+      this.$emit('callback', this.valueInfo)
     },
   }
 }
@@ -129,6 +137,9 @@ export default {
       font-size: 12px;
       line-height: 20px;
       font-weight: normal;
+    }
+    .os-step_value {
+      cursor: pointer;
     }
   }
 }

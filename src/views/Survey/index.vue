@@ -67,6 +67,7 @@
 <script>
 import { postAjax } from '@/utils/ajax'
 import { SummaryInfoDat } from '@/api/api'
+import baseUrl from '@/utils/baseUrl'
 export default {
   name: 'Survey',
   data() {
@@ -131,7 +132,9 @@ export default {
       ],
     }
   },
+
   mounted() {
+    console.log(baseUrl)
     this.getInfo()
   },
   methods: {

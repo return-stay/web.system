@@ -9,7 +9,7 @@
       :show-file-list="false"
       :on-change="handleChange"
       :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrlShow" :src="imageUrlShow" @error='defImg' class="avatar">
+      <img v-if="imageUrlShow" :src="imageUrlShow" class="avatar">
       <div v-else class="upload-default">
         <i class="el-icon-plus avatar-uploader-icon"></i>
         <span class="upload-default-text" v-if="defaultText">{{defaultText}}</span>
@@ -22,7 +22,6 @@
 <script>
 import {IMG_URL} from '@/api/api'
 import {beforeAvatarUpload} from './upload'
-import {convertToBinary} from '@/utils'
 const defaultImg = require('@/assets/default_add.png')
 export default {
   name: 'UploadImage',
@@ -86,8 +85,8 @@ export default {
       img.onerror = null; //防止闪图
     },
     handleChange(file, fileList) {
-      convertToBinary(file.raw, (res) => {
-        this.imgUrl = res
+      beforeAvatarUpload(file.raw, 2100000, res => {
+        this.imgUrl = URL.createObjectURL(res) 
       })
       this.$emit('change', file, fileList)
     },

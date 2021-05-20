@@ -80,7 +80,14 @@
           width="170">
           <template slot-scope="{row}">
             <div>
-              <span class="text-cursor" @click="qr(row)">QR</span>
+              <el-popover
+                placement="bottom"
+                trigger="click">
+                <div style="text-align: center;">
+                  <ImageLarger :src="row.qr_code" imgstyle="width: 120px;height: 120px;" />
+                </div>
+                <span slot="reference" class="text-cursor">QR</span>
+              </el-popover>
               <el-divider direction="vertical"></el-divider>
               <span class="text-cursor" @click="edit(row)">编辑</span>
               <el-divider direction="vertical"></el-divider>
@@ -114,9 +121,10 @@ import tableMixins from '@/mixins/tableMixins'
 import Pagination from '@/components/Pagination'
 import moment from 'moment'
 import {stopOrEnableRequest} from '@/utils/ajax'
+import ImageLarger from '@/components/ImageLarger'
 export default {
   name: 'Channel',
-  components: { Tabs, Pagination },
+  components: { Tabs, Pagination, ImageLarger },
   mixins: [tableMixins],
   data() {
     return {

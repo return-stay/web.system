@@ -114,9 +114,13 @@
           align="center"
           label="奖杯编号"
           width="100">
+          <template slot-scope="{row}">
+            <div @click.stop="stopRow">{{row.disc_no}}</div>
+          </template>
         </el-table-column>
         <el-table-column
           align="center"
+          style="width: 50%"
           label="游戏">
           <template slot-scope="{row}">
             <div class="table-games">

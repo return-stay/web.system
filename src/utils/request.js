@@ -3,9 +3,10 @@ import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 import qs from 'qs'
+import {baseUrl} from './baseUrl'
 
 const ajax = (options) => {
-  options.url = process.env.VUE_APP_BASE_API + options.url
+  options.url = baseUrl + options.url
 
   if((options.method === 'post' || options.method === 'POST') && !options.formdata) {
     options.data = qs.stringify(options.data)
@@ -27,7 +28,16 @@ const ajax = (options) => {
           resolve(resdata)
         }else if (resdataCode === 0) {
           resolve(resdata)
-        }else if(resdataCode !== 1) {
+        }else if(resdataCode === '-998877001' || resdataCode === -998877001) {
+          store.dispatch('user/resetToken').then(() => {
+            location.reload()
+          })
+          Message({
+            message: 'token失效，请重新登录',
+            type: 'error',
+            duration: 1000
+          })
+        } else if(resdataCode !== 1) {
           Message({
             message: resdata.message || 'Error ' + resdataCode,
             type: 'error',
@@ -66,7 +76,7 @@ const ajax = (options) => {
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  baseURL: baseUrl, // url = base url + request url
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 60000 // request timeout
 })

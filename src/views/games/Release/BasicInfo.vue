@@ -280,7 +280,7 @@ export default {
         company_id: resdata.company_id,
         publish_time: resdata.publish_time,
         keywords: resdata.key_word,
-        group_id: resdata.group_id,
+        group_id: resdata.group_id || null,
       }
       this.disn_nos = discNos
       let arr = resdata.define_sort ? resdata.define_sort.map(item => item.id): []
@@ -445,14 +445,14 @@ export default {
       this.screenshotList = screenshotList
     },
     async getSearchListInit() {
+      this.getGroupList()
+      this.getCompanylist()
+      this.getTrophyLst()
       this.sortList = await getStoreList(BaseSortLst)
       this.areaList =  await getStoreList(BaseAreaLst)
       this.languageList = await getStoreList(BaseLanguageLst)
       this.platformList = await getStoreList(BasePlatformLst)
       this.definesortList = await getStoreList(BaseDefinesortLst)
-      this.getGroupList()
-      this.getCompanylist()
-      this.getTrophyLst()
     },
     async getCompanylist () {
       this.gameCompanyLst = await getList(BaseGameCompanyLst)
