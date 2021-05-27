@@ -389,7 +389,7 @@ export default {
             if(type ==='continue' || type === 'addconfim') {
               const id = this.gameid
               that.$refs[formName].resetFields();
-              this.form.gid = Number(id) || null
+              that.form.gid = Number(id) || null
               that.gameListAddInventory()
             }
           })

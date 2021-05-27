@@ -4,6 +4,15 @@
     <el-form ref="form" :model="form" :rules="rules" label-width="120px">
       <div class="ta-header">录入信息</div>
       <div class="ta-form">
+        <el-row v-if="title === '编辑'">
+          <el-col :span="20">
+            <el-form-item label="渠道编号：" >
+              <!-- <el-input disabled v-model="url_scheme" :autosize="{ minRows: 4, maxRows: 6 }"></el-input> -->
+              <span>{{chanelId}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="2"></el-col>
+        </el-row>
         <el-row>
           <el-col :span="20">
             <el-form-item label="渠道名称：" prop="nm">
@@ -20,6 +29,16 @@
           </el-col>
           <el-col :span="2"></el-col>
         </el-row>
+        <el-row v-if="title === '编辑'">
+          <el-col :span="20">
+            <el-form-item label="url_scheme：" >
+              <!-- <el-input disabled v-model="url_scheme" :autosize="{ minRows: 4, maxRows: 6 }"></el-input> -->
+              <span>{{url_scheme}}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="2"></el-col>
+        </el-row>
+        
       </div>
       <div class="ta-btns">
         <el-form-item style="margin-bottom: 0;" label-width="0px">
@@ -59,6 +78,8 @@ export default {
   data() {
     return {
       title: "添加",
+      url_scheme: "",
+      chanelId: '',//渠道ID
       form: {
         nm: '',
         des: '',
@@ -95,6 +116,8 @@ export default {
           this.url_frag = resdata.url_frag
           this.qr_code = resdata.qr_code
           this.selectList = resdata.game_list
+          this.url_scheme = resdata.url_scheme
+          this.chanelId = resdata.id
         }
       })
     },

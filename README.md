@@ -1,16 +1,13 @@
 ## 后台系统 PC 版
 
-English | [简体中文](./README.zh-CN.md) | [日本語](./README.ja.md) | [Spanish](./README.es.md)
-
-
 ## Getting started
 
 ```bash
 # clone the project
-git clone https://github.com/return-stay/web.system.git
+git clone 
 
 # enter the project directory
-cd web.system
+cd background
 
 # install dependency
 npm install

@@ -169,10 +169,15 @@ export default {
       this.selectList = val
     },
     handleRowClick(row) {
-      this.$router.push({
-        path: '/game/detail/' + row.id,
-        query: {type: 'detail'}
+      this.routerOpen(row.id, 'detail')
+    },
+    routerOpen(id, type) {
+      let routeUrl = this.$router.resolve({
+        path: '/game/detail/' + id,
+        query: {type: type}
       })
+      console.log(routeUrl)
+      window.open(routeUrl.href, '_blank');
     },
     // 下架 
     stopRequest(ids) {

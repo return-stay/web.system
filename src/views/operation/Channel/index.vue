@@ -46,16 +46,10 @@
           label="说明">
         </el-table-column>
         <el-table-column
-          prop="qr_code"
-          align="center"
-          label="访问片段">
-        </el-table-column>
-        <el-table-column
           prop="update"
           align="center"
           label="修改时间"
-          sortable
-          width="170">
+          sortable>
           <template slot-scope="{row}">
             <div v-if="row.update">
               {{moment(row.update).format("YYYY-MM-DD HH:mm:ss")}}
@@ -65,8 +59,7 @@
         <el-table-column
           prop="create"
           align="center"
-          label="创建时间"
-          width="170">
+          label="创建时间">
           <template slot-scope="{row}">
             <div v-if="row.create">
               {{moment(row.create).format("YYYY-MM-DD HH:mm:ss")}}

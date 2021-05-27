@@ -335,23 +335,14 @@ export default {
         ivt: e.key
       })
     },
-    modifyPrice(row) {
-      this.$router.push({
-        path: '/game/detail/' + row.id,
-        query: {type: 'price'}
-      })
+    modifyPrice(row = {}) {
+      this.routerOpen(row.id, 'price')
     },
     stock(row) {
-      this.$router.push({
-        path: '/game/detail/' + row.id,
-        query: {type: 'stock'}
-      })
+      this.routerOpen(row.id, 'stock')
     },
     detail(row) {
-      this.$router.push({
-        path: '/game/detail/' + row.id,
-        query: {type: 'detail'}
-      })
+      this.routerOpen(row.id, 'detail')
     },
     offTheShelf(row) {
       stopOrEnableRequest({

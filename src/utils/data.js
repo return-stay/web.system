@@ -119,6 +119,7 @@ const getStoreList = (url) => {
             resolve(res.data)
           })
         }
+        break;
       case BaseLanguageLst:
         let languageList = store.getters.languageList
         if(languageList && languageList.length>0) {
